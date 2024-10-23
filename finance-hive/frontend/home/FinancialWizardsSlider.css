@@ -1,0 +1,163 @@
+/*=================FINANCIAL WIZARDS STYLES=====================*/
+.wizard-slider-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background-color: #f8f5ff;
+  position: relative;
+  overflow: hidden;
+}
+
+.wizard-slider {
+  display: flex;
+  align-items: center;
+  max-width: 1000px;
+  position: relative;
+  width: 100%;
+}
+
+.wizard-slider-wrapper {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  transition: transform 0.3s ease-in-out;
+  width: 100%;
+  overflow: hidden;
+}
+
+.wizard-slider-box {
+  text-align: center;
+  padding: 20px;
+  border: 1px solid #504C70;
+  background-color: #fff;
+  border-radius: 8px;
+  position: relative;
+  transition: transform 0.5s ease, box-shadow 0.5s ease, background-color 0.5s ease;
+}
+
+.wizard-slider-box:hover {
+  transform: scale(1.15); /* Slightly larger on hover */
+  background-color: #ffffff; /* Light blue background on hover */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6); /* Enhanced shadow effect */
+}
+
+.wizard-icon {
+  font-size: 40px;
+  color: #504C70;
+  margin-bottom: 10px;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.wizard-title {
+  font-size: 15px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.wizard-underline {
+  width: 40px;
+  height: 3px;
+  background-color: #504C70;
+  margin: 0 auto 10px;
+}
+
+.wizard-description {
+  font-size: 12px;
+  color: #666;
+}
+
+.wizard-slider-arrow {
+  background: none;
+  border: none;
+  font-size: 40px;
+  cursor: pointer;
+  color: #333;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  transition: color 0.3s ease;
+}
+
+.wizard-slider-arrow:hover {
+  color: #504C70; /* Change arrow color on hover */
+}
+
+.wizard-slider-arrow.left {
+  left: -40px;
+}
+
+.wizard-slider-arrow.right {
+  right: -40px;
+}
+
+/* Animation for sliding in boxes */
+.wizard-slider-box {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: slideUp 0.5s forwards ease-in-out;
+}
+
+@keyframes slideUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 1204px) {
+  .wizard-slider-wrapper {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .wizard-slider-arrow.left {
+    left: -20px;
+  }
+
+  .wizard-slider-arrow.right {
+    right: -20px;
+  }
+}
+
+@media (max-width: 988px) {
+  .wizard-slider-wrapper {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .wizard-slider-arrow.left {
+    left: -20px;
+  }
+
+  .wizard-slider-arrow.right {
+    right: -20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .wizard-slider-wrapper {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+/* Smooth fade-in effect for slider container */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.wizard-slider-container {
+  animation: fadeIn 1s ease-in-out;
+}

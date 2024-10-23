@@ -1,0 +1,158 @@
+/*======================Investment Timelines================================*/
+.investment-timeline {
+  max-width: 100%; /* Stretch to full width */
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Poppins, sans-serif;
+  border-radius: 10px; /* Rounded corners */
+  position: relative; /* Needed for overlay effect */
+
+  /* Background image properties */
+  background-image: url('E:\B.TECH\K-HUB\t8-finance-hive\public\Images\R.jpeg'); /* Replace with your image path */
+  background-size: cover; /* Cover the full section */
+  background-position: center; /* Center the image */
+  background-attachment: fixed; /* Fix the background in place */
+  background-repeat: no-repeat; /* No repeat */
+  
+  color: #f5f0ff; /* Updated text color */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.investment-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white overlay */
+  z-index: 1; /* Ensure the overlay is on top of the background image */
+}
+
+.timeline-header, .timeline-content {
+  padding: 1rem;
+  background-color: transparent; /* No background */
+  border-radius: 8px;
+  box-shadow: none; /* Remove shadow */
+  position: relative;
+  z-index: 2; /* Ensure content is on top of the overlay */
+}
+
+.timeline-stages {
+  display: flex;
+  justify-content: space-between; /* Space between items */
+  margin-bottom: 1rem;
+  overflow-x: auto; /* Allow horizontal scrolling if necessary */
+  position: relative;
+  z-index: 2; /* Ensure stages are above the overlay */
+}
+
+.timeline-stage {
+  flex: 1 1 25%; /* Grow and shrink with a base size of 25% */
+  text-align: center;
+  margin-bottom: 1rem;
+  box-sizing: border-box; /* Include padding and border in element's total width */
+}
+
+.stage-title {
+  font-size: 16px; /* Fixed size of 15px for heading */
+  font-weight: bold;
+  color: #504C70; /* Updated heading color */
+}
+
+.stage-subtitle {
+  font-size: 14px; /* Fixed size of 13px for description */
+  color: #666; /* Updated subtitle text color */
+}
+
+.timeline-line {
+  position: relative;
+  width: 100%; /* Ensure the line takes full width */
+  z-index: 2;
+}
+
+.timeline-line::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #504C70; /* Line color matching text */
+  transform: translateY(-50%);
+}
+
+.timeline-dots {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  z-index: 2; /* Ensure dots are above overlay */
+}
+
+.timeline-dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background-color: #f5f0ff; /* Transparent dot */
+  border: 2px solid #504C70; /* Dot border matching text color */
+  z-index: 10;
+  cursor: pointer;
+}
+
+.timeline-dot.active {
+  background-color: #504C70; /* Active dot filled with heading color */
+}
+
+.content-title {
+  font-size: 16px; /* Fixed size of 15px for heading */
+  font-weight: bold;
+  color: #504C70; /* Updated heading color */
+  margin-bottom: 1rem;
+}
+
+.content-description {
+  font-size: 14px; /* Fixed size of 13px for description */
+  color: #666; /* Updated description text color */
+  margin-bottom: 1.5rem;
+}
+
+.content-steps {
+  list-style-type: none;
+  padding: 0;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  font-size: 14px; /* Fixed size of 13px for description */
+  color: #666; /* Updated step text color */
+  margin-bottom: 0.5rem;
+}
+
+.step-item::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 16px;
+  background-color: #666; /* Step marker color matching text */
+  margin-right: 0.5rem;
+}
+
+/* Responsive styles */
+@media (max-width: 1024px) {
+  .timeline-stage {
+    flex: 1 1 33.33%; /* Adjust to fit 3 stages in a row */
+  }
+}
+
+@media (max-width: 768px) {
+  .timeline-stage {
+    flex: 1 1 50%; /* Adjust to fit 2 stages in a row */
+  }
+}
+
+@media (max-width: 480px) {
+  .timeline-stage {
+    flex: 1 1 100%; /* Full width for small screens */
+  }
+}
