@@ -1,14 +1,12 @@
-
-// server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-require('dotenv').config(); // For loading environment variables
+require('dotenv').config(); // Load environment variables
 
-// MongoDB URI
+// MongoDB URI from environment or default to localhost
 const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/finance-hive-data';
 mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true });
 
@@ -16,7 +14,7 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// User Schemas
+// Define User Schema
 const UserSchema = new mongoose.Schema({
   role: { type: String, required: true },
   email: { type: String, required: true, unique: true },
@@ -28,51 +26,48 @@ const UserSchema = new mongoose.Schema({
   password: { type: String, required: true },
 });
 
+// Models for User, Organizer, Admin based on role
 const User = mongoose.model('User', UserSchema);
 const Organizer = mongoose.model('Organizer', UserSchema);
 const Admin = mongoose.model('Admin', UserSchema);
 
-// Middleware to verify JWT
-const authenticateToken = (req, res, next) => {
-  const token = req.headers['authorization']?.split(' ')[1]; // Bearer token
-  if (!token) return res.sendStatus(401); // Unauthorized
+// JWT Secret
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
-  jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret', (err, user) => {
-    if (err) return res.sendStatus(403); // Forbidden
+// JWT Authentication Middleware
+const authenticateToken = (req, res, next) => {
+  const token = req.headers['authorization']?.split(' ')[1]; // Extract Bearer token
+  if (!token) return res.sendStatus(401); // Unauthorized if no token provided
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403); // Forbidden if invalid token
     req.user = user;
     next();
   });
 };
+
+// Role validation function
+const validateRole = (role) => ['User', 'Organizer', 'Admin'].includes(role);
 
 // Signup Route
 app.post('/signup', async (req, res) => {
   const { role, email, firstName, lastName, userId, mobileNumber, address, password } = req.body;
 
   try {
+    if (!validateRole(role)) return res.status(400).json({ msg: 'Invalid role' });
+
+    // Validate mobile number and email
+    if (!/^\d{10}$/.test(mobileNumber)) return res.status(400).json({ msg: 'Invalid phone number. Must be 10 digits.' });
+    if (!/\b[A-Za-z0-9._%+-]+@gmail\.com\b/.test(email)) return res.status(400).json({ msg: 'Please use a valid Gmail address.' });
+
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = {
-      role,
-      email,
-      firstName,
-      lastName,
-      userId,
-      mobileNumber,
-      address,
-      password: hashedPassword,
-    };
+    // Create new user
+    const newUser = { role, email, firstName, lastName, userId, mobileNumber, address, password: hashedPassword };
+    let userModel = role === 'User' ? User : role === 'Organizer' ? Organizer : Admin;
 
-    let userModel;
-    if (role === 'User') {
-      userModel = User;
-    } else if (role === 'Organizer') {
-      userModel = Organizer;
-    } else if (role === 'Admin') {
-      userModel = Admin;
-    } else {
-      return res.status(400).json({ msg: 'Invalid role' });
-    }
-
+    // Save user
     await userModel.create(newUser);
     res.status(201).json({ msg: 'User registered successfully' });
   } catch (error) {
@@ -82,52 +77,71 @@ app.post('/signup', async (req, res) => {
 
 // Login Route
 app.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+  const { role, email, password } = req.body;
 
   try {
-    const user = await User.findOne({ email }) || await Organizer.findOne({ email }) || await Admin.findOne({ email });
-    
-    if (!user) return res.status(401).json({ msg: 'Invalid credentials' });
+    let userModel = role === 'User' ? User : role === 'Organizer' ? Organizer : role === 'Admin' ? Admin : null;
+    if (!userModel) return res.status(400).json({ msg: 'Invalid role' });
 
+    // Find user by email
+    const user = await userModel.findOne({ email });
+    if (!user) return res.status(401).json({ msg: `No ${role} found with this email.` });
+
+    // Verify password
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ msg: 'Invalid credentials' });
+    if (!isMatch) return res.status(401).json({ msg: 'Invalid password' });
 
-    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET || 'your_jwt_secret', { expiresIn: '1h' });
-    res.status(200).json({ token });
+    // Generate JWT token
+    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
+    res.status(200).json({ token, role: user.role, userId: user._id });
   } catch (error) {
     res.status(500).json({ msg: 'Error logging in', error: error.message });
   }
 });
 
-// Get User Details Route
-app.get('/user-details', authenticateToken, async (req, res) => {
+// Protected route: Get User Details
+app.get('/user-details/:userId', authenticateToken, async (req, res) => {
+  const { userId } = req.params;
+
   try {
-    let userData;
-    if (req.user.role === 'User') {
-      userData = await User.findById(req.user.id);
-    } else if (req.user.role === 'Organizer') {
-      userData = await Organizer.findById(req.user.id);
-    } else if (req.user.role === 'Admin') {
-      userData = await Admin.findById(req.user.id);
-    }
+    // Determine the correct model based on the user's role
+    let userModel = req.user.role === 'User' ? User : req.user.role === 'Organizer' ? Organizer : Admin;
 
-    if (!userData) {
-      return res.status(404).json({ msg: 'User not found' });
-    }
+    const user = await userModel.findById(userId);
+    if (!user) return res.status(404).json({ msg: 'User not found' });
 
-    res.json(userData);
+    res.json(user);
   } catch (error) {
-    res.status(500).json({ msg: 'Server error', error: error.message });
+    res.status(500).json({ msg: 'Error fetching user details', error: error.message });
   }
 });
 
-// Start Server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+// Get All Users (Admin only)
+app.get('/all-users', authenticateToken, async (req, res) => {
+  if (req.user.role !== 'Admin') return res.status(403).json({ msg: 'Access denied' });
+
+  try {
+    const users = await User.find();
+    const organizers = await Organizer.find();
+    const admins = await Admin.find();
+    res.json({ users, organizers, admins });
+  } catch (error) {
+    res.status(500).json({ msg: 'Error fetching users', error: error.message });
+  }
 });
 
+// Import organizer routes and use them
+const organizerRoutes = require('./routes/organizerRoutes');
+// Import admin routes and use them
+const adminRoutes = require('./routes/adminRoutes');
 
+// Use organizer and admin routes and protect with JWT middleware
+app.use('/organizer-details', authenticateToken, organizerRoutes);
+app.use('/admin-details', authenticateToken, adminRoutes); // Protect admin routes with JWT middleware
+
+// Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
 
 /*
 // server.js
