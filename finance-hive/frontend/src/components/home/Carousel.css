@@ -1,0 +1,173 @@
+/*=============== CAROUSEL STYLES ===============*/
+.carousel-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.carousel-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.carousel-slide.active {
+  display: block;
+  opacity: 1;
+}
+
+.carousel-slide-background {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: transform 0.5s ease;
+}
+
+.carousel-slide:hover .carousel-slide-background {
+  transform: scale(1.05);
+}
+
+.carousel-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.carousel-text-box {
+  position: absolute;
+  bottom: 80px;
+  left: 60px;
+  color: white;
+  text-align: left;
+  max-width: 90%; /* Prevents text from overflowing horizontally */
+  word-wrap: break-word; /* Ensures long words wrap properly */
+}
+
+.carousel-text-box h1 {
+  font-size: 40px;
+}
+
+.carousel-text-box p {
+  margin: 10px 0;
+  font-size: 18px;
+  color: #f0f5ff;
+}
+
+/* =============== RESPONSIVE STYLING =============== */
+
+/* Large screens */
+@media (max-width: 1200px) {
+  .carousel-text-box h1 {
+    font-size: 35px;
+  }
+
+  .carousel-text-box p {
+    font-size: 16px;
+    color: #f0f5ff;
+  }
+
+  .carousel-text-box {
+    bottom: 60px;
+    left: 40px;
+  }
+}
+
+/* Medium screens */
+@media (max-width: 768px) {
+  .carousel-text-box h1 {
+    font-size: 30px;
+  }
+
+  .carousel-text-box p {
+    font-size: 14px;
+    color: #f5f0ff;
+  }
+
+  .carousel-text-box {
+    bottom: 50px;
+    left: 30px;
+    max-width: 85%; /* Reduce max width to prevent cutting off text */
+  }
+}
+
+/* Small screens (mobile) */
+@media (max-width: 480px) {
+  .carousel-text-box h1 {
+    font-size: 24px;
+  }
+
+  .carousel-text-box p {
+    font-size: 12px;
+    color: #f0f5ff;
+  }
+
+  .carousel-text-box {
+    bottom: 30px;
+    left: 20px;
+    text-align: center;
+    width: 100%; /* Take full width */
+    max-width: 90%; /* Ensure text doesn't overflow on mobile */
+    padding: 0 10px;
+  }
+}
+
+.carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2rem;
+  color: white;
+  cursor: pointer;
+  z-index: 1;
+  transition: color 0.3s ease;
+}
+
+.carousel-arrow:hover {
+  color: var(--first-color);
+}
+
+.carousel-arrow-left {
+  left: 1rem;
+}
+
+.carousel-arrow-right {
+  right: 1rem;
+}
+
+.carousel-indicators {
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.carousel-indicator {
+  background-color: #504C70;
+  height: 0.5rem;
+  width: 0.5rem;
+  border-radius: 100%;
+  border: none;
+  margin: 0 0.2rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.carousel-indicator.active {
+  background-color: #F1F0FF;
+}
+
+.carousel-indicator:hover {
+  background-color: var(--first-color);
+}
