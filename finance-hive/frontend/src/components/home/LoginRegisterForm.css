@@ -1,0 +1,261 @@
+/* Import Google font - Poppins */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
+
+/* Base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Form Container */
+.openform-form_container {
+  position: fixed;
+  max-width: 500px;
+  width: 90%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1.2);
+  z-index: 101;
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.4s ease-out;
+}
+
+.home.show .openform-form_container {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Form Elements */
+.openform-signup_form {
+  display: none;
+}
+
+.openform-form_container.active .openform-signup_form {
+  display: block;
+}
+
+.openform-form_container.active .openform-login_form {
+  display: none;
+}
+
+.openform-form_close {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  color: #0b0217;
+  font-size: 22px;
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+.openform-form_container h2 {
+  font-size: 22px;
+  color: #0b0217;
+  text-align: center;
+}
+
+/* Input Fields */
+.openform-input_box {
+  position: relative;
+  margin-top: 20px;
+  width: 100%;
+  height: 40px;
+}
+
+.openform-input_box input {
+  height: 100%;
+  width: 100%;
+  border: none;
+  outline: none;
+  padding: 0 30px;
+  color: #333;
+  transition: all 0.2s ease;
+  border-bottom: 1.5px solid #aaaaaa;
+}
+
+.openform-input_box input:focus {
+  border-color: #7d2ae8;
+}
+
+.openform-input_box i {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  color: #707070;
+}
+
+.openform-input_box i.email,
+.openform-input_box i.password {
+  left: 0;
+}
+
+.openform-input_box input:focus ~ i.email,
+.openform-input_box input:focus ~ i.password {
+  color: #7d2ae8;
+}
+
+.openform-input_box i.pw_hide {
+  right: 0;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* Input Row for Side by Side Fields */
+.openform-input_row {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+}
+
+.openform-input_row .openform-input_box {
+  flex: 1;
+}
+
+/* Options Field */
+.openform-option_field {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.openform-checkbox {
+  display: flex;
+  column-gap: 8px;
+  white-space: nowrap;
+}
+
+.openform-checkbox input {
+  accent-color: #7d2ae8;
+}
+
+.openform-checkbox label {
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+  color: #0b0217;
+}
+
+/* Links & Buttons */
+.openform-form_container a {
+  color: #7d2ae8;
+  font-size: 12px;
+}
+
+.openform-form_container a:hover {
+  text-decoration: underline;
+}
+
+.openform-form_container .openform-button {
+  background: #7d2ae8;
+  margin-top: 30px;
+  width: 100%;
+  padding: 10px 0;
+  border-radius: 10px;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.openform-login_signup {
+  font-size: 12px;
+  text-align: center;
+  margin-top: 15px;
+  color: gray;
+}
+
+/* Role Selection */
+.openform-role_selection {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.openform-role_selection label {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.openform-role_selection select {
+  padding: 8px 12px;
+  border: 1.5px solid #7d2ae8;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #333;
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+.openform-role_selection select:focus {
+  border-color: #5a19b4;
+}
+
+/* Media Queries */
+@media screen and (max-width: 991px) {
+  .openform-form_container {
+    max-width: 400px;
+    padding: 20px;
+  }
+
+  .openform-form_container h2 {
+    font-size: 15px;
+  }
+
+  .openform-input_box input {
+    padding: 0 25px;
+  }
+
+  .openform-role_selection select {
+    padding: 7px 10px;
+    font-size: 13px;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .openform-form_container {
+    max-width: 320px;
+    padding: 15px;
+  }
+
+  .openform-form_container h2 {
+    font-size: 18px;
+  }
+
+  .openform-input_box {
+    height: 35px;
+  }
+
+  .openform-input_box input {
+    padding: 0 20px;
+    font-size: 11px;
+  }
+
+
+
+  .openform-role_selection select {
+    padding: 4px;
+    font-size: 12px;
+    max-width: 60px;
+  }
+
+  .openform-form_container .openform-button {
+    padding: 8px 0;
+    margin-top: 20px;
+  }
+}
+body.no-scroll {
+  overflow: hidden;
+}
