@@ -65,9 +65,9 @@ const Navbar = () => {
                 </DropdownGroup>
 
                 <DropdownGroup title="FINANCIAL WIZARDS" icon="ri-bank-line">
-                  <DropdownLink to="#" label="Development with Flutter" />
-                  <DropdownLink to="#" label="Web development with React" />
-                  <DropdownLink to="#" label="Backend development expert" />
+                  <DropdownLink to="#" label="Loans Directly from Organization" />
+                  <DropdownLink to="#" label="Payment scheduled by own" />
+                  <DropdownLink to="#" label="User Friendly" />
                 </DropdownGroup>
 
                 <DropdownGroup title="GETTING STARTED WITH FMS" icon="ri-book-mark-line">
@@ -83,7 +83,7 @@ const Navbar = () => {
                 </DropdownGroup>
               </DropdownItem>
 
-              <DropdownItem
+              {/* <DropdownItem
                 title="Company"
                 index={2}
                 activeDropdown={activeDropdown}
@@ -107,7 +107,7 @@ const Navbar = () => {
                   <DropdownLink to="#" label="News" />
                   <DropdownLink to="#" label="Contact us" />
                 </DropdownGroup>
-              </DropdownItem>
+              </DropdownItem> */}
 
               <li>
                 <Link to="/contact" className="nav__link">Contact</Link>

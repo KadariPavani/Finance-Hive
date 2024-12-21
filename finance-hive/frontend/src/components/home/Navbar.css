@@ -9,7 +9,7 @@
   --first-color-lighten: hsla(220, 68%, 97%, 0.1);
   --title-color: hsl(220, 48%, 95%);
   --text-color: hsl(244, 100%, 97%);
-  --body-color: hsla(220, 20%, 10%, 0.7);
+  --body-color: hsla(220, 20%, 10%);
   /*========== Font and typography ==========*/
   /*.5rem = 8px | 1rem = 16px ...*/
   --body-font: "Poppins", sans-serif;
@@ -48,8 +48,9 @@ html {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-attachment: fixed;
-  color: var(--text-color);
+  background-attachment:fixed;
+  color: black;
+  /*color: var(--text-color);*/
 }
 ul {
   list-style: none;

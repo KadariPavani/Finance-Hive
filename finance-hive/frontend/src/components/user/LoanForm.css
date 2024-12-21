@@ -1,10 +1,11 @@
 /* Container for the form */
-.loan-form-container {
+.loan-form-wrapper {
   width: 100%;
   max-width: 700px;
   margin: 50px auto;
   padding: 30px;
   background-color: #fff;
+  color: black;
   border-radius: 12px;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
   border: 2px solid #e0e0e0;
@@ -22,6 +23,7 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  color: black;
 }
 
 /* General input styles */
@@ -51,7 +53,8 @@
 .loan-form-button {
   background-color: #4b3f72;
   color: white;
-  padding: 14px;
+  padding: 12px 14px;
+  margin-bottom: 20px;
   font-size: 1.1rem;
   border: none;
   border-radius: 8px;
@@ -157,3 +160,4 @@
     font-size: 1.6rem;
   }
 }
+

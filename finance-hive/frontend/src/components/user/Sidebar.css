@@ -1,0 +1,269 @@
+/* Sidebar Container */
+.sidebar-container {
+  background:  #6f68a5;/* Updated gradient */
+  height: 100%;
+  width: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: white;
+  border-top-right-radius: 30px;
+  border-bottom-right-radius: 30px;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transition: width 0.3s ease;
+}
+
+/* Responsive Sidebar */
+@media (max-width: 768px) {
+  .sidebar-container {
+    width: 80px;
+    align-items: center;
+  }
+}
+
+/* Sidebar Item */
+.sidebar-item {
+  padding: 12px 25px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  color: white;
+  justify-content: flex-start;
+  margin-bottom: 7px;
+  position: relative;
+  transition: background-color 0.3s ease;
+}
+
+/* Sidebar Item Hover Effect */
+.sidebar-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+/* Sidebar Item Icon */
+.sidebar-item svg {
+  margin-right: 10px;
+  font-size: 24px;
+  transition: transform 0.3s ease;
+}
+
+.sidebar-item:hover svg {
+  transform: scale(1.1);
+}
+
+/* Responsive Sidebar Item */
+@media (max-width: 768px) {
+  .sidebar-item svg {
+    font-size: 28px;
+    margin-right: 0;
+  }
+  .sidebar-item {
+    padding: 12px 0;
+    justify-content: center;
+  }
+  .sidebar-item span {
+    display: none;
+  }
+}
+
+.sidebar-item a {
+  text-decoration: none;
+  color: white;
+  width: 100%;
+}
+
+/* User Profile */
+.user-profile {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: #6F68A5;  /* Updated to match color */
+  margin-top: 10px;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+/* Hover Effect for User Profile */
+.user-profile:hover {
+  background-color: #5a5481;  /* Slightly darker shade for hover */
+}
+
+@media (max-width: 768px) {
+  .user-profile {
+    flex-direction: column;
+    padding: 8px;
+    align-items: center;
+  }
+}
+
+/* Profile Image */
+.profile-image {
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  margin-right: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.profile-image:hover {
+  transform: scale(1.1);
+}
+
+@media (max-width: 768px) {
+  .profile-image {
+    width: 40px;
+    height: 40px;
+    margin-right: 0;
+  }
+}
+
+/* Divider */
+.divider {
+  width: 80%;
+  border: 0;
+  height: 1px;
+  background-color: #ddd;
+  margin: 5px auto;
+}
+
+@media (max-width: 768px) {
+  .divider {
+    width: 60%;
+  }
+}
+
+/* Logo Text */
+.logo-text {
+  font-family: 'The Nautigal', cursive;
+  font-size: 72px;
+  text-align: center;
+  margin: 20px auto;
+  color: #fff;
+  transition: font-size 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .logo-text {
+    font-size: 36px;
+  }
+}
+
+/* Neat Column */
+.neat-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin: 0 0;
+}
+
+@media (max-width: 768px) {
+  .neat-column {
+    align-items: center;
+  }
+}
+
+/* User Profile Link */
+.user-profile-link {
+  text-decoration: none;
+  color: white;
+}
+
+.sidebar-container {
+  background-color: #6f68a5;
+  color: white;
+  width: 250px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.logo-text {
+  font-family: 'The Nautigal', cursive;
+  font-size: 36px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  background-color: #5c548d;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.profile-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.user-email {
+  font-size: 14px;
+  color: #ddd;
+}
+
+.loading-text {
+  font-size: 14px;
+  color: #ccc;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: white;
+  margin-bottom: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.sidebar-item:hover {
+  background-color: #5c548d;
+}
+
+.sidebar-item span {
+  margin-left: 10px;
+}
+
+@media (max-width: 768px) {
+  .sidebar-container {
+    width: 80px;
+    align-items: center;
+  }
+
+  .profile-image {
+    width: 40px;
+    height: 40px;
+  }
+
+  .user-info {
+    display: none;
+  }
+
+  .sidebar-item span {
+    display: none;
+  }
+}

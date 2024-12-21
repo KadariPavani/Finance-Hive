@@ -1,3 +1,19 @@
+
+import React from 'react';
+import OrganizerDashboard from './organizer/OrganizerDashboard';
+const OrganizerPage = () => {
+  return (
+    <div>
+      <OrganizerDashboard />
+    </div>
+  );
+};
+
+export default OrganizerPage;
+
+
+
+/*
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginRegisterForm from './home/LoginRegisterForm';
@@ -15,3 +31,4 @@ const App = () => {
 };
 
 export default App;
+*/

@@ -1,5 +1,5 @@
 /*=================FINANCIAL WIZARDS STYLES=====================*/
-.wizard-slider-container {
+/* .wizard-slider-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -37,9 +37,9 @@
 }
 
 .wizard-slider-box:hover {
-  transform: scale(1.15); /* Slightly larger on hover */
-  background-color: #ffffff; /* Light blue background on hover */
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6); /* Enhanced shadow effect */
+  transform: scale(1.15); 
+  background-color: #ffffff; 
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6); 
 }
 
 .wizard-icon {
@@ -89,7 +89,7 @@
 }
 
 .wizard-slider-arrow:hover {
-  color: #504C70; /* Change arrow color on hover */
+  color: #504C70; 
 }
 
 .wizard-slider-arrow.left {
@@ -100,7 +100,6 @@
   right: -40px;
 }
 
-/* Animation for sliding in boxes */
 .wizard-slider-box {
   opacity: 0;
   transform: translateY(20px);
@@ -148,7 +147,6 @@
   }
 }
 
-/* Smooth fade-in effect for slider container */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -160,4 +158,209 @@
 
 .wizard-slider-container {
   animation: fadeIn 1s ease-in-out;
+} *//* Container for the financial wizards section *//* Financial Wizards Container */
+.financial-wizards-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 60px 20px;
+  position: relative;
+  background: linear-gradient(135deg, #f7fafc, #edf2f7);
+  border-radius: 16px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+  z-index: 1;
+}
+
+/* Header of the financial wizards section */
+.financial-wizards-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  animation: fadeInUp 1s ease-out;
+  z-index: 2;
+}
+
+.financial-wizards-header h2 {
+  font-size: 3rem;
+  color: #2D3748;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  transition: color 0.3s ease;
+}
+
+.financial-wizards-header h2:hover {
+  color: #3182ce;
+}
+
+/* Navigation arrows styling */
+.navigation-arrows {
+  display: flex;
+  gap: 16px;
+}
+
+.arrow-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid #e2e8f0;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #718096;
+  font-size: 1.5rem;
+  transform-origin: center;
+  z-index: 3;
+}
+
+.arrow-btn:hover {
+  background: #3182ce;
+  color: #fff;
+  transform: scale(1.2) rotate(20deg);
+  animation: bounce 0.6s ease infinite;
+}
+
+.arrow-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(66, 153, 225, 0.5);
+}
+
+/* Card container with glowing effect */
+.financial-wizards-wrapper {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  overflow: hidden;
+  position: relative;
+  animation: fadeInGlow 1s ease-out;
+  z-index: 2;
+}
+
+/* Each financial wizard card styling */
+.financial-wizard-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 36px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%); /* Start off-screen */
+  opacity: 0;
+  position: relative;
+  z-index: 2;
+  animation: slideIn 1s ease-out forwards; /* Apply sliding effect */
+}
+
+/* Hover effect: pop-out effect */
+.financial-wizard-card:hover {
+  transform: scale(1.05) translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+  filter: brightness(1.1);
+  z-index: 4;
+}
+
+.financial-wizard-card:active {
+  transform: scale(1) translateY(2px);
+}
+
+.wizard-text {
+  color: #4a5568;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 24px;
+  flex-grow: 1;
+  font-family: 'Roboto', sans-serif;
+}
+
+.wizard-author {
+  color: #2d3748;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: color 0.3s ease;
+}
+
+.wizard-author:hover {
+  color: #3182ce;
+}
+
+/* Responsive styles */
+@media (max-width: 1200px) {
+  .financial-wizards-wrapper {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .financial-wizards-wrapper {
+    grid-template-columns: 1fr;
+  }
+  
+  .financial-wizards-header {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+  
+  .financial-wizards-header h2 {
+    font-size: 2.5rem;
+  }
+}
+
+/* Keyframe animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%); /* Off-screen to the right */
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Glow animation for the whole wrapper */
+@keyframes fadeInGlow {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* New animation for arrow hover (bounce effect) */
+@keyframes bounce {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.1) rotate(10deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(0deg);
+  }
+  75% {
+    transform: scale(1.1) rotate(-10deg);
+  }
+  100% {
+    transform: scale(1.2) rotate(20deg);
+  }
 }
