@@ -128,8 +128,46 @@ router.get('/schedule/:loanId', async (req, res) => {
     res.status(500).json({ error: 'Error generating payment schedule' });
   }
 });
+router.get('/payment-schedule', async (req, res) => {
+  try {
+    const loans = await Loan.find();
+    res.json(loans.map(loan => loan.paymentSchedule));
+  } catch (error) {
+    console.error('Error fetching payment schedules:', error);
+    res.status(500).json({ error: 'Error fetching payment schedules' });
+  }
+});
 
 // PUT route to update payment status with transaction ID and upload screenshot
+router.put('/payment-schedule/:loanId/:sno', upload.single('screenshot'), async (req, res) => {
+  const { loanId, sno } = req.params;
+  const { transactionId } = req.body;
+
+  try {
+    const loan = await Loan.findById(loanId);
+    if (!loan) {
+      return res.status(404).json({ error: 'Loan not found' });
+    }
+
+    // Find the payment in the schedule and update its status
+    const paymentIndex = loan.paymentSchedule.findIndex(payment => payment.sno === parseInt(sno));
+    if (paymentIndex > -1) {
+      loan.paymentSchedule[paymentIndex].status = 'Done'; // Update status
+      loan.paymentSchedule[paymentIndex].transactionId = transactionId; // Add transaction ID
+      loan.paymentSchedule[paymentIndex].screenshotPath = req.file ? req.file.path : null; // Save screenshot file path
+
+      await loan.save(); // Save the loan with updated payment status
+      return res.status(200).json({ message: 'Payment status updated successfully', payment: loan.paymentSchedule[paymentIndex] });
+    } else {
+      return res.status(404).json({ error: 'Payment not found' });
+    }
+  } catch (error) {
+    console.error('Error updating payment status:', error);
+    res.status(500).json({ error: 'Error updating payment status' });
+  }
+});
+
+
 router.put('/payment/:loanId/:sno', upload.single('screenshot'), async (req, res) => {
   const { loanId, sno } = req.params;
   const { transactionId } = req.body;
@@ -157,6 +195,7 @@ router.put('/payment/:loanId/:sno', upload.single('screenshot'), async (req, res
     res.status(500).json({ error: 'Error updating payment status' });
   }
 });
+
 
 // GET route to check user eligibility for loan (pending payments check)
 router.get('/users/:email/eligibility', async (req, res) => {
