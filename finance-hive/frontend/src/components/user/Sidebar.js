@@ -25,33 +25,33 @@ const Sidebar = ({ userData }) => {
           <FaHome />
           <span>Home</span>
         </NavLink>
-        <NavLink to="/analytics" className="sidebar-item">
+        <NavLink to="./analytics" className="sidebar-item">
           <FaChartBar />
           <span>Analytics</span>
         </NavLink>
-        <NavLink to="/transactions" className="sidebar-item">
+        {/* <NavLink to="./transactions" className="sidebar-item">
           <FaRegMoneyBillAlt />
           <span>Transactions</span>
-        </NavLink>
-        <NavLink to="/money-matters" className="sidebar-item">
+        </NavLink> */}
+        <NavLink to="./money-matters" className="sidebar-item">
           <FaDollarSign />
           <span>Money Matters</span>
         </NavLink>
-        <NavLink to="./VerificationStatus" className="sidebar-item">
+        <NavLink to="./verification-status" className="sidebar-item">
           <FaCheckCircle />
           <span>Verification Status</span>
         </NavLink>
-        <NavLink to="/payment-schedule/list" className="sidebar-item">
-          <FaCheckCircle />
-          <span>Schedule Payments</span>
+        <NavLink to="./payment-schedule" className="sidebar-item">
+          <FaRegMoneyBillAlt />
+          <span>Payments</span>
         </NavLink>
-        <NavLink to="/settings" className="sidebar-item">
+        <NavLink to="./settings" className="sidebar-item">
           <FaCog />
           <span>Settings</span>
         </NavLink>
-        <NavLink to="/help-center" className="sidebar-item">
+        <NavLink to="./feedback" className="sidebar-item">
           <FaQuestionCircle />
-          <span>Help Center</span>
+          <span>Feedback</span>
         </NavLink>
       </div>
 

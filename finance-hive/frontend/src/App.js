@@ -5,6 +5,11 @@ import UserPage from './components/UserPage';
 import OrganizerPage from './components/OrganizerPage';
 import AdminPage from './components/AdminPage';
 import PaymentSchedule from './components/user/PaymentSchedule';
+import ChangePassword from './components/user/ChangePasswordForm';
+import FeedbackForm from './components/user/Feedback';
+import PersonalDetailsForm from './components/user/PersonalDetailsForm';
+import VerificationStatus from './components/user/VerificationStatus';
+
 const App = () => {
   return (
     <Router>
@@ -13,7 +18,14 @@ const App = () => {
         <Route path="/user-dashboard/:userId" element={<UserPage />} />
         <Route path="/organizer-dashboard/:organizerId" element={<OrganizerPage />} />
         <Route path="/admin-dashboard/:adminId" element={<AdminPage />} />
-        <Route path="/payment-schedule/:loanId" element={<PaymentSchedule />} />
+        <Route
+  path="/user-dashboard/:userId/payment-schedule"
+  element={<PaymentSchedule />}
+/>
+        <Route path="/user-dashboard/:userId/settings" element={<ChangePassword />} />
+        <Route path="/user-dashboard/:userId/feedback" element={<FeedbackForm />} />
+        <Route path="/user-dashboard/:userId/verification-status" element={<VerificationStatus />} />
+        <Route path="/user-dashboard/:userId/money-matters" element={<PersonalDetailsForm />} />
       </Routes>
     </Router>
   );
