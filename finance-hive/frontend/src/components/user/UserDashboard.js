@@ -349,34 +349,24 @@
 // };
 
 // export default UserDashboard;
-// // */
-
-import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, useParams } from 'react-router-dom';
+// // */import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import styled from 'styled-components';
 import LoanChart from './LoanChart';
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
-import Transactions from './Transactions';
-import Settings from './Settings';
-import HelpCenter from './HelpCenter';
-import Cards from './Cards';
-import Expenses from './Expenses';
-import Savings from './Savings';
-import MoneyMatters from './MoneyMatters';
-import Home from './Home';
-import VerificationStatus from './VerificationStatus';
-import SeekingMoney from './SeekingMoney';
 import LoanForm from './LoanForm';
 import Footer from './Footer';
+import CompletionPage from './CompletionPage';
 
 const MainContent = styled.div`
   margin-left: 250px;
   padding: 5px;
   height: 100vh;
   overflow-y: auto;
-  background-color: #f5f5f5;
+  background-color: rgb(248, 245, 254);
   transition: margin-left 0.3s ease;
 
   @media (max-width: 768px) {
@@ -439,6 +429,7 @@ const UserDashboard = () => {
   const [showLoanForm, setShowLoanForm] = useState(false);
   const [loanSubmitted, setLoanSubmitted] = useState(false);
   const [chartData, setChartData] = useState([]);
+  const [showCompletion, setShowCompletion] = useState(true);
 
   useEffect(() => {
     if (!userData) {
@@ -453,8 +444,7 @@ const UserDashboard = () => {
           });
           setUserData(response.data);
           localStorage.setItem('userData', JSON.stringify(response.data));
-          
-          // If there's existing loan data, transform it for the chart
+
           if (response.data.loans && response.data.loans.length > 0) {
             const latestLoan = response.data.loans[response.data.loans.length - 1];
             transformLoanDataToChartData(latestLoan);
@@ -470,17 +460,6 @@ const UserDashboard = () => {
     }
   }, [userId, userData]);
 
-  // const transformLoanDataToChartData = (loanData) => {
-  //   if (loanData && loanData.paymentSchedule) {
-  //     const transformedData = loanData.paymentSchedule.map(payment => ({
-  //       month: new Date(payment.date).toLocaleString('default', { month: 'short' }).toUpperCase(),
-  //       amount: payment.expectedAmount,
-  //       actualPayment: payment.status === 'Done' ? payment.amount : null
-  //     }));
-  //     setChartData(transformedData);
-  //   }
-  // };
-
   const transformLoanDataToChartData = (loanData) => {
     if (loanData && loanData.paymentSchedule) {
       const transformedData = loanData.paymentSchedule.map(payment => ({
@@ -491,7 +470,6 @@ const UserDashboard = () => {
       setChartData(transformedData);
     }
   };
-  
 
   const handleLoanApplication = (loanData) => {
     axios
@@ -505,14 +483,19 @@ const UserDashboard = () => {
         };
         setUserData(updatedUserData);
         localStorage.setItem('userData', JSON.stringify(updatedUserData));
-        
-        // Transform and set chart data
+
         transformLoanDataToChartData(response.data);
-        
+
         setLoanSubmitted(true);
         setShowLoanForm(false);
+        setShowCompletion(false);
       })
       .catch(() => setError('Error submitting loan application'));
+  };
+
+  const handleShowLoanForm = () => {
+    setShowCompletion(false);
+    setShowLoanForm(true);
   };
 
   if (loading) return <p>Loading...</p>;
@@ -520,13 +503,14 @@ const UserDashboard = () => {
 
   return (
     <div style={{ position: 'relative', height: '100vh' }}>
-      <Sidebar userData={userData} />
+      <Sidebar userData={userData} setShowLoanForm={handleShowLoanForm} />
       <TopBar />
 
       <MainContent>
+        {showCompletion && !showLoanForm && <CompletionPage />}
         <Header>Dashboard</Header>
 
-        <CardsContainer>
+        {/* <CardsContainer>
           <Card>
             <h3>Money taken from Org.</h3>
             <p>${userData?.moneyTaken || 0}</p>
@@ -547,46 +531,13 @@ const UserDashboard = () => {
 
         <ChartContainer>
           <LoanChart data={chartData} />
-        </ChartContainer>
-
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/transactions" element={<Transactions />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/help-center" element={<HelpCenter />} />
-          <Route path="/cards" element={<Cards />} />
-          <Route path="/expenses" element={<Expenses />} />
-          <Route path="/savings" element={<Savings />} />
-          <Route path="/money-matters" element={<MoneyMatters />} />
-          <Route path="/verification-status" element={<VerificationStatus />} />
-          <Route path="/seeking-money" element={<SeekingMoney />} />
-        </Routes>
+        </ChartContainer> */}
 
         <div style={{ marginTop: '20px', textAlign: 'center' }}>
-          {!loanSubmitted ? (
-            <>
-              <button
-                onClick={() => setShowLoanForm(true)}
-                style={{
-                  padding: '10px 20px',
-                  margin: '20px',
-                  fontSize: '16px',
-                  backgroundColor: '#007bff',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '5px',
-                  cursor: 'pointer',
-                }}
-              >
-                Apply for Loan
-              </button>
-              {showLoanForm && <LoanForm onSubmit={handleLoanApplication} />}
-            </>
-          ) : (
-            <p>Your loan application has been submitted!</p>
-          )}
+          {showLoanForm && <LoanForm onSubmit={handleLoanApplication} />}
+          {loanSubmitted && <p>Your loan application has been submitted!</p>}
         </div>
-        <Footer/>
+        <Footer />
       </MainContent>
     </div>
   );

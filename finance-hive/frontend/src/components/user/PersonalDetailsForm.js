@@ -71,50 +71,32 @@ const PersonalDetailsForm = () => {
       idDocument: file, // Store the file in the formData
     });
   };
+const handleSubmit = (e) => {
+  e.preventDefault();
+  setLoading(true); // Set loading to true when submitting
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true); // Set loading to true when submitting
-    if (!formData.termsAccepted) {
-      alert("You must accept the terms and conditions to proceed.");
-      return;
-    }
-    // Submit the data to backend (or any further processing)
-    console.log("Form Data Submitted: ", formData);
+  // Validation: Check if terms and conditions are accepted
+  if (!formData.termsAccepted) {
+    alert("You must accept the terms and conditions to proceed.");
+    setLoading(false); // Stop loading
+    return;
+  }
 
-    const data = new FormData();
-    for (const key in formData) {
-      if (key === "idDocument" && formData.idDocument) {
-        data.append(key, formData[key]);
-      } else if (key === "termsAccepted") {
-        data.append(key, formData[key] ? "true" : "false");
-      } else {
-        data.append(key, formData[key]);
-      }
-    }
+  // Additional validations (optional)
+  if (!formData.firstName || !formData.lastName || !formData.email) {
+    alert("Please fill in all required fields (First Name, Last Name, Email).");
+    setLoading(false); // Stop loading
+    return;
+  }
 
-    try {
-      const response = await fetch('http://localhost:5000/api/personal-details', {
-        method: 'POST',
-        body: data, // Sending FormData
-      });
+  // Log submitted data (for debugging or future use)
+  console.log("Form Data Submitted: ", formData);
 
-      if (response.ok) {
-        const result = await response.json();
-        console.log('Success:', result.message);
-        setIsCompleted(true);
-      } else {
-        const errorData = await response.json();
-        setError(errorData.message);
-        console.error('Error:', errorData.message);
-      }
-    } catch (error) {
-      setError('Submission failed, please try again.');
-      console.error('Error:', error);
-    } finally {
-      setLoading(false); // Set loading to false after submitting
-    }
-  };
+  // Transition directly to the CompletionPage
+  setIsCompleted(true);
+  setLoading(false); // Stop loading
+};
+
 
   if (isCompleted) {
     return <CompletionPage />;

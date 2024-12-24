@@ -93,6 +93,7 @@ const PaymentSchedule = ({ loanId }) => {
         transactionId,
         screenshot,
       });
+      
 
       // Save to localStorage as well
       localStorage.setItem('payments', JSON.stringify(updatedPayments));
@@ -124,10 +125,77 @@ const PaymentSchedule = ({ loanId }) => {
   const circumference = Math.PI * radius;
   const dashOffset = circumference - (progress / 100) * circumference;
 
+
+// Add these helper functions at the top of your component
+const formatDate = (dateString) => {
+  try {
+    // Assuming dateString is in format like "2024-01-15" or similar
+    const date = new Date(dateString);
+    return date.toLocaleString('default', { month: 'short', day: 'numeric' });
+  } catch {
+    return 'Invalid Date';
+  }
+};
+
+const calculateMaxAmount = (payments) => {
+  const maxAmount = Math.max(...payments.map(p => parseFloat(p.amount)));
+  // Round up to nearest thousand for nice y-axis values
+  return Math.ceil(maxAmount / 1000) * 1000;
+};
+
+const generateYAxisLabels = (maxAmount) => {
+  const steps = 5;
+  const labels = [];
+  for (let i = steps; i >= 0; i--) {
+    labels.push((maxAmount * i) / steps);
+  }
+  return labels;
+};
+
+  
   return (
     <div className="schedule-container">
       <h2>Payment Schedule</h2>
       {error && <p className="error-message">{error}</p>}
+ {/* Bar Graph Section */}
+ <div className="bar-graph-container">
+      <div className="graph-header">
+        <span className="graph-title">Payment Timeline</span>
+        <div className="graph-total">
+          Total Payable: ${loanDetails.totalAmount}
+        </div>
+      </div>
+      <div className="bar-graph">
+        <div className="y-axis">
+          {generateYAxisLabels(calculateMaxAmount(payments)).map((value, index) => (
+            <span key={index}>${value.toLocaleString()}</span>
+          ))}
+        </div>
+        {payments.map((payment, index) => {
+          const amount = parseFloat(payment.amount);
+          const maxAmount = calculateMaxAmount(payments);
+          const height = (amount / maxAmount) * 180;
+          
+          // Using the same date format as shown in the table
+          return (
+            <div className="bar-container" key={payment.sno}>
+              <div className="bar-value">${amount.toLocaleString()}</div>
+              <div 
+                className={`bar ${payment.status === 'Done' ? 'active' : ''}`} 
+                style={{
+                  height: `${height}px`,
+                  backgroundColor: payment.status === 'Done' ? '#6366f1' : '#e2e8f0'
+                }}
+              />
+              <div className="bar-label">{payment.date}</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+
+
+     
       <div className="table-container">
         <table>
           <thead>
@@ -140,7 +208,7 @@ const PaymentSchedule = ({ loanId }) => {
             </tr>
           </thead>
           <tbody>
-            {payments.map(payment => (
+          {payments.slice(0, 10).map((payment) => (
               <tr key={payment.sno}>
                 <td>{payment.sno}</td>
                 <td>{payment.date}</td>

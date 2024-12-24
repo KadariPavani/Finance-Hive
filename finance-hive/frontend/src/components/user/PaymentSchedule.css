@@ -1,167 +1,309 @@
-/* Container for the entire schedule section */
+/* Main Container Styles */
 .schedule-container {
-  padding: 30px;
-  max-width: 900px;
-  margin: auto;
-  border-radius: 15px;
-  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
-  background: linear-gradient(to bottom, #ffffff, #f4f4f4);
+  padding: 2rem;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-/* Title styles */
-.schedule-container h2 {
-  text-align: center;
-  color: #000000; /* Black for better contrast */
-  font-size: 32px;
-  margin-bottom: 25px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  text-transform: uppercase; /* Uppercase for emphasis */
+/* Bar Graph Container */
+.bar-graph-container {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
 }
 
-/* Fixed height for the table container with scroll */
+.bar-graph {
+  display: flex;
+  align-items: flex-end;
+  height: 200px;
+  gap: 12px;
+  padding-bottom: 24px;
+  position: relative;
+}
+
+.bar-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.bar {
+  width: 40px;
+  background-color: #e2e8f0;
+  border-radius: 6px;
+  transition: height 0.3s ease;
+  cursor: pointer;
+}
+
+.bar:hover {
+  background-color: #6366f1;
+}
+
+.bar.active {
+  background-color: #6366f1;
+}
+
+.bar-label {
+  position: absolute;
+  bottom: -24px;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.bar-value {
+  position: absolute;
+  top: -24px;
+  font-size: 0.75rem;
+  color: #6b7280;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.bar-container:hover .bar-value {
+  opacity: 1;
+}
+
+/* Y-axis */
+.y-axis {
+  position: absolute;
+  left: -40px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+/* Table Styles */
 .table-container {
-  height: 450px; /* Adjust height as needed */
-  overflow-y: auto; /* Enables vertical scrolling */
-  border: 1px solid #ccc; /* Softer border */
-  border-radius: 10px; /* Rounded corners for the scroll area */
-  background-color: #ffffff; /* White background */
+  max-height: 400px; /* Adjust height to fit 10 rows */
+  overflow-y: auto; /* Enable vertical scrolling */
+  background: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Table styles */
 table {
   width: 100%;
   border-collapse: collapse;
-}
-
-thead {
-  position: sticky;
-  top: 0; /* Keep the header at the top */
-  z-index: 1; /* Ensure the header is above the scrollable content */
-  background-color: #3498db; /* Bright blue for header */
-  color: black; /* Changed to black */
-}
-
-th, td {
-  padding: 15px;
-  text-align: center;
-  border: 1px solid #ddd;
-  transition: background-color 0.3s, transform 0.2s;
+  font-size: 0.9rem;
 }
 
 th {
-  background-color: #2980b9; /* Darker blue for header */
-  color: black; /* Changed to black */
-  font-weight: bold;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-tbody tr:nth-child(even) {
-  background-color: #ecf0f1; /* Light grey for even rows */
-}
-
-tbody tr:hover {
-  background-color: #d5dbdb; /* Slightly darker grey on hover */
-  transform: scale(1.01); /* Slight scaling effect on hover */
+  background-color: #f8f9fa;
+  color: #495057;
+  font-weight: 600;
+  text-align: left;
+  padding: 1rem;
+  top: 0;
+  border-bottom: 2px solid #e9ecef;
 }
 
 td {
-  color: #000000; /* Changed text to black */
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-size: 16px;
+  padding: 1rem;
+  border-bottom: 1px solid #e9ecef;
+  color: #495057;
 }
 
-td.status-done {
-  color: #000000; /* Changed text to black */
-  font-weight: bold;
+tr:hover {
+  background-color: #f8f9fa;
 }
 
-td.status-pending {
-  color: #000000; /* Changed text to black */
-  font-weight: bold;
-}
-
-td.status-late {
-  color: #000000; /* Changed text to black */
-  font-weight: bold;
-}
-
-/* Button Styling */
+/* Status Button Styles */
 button {
-  background-color: #3498db; /* Bright blue */
-  color: rgb(0, 0, 0);
+  background-color: #6366f1;
+  color: white;
   border: none;
-  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
+  font-size: 0.875rem;
+  transition: background-color 0.2s;
 }
 
 button:hover {
-  background-color: #2980b9; /* Darker blue on hover */
-  transform: scale(1.05); /* Slight scaling effect on hover */
+  background-color: #4f46e5;
 }
 
-/* Media Queries for Responsiveness */
+/* Details Container */
+.details-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+/* Progress Indicator */
+.progress-indicator {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.progress-indicator p {
+  margin-top: 1rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* Loan Details */
+.loan-details {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.loan-details p {
+  margin: 0.75rem 0;
+  color: #4b5563;
+  font-size: 0.9rem;
+}
+
+.loan-details strong {
+  color: #374151;
+}
+
+/* Payment Modal */
+.payment-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  max-width: 400px;
+  width: 90%;
+}
+
+.payment-modal h3 {
+  margin-bottom: 1rem;
+  color: #374151;
+}
+
+.payment-modal p {
+  margin: 1rem 0;
+  color: #4b5563;
+}
+
+.payment-modal input[type="file"] {
+  margin: 1rem 0;
+  width: 100%;
+}
+
+.payment-modal button {
+  margin: 0.5rem;
+}
+
+/* Header Styles */
+h2 {
+  color: #111827;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+/* Error Message */
+.error-message {
+  color: #ef4444;
+  background: #fee2e2;
+  padding: 1rem;
+  border-radius: 6px;
+  margin: 1rem 0;
+}
+
+/* Back Link */
+a {
+  color: #6366f1;
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
   .schedule-container {
-    padding: 20px;
+    padding: 1rem;
   }
-
-  .table-container {
-    height: 350px; /* Adjust height for smaller screens */
-  }
-
-  table {
-    font-size: 14px; /* Smaller font size on smaller screens */
-  }
-
-  th, td {
-    padding: 10px; /* Reduce padding on smaller screens */
-  }
-
-  h2 {
-    font-size: 26px; /* Smaller heading on smaller screens */
-  }
-}
-
-/* Container for progress indicator and loan details */
-.details-container {
-  display: flex; /* Enables side by side layout */
-  justify-content: space-between; /* Space out items evenly */
-  align-items: flex-start; /* Aligns items at the start vertically */
-  margin-top: 30px; /* Spacing above */
-  padding: 15px; /* Padding around the container */
-  background-color: #ffffff; /* White background for clarity */
-  border-radius: 10px; /* Rounded corners */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-}
-
-/* Progress Indicator Styles */
-.progress-indicator {
-  text-align: center;
-  margin: 0 20px; /* Spacing around indicator */
-  flex: 1; /* Allow this item to grow */
-}
-
-/* Loan Details Styles */
-.loan-details {
-  margin: 0 20px; /* Spacing around loan details */
-  padding: 15px; /* Increased padding for better spacing */
-  background-color: #f9f9f9; /* Light background for loan details */
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  flex: 1; /* Allow this item to grow */
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
+  
   .details-container {
-    flex-direction: column; /* Stack on smaller screens */
-    align-items: center; /* Center items */
+    grid-template-columns: 1fr;
+  }
+  
+  .table-container {
+    margin: 1rem 0;
+  }
+  
+  td, th {
+    padding: 0.75rem;
   }
 
-  .progress-indicator,
-  .loan-details {
-    margin: 10px 0; /* Spacing around each item */
-    width: 90%; /* Set width for better alignment */
+  .bar-graph {
+    height: 150px;
   }
+
+  .bar {
+    width: 30px;
+  }
+
+  .bar-label {
+    font-size: 0.7rem;
+  }
+}
+
+/* Status Colors */
+.status-delivered {
+  color: #10b981;
+}
+
+.status-pending {
+  color: #f59e0b;
+}
+
+.status-cancelled {
+  color: #ef4444;
+}
+
+/* Progress Bar Gradient */
+.progress-bar {
+  background: linear-gradient(90deg, #4CAF50 0%, #FFC107 100%);
+}
+
+/* Graph Header */
+.graph-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.graph-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.graph-period-selector {
+  padding: 0.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: #4b5563;
+  background-color: white;
 }

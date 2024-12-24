@@ -4,9 +4,9 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #775eb7; /* Match sidebar color */
+    background-color:rgb(236, 229, 250);
     padding: 10px 20px;
-    color: white;
+    color: rgb(158, 80, 80);
   }
   
   .SearchBar {

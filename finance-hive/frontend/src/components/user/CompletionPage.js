@@ -9,8 +9,12 @@ const CompletionPage = () => {
         alt="Success"
         className="completion-image"
       />
-      <h2>You're Successfully Submitted your details!! </h2>
+      {/* <h2>You're Successfully Submitted your details!! </h2>
       <p>Thank you for providing your information.Please verify your data at organization within five days.</p>
+      <h6>Don`t Delay</h6> */}
+
+<h2>You didn't yet Apply any LOAN..!! </h2>
+      <p>Click the Apply for Loan Button in the sidebar to Apply for loan.</p>
       <h6>Don`t Delay</h6>
     </div>
   );

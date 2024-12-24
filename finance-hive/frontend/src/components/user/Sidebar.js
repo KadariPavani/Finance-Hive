@@ -1,24 +1,13 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-
-import {
-  FaHome,
-  FaChartBar,
-  FaRegMoneyBillAlt,
-  FaDollarSign,
-  FaCheckCircle,
-  FaCog,
-  FaQuestionCircle,
-} from 'react-icons/fa';
+import { FaHome, FaChartBar, FaDollarSign, FaCheckCircle, FaCog, FaQuestionCircle } from 'react-icons/fa';
 import './Sidebar.css';
 import profile from '../assets/profile.jpg';
 
-const Sidebar = ({ userData }) => {
+const Sidebar = ({ userData, setShowLoanForm }) => {
   return (
     <div className="sidebar-container">
       <div className="logo-text">FMS</div>
-
-
 
       <div className="neat-column">
         <NavLink to="/" className="sidebar-item">
@@ -29,20 +18,23 @@ const Sidebar = ({ userData }) => {
           <FaChartBar />
           <span>Analytics</span>
         </NavLink>
-        {/* <NavLink to="./transactions" className="sidebar-item">
-          <FaRegMoneyBillAlt />
-          <span>Transactions</span>
-        </NavLink> */}
         <NavLink to="./money-matters" className="sidebar-item">
           <FaDollarSign />
           <span>Money Matters</span>
         </NavLink>
+
+        {/* Apply for Loan Link */}
+        <NavLink to="#" className="sidebar-item" onClick={() => setShowLoanForm(true)}>
+          <FaDollarSign />
+          <span>Apply for Loan</span>
+        </NavLink>
+
         <NavLink to="./verification-status" className="sidebar-item">
           <FaCheckCircle />
           <span>Verification Status</span>
         </NavLink>
-        <NavLink to="./payment-schedule" className="sidebar-item">
-          <FaRegMoneyBillAlt />
+        <NavLink to="./payments/list" className="sidebar-item">
+          <FaDollarSign />
           <span>Payments</span>
         </NavLink>
         <NavLink to="./settings" className="sidebar-item">
@@ -70,7 +62,6 @@ const Sidebar = ({ userData }) => {
 };
 
 export default Sidebar;
-
 
 
 // import React from 'react';
