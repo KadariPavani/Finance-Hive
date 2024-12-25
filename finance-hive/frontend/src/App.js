@@ -35,7 +35,7 @@ const App = () => {
         <Route path="/user-dashboard/:loanId/payments/list" element={<PaymentSchedule />} />
         <Route path="/money-matters/completed" element={<CompletionPage />} />
         <Route path="/empty-loan" element={<EmptyLoanPage />} /> {/* Empty page route */}
-        <Route path="/completion" element={<CompletionPage />} />
+        <Route path="user-dashboard/:userId/completion" element={<CompletionPage />} />
         <Route
           path="/user-dashboard/:userId"
           element={<UserDashboard hideEmptyLoanPage={true} />}
@@ -48,46 +48,3 @@ const App = () => {
 };
 
 export default App;
-
-/*
-
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import HomePage from './components/HomePage';
-import LoginRegisterForm from './components/home/LoginRegisterForm';
-import UserDashboard from './components/user/UserDashboard';
-import OrganizerDashboard from './components/organizer/OrganizerDashboard';
-import AdminDashboard from './components/admin/AdminDashboard';
-
-const App = () => {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginRegisterForm />} />
-        
-        <Route path="/user-dashboard/:userId" element={<UserDashboard />} />
-        <Route path="/organizer-dashboard/:organizerId" element={<OrganizerDashboard />} />
-        <Route path="/admin-dashboard/:adminId" element={<AdminDashboard />} /> 
-      </Routes>
-    </Router>
-  );
-};
-
-export default App;
-
-*/
-/* 
-import React from 'react';
-import HomePage from '../src/components/HomePage';
-
-const App = () => {
-  return (
-    <div className="App">
-      <HomePage />
-    </div>
-  );
-};
-
-export default App;
-*/

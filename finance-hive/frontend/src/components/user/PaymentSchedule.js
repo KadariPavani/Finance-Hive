@@ -3,6 +3,11 @@ import axios from 'axios';
 import { QRCodeCanvas } from 'qrcode.react';
 import '../user/PaymentSchedule.css';
 import { Link } from 'react-router-dom';
+import { Pie, Line, Doughnut } from 'react-chartjs-2';
+
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement } from 'chart.js';
+
+ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement);
 
 const PaymentSchedule = ({ loanId }) => {
   const [payments, setPayments] = useState([]);
@@ -35,7 +40,7 @@ const PaymentSchedule = ({ loanId }) => {
         }
       } catch (error) {
         console.error('Error fetching payment schedule:', error);
- //       setError('Unable to fetch payment schedule. Please try again later.');
+        //       setError('Unable to fetch payment schedule. Please try again later.');
 
         // Load from localStorage as a fallback
         const cachedPayments = localStorage.getItem('payments');
@@ -65,6 +70,30 @@ const PaymentSchedule = ({ loanId }) => {
     });
   };
 
+  const getTotalPaidAmount = () => {
+    return payments
+      .filter(payment => payment.status === 'Done')
+      .reduce((acc, payment) => acc + parseFloat(payment.amount), 0)
+      .toFixed(2);
+  };
+
+  const getMoneyTakenFromOrganization = () => {
+    return loanDetails.totalAmount;
+  };
+
+  const getInterest = () => {
+    const totalPaid = parseFloat(getTotalPaidAmount());
+    const interest = (totalPaid * loanDetails.interestRate) / 100;
+    return interest.toFixed(2);
+  };
+
+  const getBalance = () => {
+    const totalPaid = parseFloat(getTotalPaidAmount());
+    const balance = loanDetails.totalAmount - totalPaid;
+    return balance.toFixed(2);
+  };
+
+
   const handlePayNow = (payment) => {
     setCurrentPayment(payment);
     setShowPaymentModal(true);
@@ -93,7 +122,7 @@ const PaymentSchedule = ({ loanId }) => {
         transactionId,
         screenshot,
       });
-      
+
 
       // Save to localStorage as well
       localStorage.setItem('payments', JSON.stringify(updatedPayments));
@@ -126,2021 +155,243 @@ const PaymentSchedule = ({ loanId }) => {
   const dashOffset = circumference - (progress / 100) * circumference;
 
 
-// Add these helper functions at the top of your component
-const formatDate = (dateString) => {
-  try {
-    // Assuming dateString is in format like "2024-01-15" or similar
-    const date = new Date(dateString);
-    return date.toLocaleString('default', { month: 'short', day: 'numeric' });
-  } catch {
-    return 'Invalid Date';
-  }
-};
-
-const calculateMaxAmount = (payments) => {
-  const maxAmount = Math.max(...payments.map(p => parseFloat(p.amount)));
-  // Round up to nearest thousand for nice y-axis values
-  return Math.ceil(maxAmount / 1000) * 1000;
-};
-
-const generateYAxisLabels = (maxAmount) => {
-  const steps = 5;
-  const labels = [];
-  for (let i = steps; i >= 0; i--) {
-    labels.push((maxAmount * i) / steps);
-  }
-  return labels;
-};
-
-  
-  return (
-    <div className="schedule-container">
-      <h2>Payment Schedule</h2>
-      {error && <p className="error-message">{error}</p>}
- {/* Bar Graph Section */}
- <div className="bar-graph-container">
-      <div className="graph-header">
-        <span className="graph-title">Payment Timeline</span>
-        <div className="graph-total">
-          Total Payable: ${loanDetails.totalAmount}
-        </div>
-      </div>
-      <div className="bar-graph">
-        <div className="y-axis">
-          {generateYAxisLabels(calculateMaxAmount(payments)).map((value, index) => (
-            <span key={index}>${value.toLocaleString()}</span>
-          ))}
-        </div>
-        {payments.map((payment, index) => {
-          const amount = parseFloat(payment.amount);
-          const maxAmount = calculateMaxAmount(payments);
-          const height = (amount / maxAmount) * 180;
-          
-          // Using the same date format as shown in the table
-          return (
-            <div className="bar-container" key={payment.sno}>
-              <div className="bar-value">${amount.toLocaleString()}</div>
-              <div 
-                className={`bar ${payment.status === 'Done' ? 'active' : ''}`} 
-                style={{
-                  height: `${height}px`,
-                  backgroundColor: payment.status === 'Done' ? '#6366f1' : '#e2e8f0'
-                }}
-              />
-              <div className="bar-label">{payment.date}</div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-
-
-     
-      <div className="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>S.No</th>
-              <th>Date</th>
-              <th>Amount</th>
-              <th>Status</th>
-              <th>Transaction ID</th>
-            </tr>
-          </thead>
-          <tbody>
-          {payments.slice(0, 10).map((payment) => (
-              <tr key={payment.sno}>
-                <td>{payment.sno}</td>
-                <td>{payment.date}</td>
-                <td>${payment.amount}</td>
-                <td>
-                  {payment.status === 'Pay now' ? (
-                    <button onClick={() => handlePayNow(payment)}>Pay Now</button>
-                  ) : (
-                    'Done'
-                  )}
-                </td>
-                <td>{payment.transactionId || '--'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Payment Modal */}
-      {showPaymentModal && (
-        <div className="payment-modal">
-          <h3>Payment for S.No {currentPayment.sno}</h3>
-          <p>Amount: ${currentPayment.amount}</p>
-
-          <QRCodeCanvas 
-            value={`upi://pay?pa=96660741389@ibl&pn=YourName&am=${currentPayment.amount}&cu=INR`}
-            size={200}
-          />
-          <p>Scan QR code to pay</p>
-
-          <p>Upload Payment Screenshot:</p>
-          <input type="file" onChange={handleScreenshotUpload} accept="image/*" />
-
-          <button onClick={handlePaymentConfirmation}>Confirm Payment</button>
-          <button onClick={() => setShowPaymentModal(false)}>Cancel</button>
-        </div>
-      )}
-
-      {/* Progress Indicator and Loan Details */}
-      <div className="details-container">
-        <div className="progress-indicator">
-          <svg width="120" height="60">
-            <defs>
-              <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style={{ stopColor: '#4CAF50', stopOpacity: 1 }} />
-                <stop offset="100%" style={{ stopColor: '#FFC107', stopOpacity: 1 }} />
-              </linearGradient>
-            </defs>
-            <path fill="none" stroke="#ddd" strokeWidth="10" d={`M 10,60 A 50,50 0 0,1 110,60`} />
-            <path
-              fill="none"
-              stroke="url(#gradient)"
-              strokeWidth="10"
-              strokeDasharray={circumference}
-              strokeDashoffset={dashOffset}
-              d={`M 10,60 A 50,50 0 0,1 110,60`}
-            />
-            <text x="60" y="30" textAnchor="middle" dy=".35em" fontSize="16" fill="#000">
-              {Math.round(progress)}%
-            </text>
-          </svg>
-          <p>Profit-Plan Fulfillment</p>
-        </div>
-
-        <div className="loan-details">
-          <p><strong>Total Amount:</strong> ${loanDetails.totalAmount}</p>
-          <p><strong>Interest Rate:</strong> {loanDetails.interestRate}%</p>
-          <p><strong>Completed Transactions:</strong> {loanDetails.completedTransactions}</p>
-          <p><strong>Pending Transactions:</strong> {loanDetails.pendingTransactions}</p>
-          <p><strong>Next Payable Date:</strong> {loanDetails.nextPayableDate}</p>
-        </div>
-      </div>
-      <p><Link to="/user-dashboard/{userId}">back</Link></p>
-    </div>
-  );
-};
-
-export default PaymentSchedule;
-
-
-/*
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { QRCodeCanvas } from 'qrcode.react'; // Correct import for QR code generation
-import '../user/PaymentSchedule.css';
-
-const PaymentSchedule = ({ loanId }) => {
-  const [payments, setPayments] = useState([]);
-  const [error, setError] = useState('');
-  const [loanDetails, setLoanDetails] = useState({
-    totalAmount: 0,
-    interestRate: 0,
-    completedTransactions: 0,
-    pendingTransactions: 0,
-    nextPayableDate: '',
-  });
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [currentPayment, setCurrentPayment] = useState(null);
-  const [transactionId, setTransactionId] = useState('');
-  const [upiId, setUpiId] = useState('');
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
-
-  useEffect(() => {
-    const fetchPaymentSchedule = async () => {
-      try {
-        const response = await axios.get(`http://localhost:5000/api/loans/schedule/${loanId}`);
-        const paymentSchedule = response.data;
-
-        if (paymentSchedule && Array.isArray(paymentSchedule)) {
-          setPayments(paymentSchedule);
-          calculateLoanDetails(paymentSchedule);
-        }
-      } catch (error) {
-        console.error('Error fetching payment schedule:', error);
-        setError('Error fetching payment schedule.');
-      }
-    };
-
-    fetchPaymentSchedule();
-  }, [loanId]);
-
-  const calculateLoanDetails = (payments) => {
-    const totalAmount = payments.reduce((acc, payment) => acc + parseFloat(payment.amount), 0);
-    const completedTransactions = payments.filter(payment => payment.status === 'Done').length;
-    const pendingTransactions = payments.length - completedTransactions;
-    const nextPayableDate = payments.find(payment => payment.status === 'Pay now')?.date || 'N/A';
-
-    setLoanDetails({
-      totalAmount: totalAmount.toFixed(2),
-      interestRate: 5, // Example interest rate, adjust as necessary
-      completedTransactions,
-      pendingTransactions,
-      nextPayableDate,
-    });
-  };
-
-  const handlePayNow = (payment) => {
-    setCurrentPayment(payment);
-    setShowPaymentModal(true);
-  };
-
-  const handlePaymentConfirmation = async () => {
-    if (!upiId || !transactionId) {
-      alert('Please enter your UPI ID and Transaction ID.');
-      return;
-    }
-
+  // Add these helper functions at the top of your component
+  const formatDate = (dateString) => {
     try {
-      const updatedPayments = payments.map(payment => {
-        if (payment.sno === currentPayment.sno) {
-          return { ...payment, status: 'Done', transactionId };
-        }
-        return payment;
-      });
-
-      setPayments(updatedPayments);
-      calculateLoanDetails(updatedPayments); 
-      setShowPaymentModal(false);
-      setPaymentSuccess(true);
-
-      // Update backend with the provided transaction
-      await axios.put(`http://localhost:5000/api/loans/payment/${loanId}/${currentPayment.sno}`, {
-        transactionId,
-      });
-
-      alert(`Payment for S.No ${currentPayment.sno} marked as done with Transaction ID: ${transactionId}`);
-    } catch (error) {
-      console.error('Error updating payment status:', error);
-      alert('Error processing payment.');
+      // Assuming dateString is in format like "2024-01-15" or similar
+      const date = new Date(dateString);
+      return date.toLocaleString('default', { month: 'short', day: 'numeric' });
+    } catch {
+      return 'Invalid Date';
     }
   };
 
-  const totalPayments = payments.length;
-  const completedPayments = loanDetails.completedTransactions;
-  const progress = totalPayments ? (completedPayments / totalPayments) * 100 : 0;
+  const calculateMaxAmount = (payments) => {
+    const maxAmount = Math.max(...payments.map(p => parseFloat(p.amount)));
+    // Round up to nearest thousand for nice y-axis values
+    return Math.ceil(maxAmount / 1000) * 1000;
+  };
 
-  const radius = 50;
-  const circumference = Math.PI * radius;
-  const dashOffset = circumference - (progress / 100) * circumference;
+  const generateYAxisLabels = (maxAmount) => {
+    const steps = 5;
+    const labels = [];
+    for (let i = steps; i >= 0; i--) {
+      labels.push((maxAmount * i) / steps);
+    }
+    return labels;
+  };
+// Pie Chart Data
+const pieChartData = {
+  labels: ['Completed Transactions', 'Pending Transactions'],
+  datasets: [
+    {
+      data: [loanDetails.completedTransactions, loanDetails.pendingTransactions],
+      backgroundColor: ['#6366f1', '#e2e8f0'],
+      hoverBackgroundColor: ['#4f46e5', '#cbd5e1'],
+    },
+  ],
+};
+
+// Line Chart Data
+const lineChartData = {
+  labels: payments.map(payment => payment.date),
+  datasets: [
+    {
+      label: 'Payment Amount',
+      data: payments.map(payment => parseFloat(payment.amount)),
+      borderColor: '#6366f1',
+      backgroundColor: 'rgba(99, 102, 241, 0.1)',
+      borderWidth: 2,
+    },
+  ],
+};
+
+// Donut Chart Data
+const totalPaid = payments.filter(payment => payment.status === 'Done').reduce((acc, payment) => acc + parseFloat(payment.amount), 0);
+const balance = loanDetails.totalAmount - totalPaid;
+
+const donutChartData = {
+  labels: ['Total Paid', 'Balance'],
+  datasets: [
+    {
+      data: [totalPaid, balance],
+      backgroundColor: ['#6366f1', '#e2e8f0'],
+      hoverBackgroundColor: ['#4f46e5', '#cbd5e1'],
+    },
+  ],
+};
 
   return (
-    <div className="schedule-container">
-      <h2>Payment Schedule</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <div className="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>S.No</th>
-              <th>Date</th>
-              <th>Amount to be Paid</th>
-              <th>Status</th>
-              <th>Transaction ID</th>
-            </tr>
-          </thead>
-          <tbody>
-            {payments.map(payment => (
-              <tr key={payment.sno}>
-                <td>{payment.sno}</td>
-                <td>{payment.date}</td>
-                <td>${payment.amount}</td>
-                <td>
-                  {payment.status === 'Pay now' ? (
-                    <button onClick={() => handlePayNow(payment)}>Pay Now</button>
-                  ) : (
-                    'Done'
-                  )}
-                </td>
-                <td>{payment.transactionId || '--'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+<div className="ps-schedule-container">
+  {/* Cards displaying required data */}
+  <div className="ps-analytics-container">
+    <div className="ps-analytics-card ps-money-taken">
+      <h3>Money Payable</h3>
+      <p>${getMoneyTakenFromOrganization()}</p>
+    </div>
+    <div className="ps-analytics-card ps-total-paid">
+      <h3>Total Amount Paid</h3>
+      <p>${getTotalPaidAmount()}</p>
+    </div>
+    <div className="ps-analytics-card ps-interest">
+      <h3>Interest</h3>
+      <p>${getInterest()}</p>
+    </div>
+    <div className="ps-analytics-card ps-balance">
+      <h3>Balance</h3>
+      <p>${getBalance()}</p>
+    </div>
+  </div>
+
+  {error && <p className="ps-error-message">{error}</p>}
+  {/* Bar Graph Section */}
+
+  <h2>Payment Schedule</h2>
+
+  <div className="ps-bar-graph-container">
+    <div className="ps-graph-header">
+      <span className="ps-graph-title">Payment Timeline</span>
+      <div className="ps-graph-total">
+        Total Payable: ${loanDetails.totalAmount}
       </div>
+    </div>
+    <div className="ps-bar-graph">
+      <div className="ps-y-axis">
+        {generateYAxisLabels(calculateMaxAmount(payments)).map((value, index) => (
+          <span key={index}>${value.toLocaleString()}</span>
+        ))}
+      </div>
+      {payments.map((payment, index) => {
+        const amount = parseFloat(payment.amount);
+        const maxAmount = calculateMaxAmount(payments);
+        const height = (amount / maxAmount) * 180;
 
-      {showPaymentModal && (
-        <div className="payment-modal">
-          <h3>Pay for S.No {currentPayment.sno}</h3>
-          <p>Amount to be paid: ${currentPayment.amount}</p>
-
-          <div className="qr-code-placeholder">
-            <QRCodeCanvas 
-              value={`upi://pay?pa=96660741389@ibl&pn=YourName&am=${currentPayment.amount}&cu=INR`} // Replace "YourName" with the name linked to your UPI ID
-              size={200} 
+        // Using the same date format as shown in the table
+        return (
+          <div className="ps-bar-container" key={payment.sno}>
+            <div className="ps-bar-value">${amount.toLocaleString()}</div>
+            <div
+              className={`ps-bar ${payment.status === 'Done' ? 'ps-active' : ''}`}
+              style={{
+                height: `${height}px`,
+                backgroundColor: payment.status === 'Done' ? '#6366f1' : '#e2e8f0'
+              }}
             />
-            <p>Scan this QR code to pay</p>
+            <div className="ps-bar-label">{payment.date}</div>
           </div>
-
-          <p>Enter UPI ID:</p>
-          <input
-            type="text"
-            value={upiId}
-            onChange={(e) => setUpiId(e.target.value)}
-            placeholder="Enter your UPI ID"
-          />
-          <p>Enter Transaction ID:</p>
-          <input
-            type="text"
-            value={transactionId}
-            onChange={(e) => setTransactionId(e.target.value)}
-            placeholder="Enter Transaction ID"
-          />
-
-          <button onClick={handlePaymentConfirmation}>Confirm Payment</button>
-          <button onClick={() => setShowPaymentModal(false)}>Cancel</button>
-        </div>
-      )}
-
-      <div className="details-container">
-        <div className="progress-indicator">
-          <svg width="120" height="60">
-            <defs>
-              <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style={{ stopColor: '#4CAF50', stopOpacity: 1 }} />
-                <stop offset="100%" style={{ stopColor: '#FFC107', stopOpacity: 1 }} />
-              </linearGradient>
-            </defs>
-            <path
-              fill="none"
-              stroke="#ddd"
-              strokeWidth="10"
-              d={`M 10,60 A 50,50 0 0,1 110,60`}
-            />
-            <path
-              fill="none"
-              stroke="url(#gradient)"
-              strokeWidth="10"
-              strokeDasharray={circumference}
-              strokeDashoffset={dashOffset}
-              d={`M 10,60 A 50,50 0 0,1 110,60`}
-            />
-            <text x="60" y="30" textAnchor="middle" dy=".35em" fontSize="16" fill="#000">
-              {Math.round(progress)}%
-            </text>
-          </svg>
-          <p>Profit-Plan Fulfilment</p>
-        </div>
-
-        <div className="loan-details">
-          <p><strong>Total Amount:</strong> ${loanDetails.totalAmount}</p>
-          <p><strong>Interest Rate:</strong> {loanDetails.interestRate}%</p>
-          <p><strong>Completed Transactions:</strong> {loanDetails.completedTransactions}</p>
-          <p><strong>Pending Transactions:</strong> {loanDetails.pendingTransactions}</p>
-          <p><strong>Next Payable Date:</strong> {loanDetails.nextPayableDate}</p>
-        </div>
-      </div>
+        );
+      })}
     </div>
-  );
-};
+  </div>
 
-export default PaymentSchedule;
 
-*/
 
-/*
-
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import '../user/PaymentSchedule.css';
-
-const PaymentSchedule = ({ loanId }) => {
-  const [payments, setPayments] = useState([]);
-  const [error, setError] = useState('');
-  const [loanDetails, setLoanDetails] = useState({
-    totalAmount: 0,
-    interestRate: 0,
-    completedTransactions: 0,
-    pendingTransactions: 0,
-    nextPayableDate: '',
-  });
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [currentPayment, setCurrentPayment] = useState(null);
-  const [transactionId, setTransactionId] = useState('');
-  const [upiId, setUpiId] = useState('');
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
-
-  useEffect(() => {
-    const fetchPaymentSchedule = async () => {
-      try {
-        const response = await axios.get(`http://localhost:5000/api/loans/schedule/${loanId}`);
-        const paymentSchedule = response.data;
-
-        if (paymentSchedule && Array.isArray(paymentSchedule)) {
-          setPayments(paymentSchedule);
-          calculateLoanDetails(paymentSchedule);
-        }
-      } catch (error) {
-        console.error('Error fetching payment schedule:', error);
-        setError('Error fetching payment schedule.');
-      }
-    };
-
-    fetchPaymentSchedule();
-  }, [loanId]);
-
-  const calculateLoanDetails = (payments) => {
-    const totalAmount = payments.reduce((acc, payment) => acc + parseFloat(payment.amount), 0);
-    const completedTransactions = payments.filter(payment => payment.status === 'Done').length;
-    const pendingTransactions = payments.length - completedTransactions;
-    const nextPayableDate = payments.find(payment => payment.status === 'Pay now')?.date || 'N/A';
-
-    // Set loan details
-    setLoanDetails({
-      totalAmount: totalAmount.toFixed(2),
-      interestRate: 5, // Example interest rate, adjust as necessary
-      completedTransactions,
-      pendingTransactions,
-      nextPayableDate,
-    });
-  };
-
-  const handlePayNow = (payment) => {
-    setCurrentPayment(payment);
-    setShowPaymentModal(true);
-  };
-
-  const handlePaymentConfirmation = async () => {
-    if (!upiId) {
-      alert('Please enter your UPI ID or scan the QR code.');
-      return;
-    }
-
-    try {
-      // Simulate payment gateway processing
-      const mockTransactionId = `TXN${Date.now()}`; // Generate a mock transaction ID for now
-
-      const updatedPayments = payments.map(payment => {
-        if (payment.sno === currentPayment.sno) {
-          return { ...payment, status: 'Done', transactionId: mockTransactionId };
-        }
-        return payment;
-      });
-
-      setPayments(updatedPayments);
-      calculateLoanDetails(updatedPayments); // Update loan details after payment
-      setTransactionId(mockTransactionId);
-      setShowPaymentModal(false);
-      setPaymentSuccess(true);
-
-      // Update the status and transaction ID in the backend
-      await axios.put(`http://localhost:5000/api/loans/payment/${loanId}/${currentPayment.sno}`, {
-        transactionId: mockTransactionId,
-      });
-
-      alert(`Payment for S.No ${currentPayment.sno} marked as done with Transaction ID: ${mockTransactionId}`);
-    } catch (error) {
-      console.error('Error updating payment status:', error);
-      alert('Error processing payment.');
-    }
-  };
-
-  const totalPayments = payments.length;
-  const completedPayments = loanDetails.completedTransactions;
-  const progress = totalPayments ? (completedPayments / totalPayments) * 100 : 0;
-
-  const radius = 50;
-  const circumference = Math.PI * radius;
-  const dashOffset = circumference - (progress / 100) * circumference;
-
-  return (
-    <div className="schedule-container">
-      <h2>Payment Schedule</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <div className="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>S.No</th>
-              <th>Date</th>
-              <th>Amount to be Paid</th>
-              <th>Status</th>
-              <th>Transaction ID</th>
-            </tr>
-          </thead>
-          <tbody>
-            {payments.map(payment => (
-              <tr key={payment.sno}>
-                <td>{payment.sno}</td>
-                <td>{payment.date}</td>
-                <td>${payment.amount}</td>
-                <td>
-                  {payment.status === 'Pay now' ? (
-                    <button onClick={() => handlePayNow(payment)}>Pay Now</button>
-                  ) : (
-                    'Done'
-                  )}
-                </td>
-                <td>{payment.transactionId || '--'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {showPaymentModal && (
-        <div className="payment-modal">
-          <h3>Pay for S.No {currentPayment.sno}</h3>
-          <p>Amount to be paid: ${currentPayment.amount}</p>
-          <p>Enter UPI ID or Scan QR Code:</p>
-          <input
-            type="text"
-            value={upiId}
-            onChange={(e) => setUpiId(e.target.value)}
-            placeholder="Enter your UPI ID"
-          />
-          <div className="qr-code-placeholder">
-            <img src="/path/to/your/qr-code-image.png" alt="Hone Pay QR Code" style={{ width: '200px' }} />
-            <p>Scan this QR code to pay</p>
-          </div>
-          <button onClick={handlePaymentConfirmation}>Confirm Payment</button>
-          <button onClick={() => setShowPaymentModal(false)}>Cancel</button>
-        </div>
-      )}
-
-      <div className="details-container">
-        <div className="progress-indicator">
-          <svg width="120" height="60">
-            <defs>
-              <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style={{ stopColor: '#4CAF50', stopOpacity: 1 }} />
-                <stop offset="100%" style={{ stopColor: '#FFC107', stopOpacity: 1 }} />
-              </linearGradient>
-            </defs>
-            <path
-              fill="none"
-              stroke="#ddd"
-              strokeWidth="10"
-              d={`M 10,60 A 50,50 0 0,1 110,60`}
-            />
-            <path
-              fill="none"
-              stroke="url(#gradient)"
-              strokeWidth="10"
-              strokeDasharray={circumference}
-              strokeDashoffset={dashOffset}
-              d={`M 10,60 A 50,50 0 0,1 110,60`}
-            />
-            <text x="60" y="30" textAnchor="middle" dy=".35em" fontSize="16" fill="#000">
-              {Math.round(progress)}%
-            </text>
-          </svg>
-          <p>Profit-Plan Fulfilment</p>
-        </div>
-
-        <div className="loan-details">
-          <p><strong>Total Amount:</strong> ${loanDetails.totalAmount}</p>
-          <p><strong>Interest Rate:</strong> {loanDetails.interestRate}%</p>
-          <p><strong>Completed Transactions:</strong> {loanDetails.completedTransactions}</p>
-          <p><strong>Pending Transactions:</strong> {loanDetails.pendingTransactions}</p>
-          <p><strong>Next Payable Date:</strong> {loanDetails.nextPayableDate}</p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default PaymentSchedule;
-*/
-/*
-
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { QRCodeCanvas } from 'qrcode.react'; // Correct import for QR code generation
-import '../user/PaymentSchedule.css';
-
-const PaymentSchedule = ({ loanId }) => {
-  const [payments, setPayments] = useState([]);
-  const [error, setError] = useState('');
-  const [loanDetails, setLoanDetails] = useState({
-    totalAmount: 0,
-    interestRate: 0,
-    completedTransactions: 0,
-    pendingTransactions: 0,
-    nextPayableDate: '',
-  });
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [currentPayment, setCurrentPayment] = useState(null);
-  const [transactionId, setTransactionId] = useState('');
-  const [upiId, setUpiId] = useState('');
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
-
-  useEffect(() => {
-    const fetchPaymentSchedule = async () => {
-      try {
-        const response = await axios.get(`http://localhost:5000/api/loans/schedule/${loanId}`);
-        const paymentSchedule = response.data;
-
-        if (paymentSchedule && Array.isArray(paymentSchedule)) {
-          setPayments(paymentSchedule);
-          calculateLoanDetails(paymentSchedule);
-        }
-      } catch (error) {
-        console.error('Error fetching payment schedule:', error);
-        setError('Error fetching payment schedule.');
-      }
-    };
-
-    fetchPaymentSchedule();
-  }, [loanId]);
-
-  const calculateLoanDetails = (payments) => {
-    const totalAmount = payments.reduce((acc, payment) => acc + parseFloat(payment.amount), 0);
-    const completedTransactions = payments.filter(payment => payment.status === 'Done').length;
-    const pendingTransactions = payments.length - completedTransactions;
-    const nextPayableDate = payments.find(payment => payment.status === 'Pay now')?.date || 'N/A';
-
-    setLoanDetails({
-      totalAmount: totalAmount.toFixed(2),
-      interestRate: 5, // Example interest rate, adjust as necessary
-      completedTransactions,
-      pendingTransactions,
-      nextPayableDate,
-    });
-  };
-
-  const handlePayNow = (payment) => {
-    setCurrentPayment(payment);
-    setShowPaymentModal(true);
-  };
-
-  const handlePaymentConfirmation = async () => {
-    if (!upiId) {
-      alert('Please enter your UPI ID or scan the QR code.');
-      return;
-    }
-
-    try {
-      // Simulate a transaction ID for now
-      const mockTransactionId = `TXN${Date.now()}`; 
-
-      const updatedPayments = payments.map(payment => {
-        if (payment.sno === currentPayment.sno) {
-          return { ...payment, status: 'Done', transactionId: mockTransactionId };
-        }
-        return payment;
-      });
-
-      setPayments(updatedPayments);
-      calculateLoanDetails(updatedPayments); 
-      setTransactionId(mockTransactionId);
-      setShowPaymentModal(false);
-      setPaymentSuccess(true);
-
-      // Update backend with the mock transaction
-      await axios.put(`http://localhost:5000/api/loans/payment/${loanId}/${currentPayment.sno}`, {
-        transactionId: mockTransactionId,
-      });
-
-      alert(`Payment for S.No ${currentPayment.sno} marked as done with Transaction ID: ${mockTransactionId}`);
-    } catch (error) {
-      console.error('Error updating payment status:', error);
-      alert('Error processing payment.');
-    }
-  };
-
-  const totalPayments = payments.length;
-  const completedPayments = loanDetails.completedTransactions;
-  const progress = totalPayments ? (completedPayments / totalPayments) * 100 : 0;
-
-  const radius = 50;
-  const circumference = Math.PI * radius;
-  const dashOffset = circumference - (progress / 100) * circumference;
-
-  return (
-    <div className="schedule-container">
-      <h2>Payment Schedule</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <div className="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>S.No</th>
-              <th>Date</th>
-              <th>Amount to be Paid</th>
-              <th>Status</th>
-              <th>Transaction ID</th>
-            </tr>
-          </thead>
-          <tbody>
-            {payments.map(payment => (
-              <tr key={payment.sno}>
-                <td>{payment.sno}</td>
-                <td>{payment.date}</td>
-                <td>${payment.amount}</td>
-                <td>
-                  {payment.status === 'Pay now' ? (
-                    <button onClick={() => handlePayNow(payment)}>Pay Now</button>
-                  ) : (
-                    'Done'
-                  )}
-                </td>
-                <td>{payment.transactionId || '--'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {showPaymentModal && (
-        <div className="payment-modal">
-          <h3>Pay for S.No {currentPayment.sno}</h3>
-          <p>Amount to be paid: ${currentPayment.amount}</p>
-
-          <div className="qr-code-placeholder">
-            <QRCodeCanvas 
-              value={`upi://pay?pa=upi@bank&pn=PayeeName&mc=&tid=${transactionId}&tr=12345&tn=Test Payment&am=${currentPayment.amount}&cu=INR`} 
-              size={200} 
-            />
-            <p>Scan this QR code to pay</p>
-          </div>
-
-          <p>Enter UPI ID or Scan QR Code:</p>
-          <input
-            type="text"
-            value={upiId}
-            onChange={(e) => setUpiId(e.target.value)}
-            placeholder="Enter your UPI ID"
-          />
-          
-          <button onClick={handlePaymentConfirmation}>Confirm Payment</button>
-          <button onClick={() => setShowPaymentModal(false)}>Cancel</button>
-        </div>
-      )}
-
-      <div className="details-container">
-        <div className="progress-indicator">
-          <svg width="120" height="60">
-            <defs>
-              <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style={{ stopColor: '#4CAF50', stopOpacity: 1 }} />
-                <stop offset="100%" style={{ stopColor: '#FFC107', stopOpacity: 1 }} />
-              </linearGradient>
-            </defs>
-            <path
-              fill="none"
-              stroke="#ddd"
-              strokeWidth="10"
-              d={`M 10,60 A 50,50 0 0,1 110,60`}
-            />
-            <path
-              fill="none"
-              stroke="url(#gradient)"
-              strokeWidth="10"
-              strokeDasharray={circumference}
-              strokeDashoffset={dashOffset}
-              d={`M 10,60 A 50,50 0 0,1 110,60`}
-            />
-            <text x="60" y="30" textAnchor="middle" dy=".35em" fontSize="16" fill="#000">
-              {Math.round(progress)}%
-            </text>
-          </svg>
-          <p>Profit-Plan Fulfilment</p>
-        </div>
-
-        <div className="loan-details">
-          <p><strong>Total Amount:</strong> ${loanDetails.totalAmount}</p>
-          <p><strong>Interest Rate:</strong> {loanDetails.interestRate}%</p>
-          <p><strong>Completed Transactions:</strong> {loanDetails.completedTransactions}</p>
-          <p><strong>Pending Transactions:</strong> {loanDetails.pendingTransactions}</p>
-          <p><strong>Next Payable Date:</strong> {loanDetails.nextPayableDate}</p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default PaymentSchedule;
- */
-
-/*
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import '../user/PaymentSchedule.css';
-
-const PaymentSchedule = ({ loanId }) => {
-  const [payments, setPayments] = useState([]);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    const fetchPaymentSchedule = async () => {
-      try {
-        const response = await axios.get(`http://localhost:5000/api/loans/schedule/${loanId}`);
-        const paymentSchedule = response.data;
-
-        if (paymentSchedule && Array.isArray(paymentSchedule)) {
-          setPayments(paymentSchedule);
-        }
-      } catch (error) {
-        console.error('Error fetching payment schedule:', error);
-        setError('Error fetching payment schedule.');
-      }
-    };
-
-    fetchPaymentSchedule();
-  }, [loanId]);
-
-  const handlePayment = async (sno) => {
-    try {
-      const updatedPayments = payments.map(payment => {
-        if (payment.sno === sno && payment.status === 'Pay now') {
-          return { ...payment, status: 'Done' }; // Update status locally
-        }
-        return payment;
-      });
-
-      setPayments(updatedPayments);
-
-      // Update the status in the backend
-      await axios.put(`http://localhost:5000/api/loans/payment/${loanId}/${sno}`);
-      alert(`Payment for S.No ${sno} marked as done.`);
-    } catch (error) {
-      console.error('Error updating payment status:', error);
-      alert('Error marking payment as done.');
-    }
-  };
-
-  return (
-    <div>
-      <h2>Payment Schedule</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <table>
-        <thead>
-          <tr>
-            <th>S.No</th>
-            <th>Date</th>
-            <th>Amount to be Paid</th>
-            <th>Status</th>
+  <div className="ps-table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>S.No</th>
+          <th>Date</th>
+          <th>Amount</th>
+          <th>Status</th>
+          <th>Transaction ID</th>
+        </tr>
+      </thead>
+      <tbody>
+        {payments.slice(0, 10).map((payment) => (
+          <tr key={payment.sno}>
+            <td>{payment.sno}</td>
+            <td>{payment.date}</td>
+            <td>${payment.amount}</td>
+            <td>
+              {payment.status === 'Pay now' ? (
+                <button onClick={() => handlePayNow(payment)}>Pay Now</button>
+              ) : (
+                'Done'
+              )}
+            </td>
+            <td>{payment.transactionId || '--'}</td>
           </tr>
-        </thead>
-        <tbody>
-          {payments.map(payment => (
-            <tr key={payment.sno}>
-              <td>{payment.sno}</td>
-              <td>{payment.date}</td>
-              <td>${payment.amount}</td>
-              <td>
-                {payment.status === 'Pay now' ? (
-                  <button onClick={() => handlePayment(payment.sno)}>Pay Now</button>
-                ) : (
-                  'Done'
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  {/* Payment Modal */}
+  {showPaymentModal && (
+    <div className="ps-payment-modal">
+      <h3>Payment for S.No {currentPayment.sno}</h3>
+      <p>Amount: ${currentPayment.amount}</p>
+
+      <QRCodeCanvas
+        value={`upi://pay?pa=96660741389@ibl&pn=YourName&am=${currentPayment.amount}&cu=INR`}
+        size={200}
+      />
+      <p>Scan QR code to pay</p>
+
+      <p>Upload Payment Screenshot:</p>
+      <input type="file" onChange={handleScreenshotUpload} accept="image/*" />
+
+      <button onClick={handlePaymentConfirmation}>Confirm Payment</button>
+      <button onClick={() => setShowPaymentModal(false)}>Cancel</button>
     </div>
+  )}
+
+  {/* Progress Indicator and Loan Details */}
+  <div className="ps-details-container">
+    <div className="ps-progress-indicator">
+      <svg width="120" height="60">
+        <defs>
+          <linearGradient id="ps-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
+            <stop offset="100%" style={{ stopColor: '#FFC107', stopOpacity: 1 }} />
+          </linearGradient>
+        </defs>
+        <path fill="none" stroke="#ddd" strokeWidth="10" d={`M 10,60 A 50,50 0 0,1 110,60`} />
+        <path
+          fill="none"
+          stroke="url(#ps-gradient)"
+          strokeWidth="10"
+          strokeDasharray={circumference}
+          strokeDashoffset={dashOffset}
+          d={`M 10,60 A 50,50 0 0,1 110,60`}
+        />
+        <text x="60" y="30" textAnchor="middle" dy=".35em" fontSize="16" fill="#000">
+          {Math.round(progress)}%
+        </text>
+      </svg>
+      <p>Profit-Plan Fulfillment</p>
+    </div>
+
+    <div className="ps-loan-details">
+      <p><strong>Total Amount:</strong> ${loanDetails.totalAmount}</p>
+      <p><strong>Interest Rate:</strong> {loanDetails.interestRate}%</p>
+      <p><strong>Completed Transactions:</strong> {loanDetails.completedTransactions}</p>
+      <p><strong>Pending Transactions:</strong> {loanDetails.pendingTransactions}</p>
+      <p><strong>Next Payable Date:</strong> {loanDetails.nextPayableDate}</p>
+    </div>
+  </div>
+  <div className="ps-chart-container">
+    <div className="ps-chart">
+      <h3>Transaction Status</h3>
+      <Pie data={pieChartData} />
+    </div>
+
+    <div className="ps-chart">
+      <h3>Payment Timeline</h3>
+      <Line data={lineChartData} />
+    </div>
+
+    <div className="ps-chart">
+      <h3>Total Paid vs Balance</h3>
+      <Doughnut data={donutChartData} />
+    </div>
+  </div>
+
+</div>
+
   );
 };
 
 export default PaymentSchedule;
 
-*/
-
-/*
-
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-
-const PaymentSchedule = ({ loanId }) => {
-  const [payments, setPayments] = useState([]);
-
-  useEffect(() => {
-    const fetchLoanData = async () => {
-      try {
-        const response = await axios.get(`http://localhost:5000/api/loans/${loanId}`);
-        const loanData = response.data;
-
-        if (loanData) {
-          generatePaymentSchedule(loanData);
-        }
-      } catch (error) {
-        console.error('Error fetching loan data:', error);
-      }
-    };
-
-    fetchLoanData();
-  }, [loanId]);
-
-  const generatePaymentSchedule = (loanData) => {
-    const { loanAmount, interestRate, loanTenure } = loanData;
-    const tenureMonths = parseInt(loanTenure.split(' ')[0]) * (loanTenure.includes('years') ? 12 : 1);
-    const monthlyInterestRate = parseFloat(interestRate) / 100 / 12;
-
-    const monthlyPayment = (loanAmount * monthlyInterestRate) / (1 - Math.pow(1 + monthlyInterestRate, -tenureMonths));
-
-    const schedule = [];
-    const startDate = new Date(); // Assuming the payment starts from the submission date
-
-    for (let i = 0; i < tenureMonths; i++) {
-      const paymentDate = new Date(startDate);
-      paymentDate.setMonth(paymentDate.getMonth() + i); // Increment by month
-      
-      schedule.push({
-        sno: i + 1,
-        date: paymentDate.toLocaleDateString(),
-        amount: monthlyPayment.toFixed(2),
-        status: 'Pay now',
-      });
-    }
-
-    setPayments(schedule);
-  };
-
-  const handlePayment = async (sno) => {
-    try {
-      const updatedPayments = payments.map(payment => {
-        if (payment.sno === sno && payment.status === 'Pay now') {
-          return { ...payment, status: 'Done' }; // Update status
-        }
-        return payment;
-      });
-
-      setPayments(updatedPayments);
-
-      // Optionally update the status in the backend
-      await axios.put(`http://localhost:5000/api/loans/payment/${loanId}/${sno}`);
-      alert(`Payment for S.No ${sno} marked as done.`);
-    } catch (error) {
-      console.error('Error updating payment status:', error);
-      alert('Error marking payment as done.');
-    }
-  };
-
-  return (
-    <div>
-      <h2>Payment Schedule</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>S.No</th>
-            <th>Date</th>
-            <th>Amount to be Paid</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {payments.map(payment => (
-            <tr key={payment.sno}>
-              <td>{payment.sno}</td>
-              <td>{payment.date}</td>
-              <td>${payment.amount}</td>
-              <td>
-                {payment.status === 'Pay now' ? (
-                  <button onClick={() => handlePayment(payment.sno)}>Pay Now</button>
-                ) : (
-                  'Done'
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
-
-export default PaymentSchedule;
-
-
-*/
-/*
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { QRCodeCanvas } from 'qrcode.react';
-import './PaymentSchedule.css'; // Update path if necessary
-
-const PaymentSchedule = ({ loanId }) => {
-  const [payments, setPayments] = useState([]);
-  const [error, setError] = useState('');
-  const [loanDetails, setLoanDetails] = useState({
-    totalAmount: 0,
-    interestRate: 0,
-    completedTransactions: 0,
-    pendingTransactions: 0,
-    nextPayableDate: '',
-  });
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [currentPayment, setCurrentPayment] = useState(null);
-  const [transactionId, setTransactionId] = useState('');
-  const [screenshot, setScreenshot] = useState(null);
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
-
-  useEffect(() => {
-    const fetchPaymentSchedule = async () => {
-      try {
-        const response = await axios.get(`http://localhost:5000/api/loans/schedule/${loanId}`);
-        const paymentSchedule = response.data;
-
-        if (paymentSchedule && Array.isArray(paymentSchedule)) {
-          setPayments(paymentSchedule);
-          calculateLoanDetails(paymentSchedule);
-        }
-      } catch (error) {
-        console.error('Error fetching payment schedule:', error);
-        setError('Error fetching payment schedule.');
-      }
-    };
-
-    fetchPaymentSchedule();
-  }, [loanId]);
-
-  const calculateLoanDetails = (payments) => {
-    const totalAmount = payments.reduce((acc, payment) => acc + parseFloat(payment.amount), 0);
-    const completedTransactions = payments.filter(payment => payment.status === 'Done').length;
-    const pendingTransactions = payments.length - completedTransactions;
-    const nextPayableDate = payments.find(payment => payment.status === 'Pay now')?.date || 'N/A';
-
-    setLoanDetails({
-      totalAmount: totalAmount.toFixed(2),
-      interestRate: 5, // Example interest rate, adjust as necessary
-      completedTransactions,
-      pendingTransactions,
-      nextPayableDate,
-    });
-  };
-
-  const handlePayNow = (payment) => {
-    setCurrentPayment(payment);
-    setShowPaymentModal(true);
-  };
-
-  const handlePaymentConfirmation = async () => {
-    if (!screenshot) {
-        setError('Please upload the payment screenshot.');
-        return;
-    }
-
-    try {
-        const simulatedTransactionId = `TXN${Math.floor(Math.random() * 1000000000)}`;
-
-        const updatedPayments = payments.map(payment => {
-            if (payment.sno === currentPayment.sno) {
-                return { ...payment, status: 'Done', transactionId: simulatedTransactionId };
-            }
-            return payment;
-        });
-
-        setPayments(updatedPayments);
-        calculateLoanDetails(updatedPayments);
-        setShowPaymentModal(false);
-        setPaymentSuccess(true);
-
-        await axios.put(`http://localhost:5000/api/loans/payment/${loanId}/${currentPayment.sno}`, {
-            transactionId: simulatedTransactionId,
-            screenshot,
-        });
-
-        alert(`Payment for S.No ${currentPayment.sno} marked as done with Transaction ID: ${simulatedTransactionId}`);
-    } catch (error) {
-        console.error('Error updating payment status:', error);
-        setError('Error processing payment. Please try again later.');
-    }
-};
-
-
-  const handleScreenshotUpload = (event) => {
-    setScreenshot(event.target.files[0]); // Assuming a single file upload
-  };
-
-  const totalPayments = payments.length;
-  const completedPayments = loanDetails.completedTransactions;
-  const progress = totalPayments ? (completedPayments / totalPayments) * 100 : 0;
-
-  const radius = 50;
-  const circumference = Math.PI * radius;
-  const dashOffset = circumference - (progress / 100) * circumference;
-
-  return (
-    <div className="schedule-container">
-      <h2>Payment Schedule</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <div className="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>S.No</th>
-              <th>Date</th>
-              <th>Amount to be Paid</th>
-              <th>Status</th>
-              <th>Transaction ID</th>
-            </tr>
-          </thead>
-          <tbody>
-            {payments.map(payment => (
-              <tr key={payment.sno}>
-                <td>{payment.sno}</td>
-                <td>{payment.date}</td>
-                <td>${payment.amount}</td>
-                <td>
-                  {payment.status === 'Pay now' ? (
-                    <button onClick={() => handlePayNow(payment)}>Pay Now</button>
-                  ) : (
-                    'Done'
-                  )}
-                </td>
-                <td>{payment.transactionId || '--'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {showPaymentModal && (
-        <div className="payment-modal">
-          <h3>Pay for S.No {currentPayment.sno}</h3>
-          <p>Amount to be paid: ${currentPayment.amount}</p>
-
-          <div className="qr-code-placeholder">
-            <QRCodeCanvas 
-              value={`upi://pay?pa=96660741389@ibl&pn=YourName&am=${currentPayment.amount}&cu=INR`} // Replace "YourName" with the name linked to your UPI ID
-              size={200} 
-            />
-            <p>Scan this QR code to pay</p>
-          </div>
-
-          <p>Upload Payment Screenshot:</p>
-          <input
-            type="file"
-            onChange={handleScreenshotUpload}
-            accept="image/*" // Allow image files
-          />
-
-          <button onClick={handlePaymentConfirmation}>Confirm Payment</button>
-          <button onClick={() => setShowPaymentModal(false)}>Cancel</button>
-        </div>
-      )}
-
-      <div className="details-container">
-        <div className="progress-indicator">
-          <svg width="120" height="60">
-            <defs>
-              <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style={{ stopColor: '#4CAF50', stopOpacity: 1 }} />
-                <stop offset="100%" style={{ stopColor: '#FFC107', stopOpacity: 1 }} />
-              </linearGradient>
-            </defs>
-            <path
-              fill="none"
-              stroke="#ddd"
-              strokeWidth="10"
-              d={`M 10,60 A 50,50 0 0,1 110,60`}
-            />
-            <path
-              fill="none"
-              stroke="url(#gradient)"
-              strokeWidth="10"
-              strokeDasharray={circumference}
-              strokeDashoffset={dashOffset}
-              d={`M 10,60 A 50,50 0 0,1 110,60`}
-            />
-            <text x="60" y="30" textAnchor="middle" dy=".35em" fontSize="16" fill="#000">
-              {Math.round(progress)}%
-            </text>
-          </svg>
-          <p>Profit-Plan Fulfilment</p>
-        </div>
-
-        <div className="loan-details">
-          <p><strong>Total Amount:</strong> ${loanDetails.totalAmount}</p>
-          <p><strong>Interest Rate:</strong> {loanDetails.interestRate}%</p>
-          <p><strong>Completed Transactions:</strong> {loanDetails.completedTransactions}</p>
-          <p><strong>Pending Transactions:</strong> {loanDetails.pendingTransactions}</p>
-          <p><strong>Next Payable Date:</strong> {loanDetails.nextPayableDate}</p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default PaymentSchedule;
-
-*/
-
-/*
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { QRCodeCanvas } from 'qrcode.react'; // Correct import for QR code generation
-import '../user/PaymentSchedule.css';
-
-const PaymentSchedule = ({ loanId }) => {
-  const [payments, setPayments] = useState([]);
-  const [error, setError] = useState('');
-  const [loanDetails, setLoanDetails] = useState({
-    totalAmount: 0,
-    interestRate: 0,
-    completedTransactions: 0,
-    pendingTransactions: 0,
-    nextPayableDate: '',
-  });
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [currentPayment, setCurrentPayment] = useState(null);
-  const [transactionId, setTransactionId] = useState('');
-  const [upiId, setUpiId] = useState('');
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
-
-  useEffect(() => {
-    const fetchPaymentSchedule = async () => {
-      try {
-        const response = await axios.get(`http://localhost:5000/api/loans/schedule/${loanId}`);
-        const paymentSchedule = response.data;
-
-        if (paymentSchedule && Array.isArray(paymentSchedule)) {
-          setPayments(paymentSchedule);
-          calculateLoanDetails(paymentSchedule);
-        }
-      } catch (error) {
-        console.error('Error fetching payment schedule:', error);
-        setError('Error fetching payment schedule.');
-      }
-    };
-
-    fetchPaymentSchedule();
-  }, [loanId]);
-
-  const calculateLoanDetails = (payments) => {
-    const totalAmount = payments.reduce((acc, payment) => acc + parseFloat(payment.amount), 0);
-    const completedTransactions = payments.filter(payment => payment.status === 'Done').length;
-    const pendingTransactions = payments.length - completedTransactions;
-    const nextPayableDate = payments.find(payment => payment.status === 'Pay now')?.date || 'N/A';
-
-    setLoanDetails({
-      totalAmount: totalAmount.toFixed(2),
-      interestRate: 5, // Example interest rate, adjust as necessary
-      completedTransactions,
-      pendingTransactions,
-      nextPayableDate,
-    });
-  };
-
-  const handlePayNow = (payment) => {
-    setCurrentPayment(payment);
-    setShowPaymentModal(true);
-  };
-
-  const handlePaymentConfirmation = async () => {
-    if (!upiId || !transactionId) {
-      alert('Please enter your UPI ID and Transaction ID.');
-      return;
-    }
-
-    try {
-      const updatedPayments = payments.map(payment => {
-        if (payment.sno === currentPayment.sno) {
-          return { ...payment, status: 'Done', transactionId };
-        }
-        return payment;
-      });
-
-      setPayments(updatedPayments);
-      calculateLoanDetails(updatedPayments); 
-      setShowPaymentModal(false);
-      setPaymentSuccess(true);
-
-      // Update backend with the provided transaction
-      await axios.put(`http://localhost:5000/api/loans/payment/${loanId}/${currentPayment.sno}`, {
-        transactionId,
-      });
-
-      alert(`Payment for S.No ${currentPayment.sno} marked as done with Transaction ID: ${transactionId}`);
-    } catch (error) {
-      console.error('Error updating payment status:', error);
-      alert('Error processing payment.');
-    }
-  };
-
-  const totalPayments = payments.length;
-  const completedPayments = loanDetails.completedTransactions;
-  const progress = totalPayments ? (completedPayments / totalPayments) * 100 : 0;
-
-  const radius = 50;
-  const circumference = Math.PI * radius;
-  const dashOffset = circumference - (progress / 100) * circumference;
-
-  return (
-    <div className="schedule-container">
-      <h2>Payment Schedule</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <div className="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>S.No</th>
-              <th>Date</th>
-              <th>Amount to be Paid</th>
-              <th>Status</th>
-              <th>Transaction ID</th>
-            </tr>
-          </thead>
-          <tbody>
-            {payments.map(payment => (
-              <tr key={payment.sno}>
-                <td>{payment.sno}</td>
-                <td>{payment.date}</td>
-                <td>${payment.amount}</td>
-                <td>
-                  {payment.status === 'Pay now' ? (
-                    <button onClick={() => handlePayNow(payment)}>Pay Now</button>
-                  ) : (
-                    'Done'
-                  )}
-                </td>
-                <td>{payment.transactionId || '--'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {showPaymentModal && (
-        <div className="payment-modal">
-          <h3>Pay for S.No {currentPayment.sno}</h3>
-          <p>Amount to be paid: ${currentPayment.amount}</p>
-
-          <div className="qr-code-placeholder">
-            <QRCodeCanvas 
-              value={`upi://pay?pa=96660741389@ibl&pn=YourName&am=${currentPayment.amount}&cu=INR`} // Replace "YourName" with the name linked to your UPI ID
-              size={200} 
-            />
-            <p>Scan this QR code to pay</p>
-          </div>
-
-          <p>Enter UPI ID:</p>
-          <input
-            type="text"
-            value={upiId}
-            onChange={(e) => setUpiId(e.target.value)}
-            placeholder="Enter your UPI ID"
-          />
-          <p>Enter Transaction ID:</p>
-          <input
-            type="text"
-            value={transactionId}
-            onChange={(e) => setTransactionId(e.target.value)}
-            placeholder="Enter Transaction ID"
-          />
-
-          <button onClick={handlePaymentConfirmation}>Confirm Payment</button>
-          <button onClick={() => setShowPaymentModal(false)}>Cancel</button>
-        </div>
-      )}
-
-      <div className="details-container">
-        <div className="progress-indicator">
-          <svg width="120" height="60">
-            <defs>
-              <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style={{ stopColor: '#4CAF50', stopOpacity: 1 }} />
-                <stop offset="100%" style={{ stopColor: '#FFC107', stopOpacity: 1 }} />
-              </linearGradient>
-            </defs>
-            <path
-              fill="none"
-              stroke="#ddd"
-              strokeWidth="10"
-              d={`M 10,60 A 50,50 0 0,1 110,60`}
-            />
-            <path
-              fill="none"
-              stroke="url(#gradient)"
-              strokeWidth="10"
-              strokeDasharray={circumference}
-              strokeDashoffset={dashOffset}
-              d={`M 10,60 A 50,50 0 0,1 110,60`}
-            />
-            <text x="60" y="30" textAnchor="middle" dy=".35em" fontSize="16" fill="#000">
-              {Math.round(progress)}%
-            </text>
-          </svg>
-          <p>Profit-Plan Fulfilment</p>
-        </div>
-
-        <div className="loan-details">
-          <p><strong>Total Amount:</strong> ${loanDetails.totalAmount}</p>
-          <p><strong>Interest Rate:</strong> {loanDetails.interestRate}%</p>
-          <p><strong>Completed Transactions:</strong> {loanDetails.completedTransactions}</p>
-          <p><strong>Pending Transactions:</strong> {loanDetails.pendingTransactions}</p>
-          <p><strong>Next Payable Date:</strong> {loanDetails.nextPayableDate}</p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default PaymentSchedule;
-
-*/
-
-/*
-
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import '../user/PaymentSchedule.css';
-
-const PaymentSchedule = ({ loanId }) => {
-  const [payments, setPayments] = useState([]);
-  const [error, setError] = useState('');
-  const [loanDetails, setLoanDetails] = useState({
-    totalAmount: 0,
-    interestRate: 0,
-    completedTransactions: 0,
-    pendingTransactions: 0,
-    nextPayableDate: '',
-  });
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [currentPayment, setCurrentPayment] = useState(null);
-  const [transactionId, setTransactionId] = useState('');
-  const [upiId, setUpiId] = useState('');
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
-
-  useEffect(() => {
-    const fetchPaymentSchedule = async () => {
-      try {
-        const response = await axios.get(`http://localhost:5000/api/loans/schedule/${loanId}`);
-        const paymentSchedule = response.data;
-
-        if (paymentSchedule && Array.isArray(paymentSchedule)) {
-          setPayments(paymentSchedule);
-          calculateLoanDetails(paymentSchedule);
-        }
-      } catch (error) {
-        console.error('Error fetching payment schedule:', error);
-        setError('Error fetching payment schedule.');
-      }
-    };
-
-    fetchPaymentSchedule();
-  }, [loanId]);
-
-  const calculateLoanDetails = (payments) => {
-    const totalAmount = payments.reduce((acc, payment) => acc + parseFloat(payment.amount), 0);
-    const completedTransactions = payments.filter(payment => payment.status === 'Done').length;
-    const pendingTransactions = payments.length - completedTransactions;
-    const nextPayableDate = payments.find(payment => payment.status === 'Pay now')?.date || 'N/A';
-
-    // Set loan details
-    setLoanDetails({
-      totalAmount: totalAmount.toFixed(2),
-      interestRate: 5, // Example interest rate, adjust as necessary
-      completedTransactions,
-      pendingTransactions,
-      nextPayableDate,
-    });
-  };
-
-  const handlePayNow = (payment) => {
-    setCurrentPayment(payment);
-    setShowPaymentModal(true);
-  };
-
-  const handlePaymentConfirmation = async () => {
-    if (!upiId) {
-      alert('Please enter your UPI ID or scan the QR code.');
-      return;
-    }
-
-    try {
-      // Simulate payment gateway processing
-      const mockTransactionId = `TXN${Date.now()}`; // Generate a mock transaction ID for now
-
-      const updatedPayments = payments.map(payment => {
-        if (payment.sno === currentPayment.sno) {
-          return { ...payment, status: 'Done', transactionId: mockTransactionId };
-        }
-        return payment;
-      });
-
-      setPayments(updatedPayments);
-      calculateLoanDetails(updatedPayments); // Update loan details after payment
-      setTransactionId(mockTransactionId);
-      setShowPaymentModal(false);
-      setPaymentSuccess(true);
-
-      // Update the status and transaction ID in the backend
-      await axios.put(`http://localhost:5000/api/loans/payment/${loanId}/${currentPayment.sno}`, {
-        transactionId: mockTransactionId,
-      });
-
-      alert(`Payment for S.No ${currentPayment.sno} marked as done with Transaction ID: ${mockTransactionId}`);
-    } catch (error) {
-      console.error('Error updating payment status:', error);
-      alert('Error processing payment.');
-    }
-  };
-
-  const totalPayments = payments.length;
-  const completedPayments = loanDetails.completedTransactions;
-  const progress = totalPayments ? (completedPayments / totalPayments) * 100 : 0;
-
-  const radius = 50;
-  const circumference = Math.PI * radius;
-  const dashOffset = circumference - (progress / 100) * circumference;
-
-  return (
-    <div className="schedule-container">
-      <h2>Payment Schedule</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <div className="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>S.No</th>
-              <th>Date</th>
-              <th>Amount to be Paid</th>
-              <th>Status</th>
-              <th>Transaction ID</th>
-            </tr>
-          </thead>
-          <tbody>
-            {payments.map(payment => (
-              <tr key={payment.sno}>
-                <td>{payment.sno}</td>
-                <td>{payment.date}</td>
-                <td>${payment.amount}</td>
-                <td>
-                  {payment.status === 'Pay now' ? (
-                    <button onClick={() => handlePayNow(payment)}>Pay Now</button>
-                  ) : (
-                    'Done'
-                  )}
-                </td>
-                <td>{payment.transactionId || '--'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {showPaymentModal && (
-        <div className="payment-modal">
-          <h3>Pay for S.No {currentPayment.sno}</h3>
-          <p>Amount to be paid: ${currentPayment.amount}</p>
-          <p>Enter UPI ID or Scan QR Code:</p>
-          <input
-            type="text"
-            value={upiId}
-            onChange={(e) => setUpiId(e.target.value)}
-            placeholder="Enter your UPI ID"
-          />
-          <div className="qr-code-placeholder">
-            <img src="/path/to/your/qr-code-image.png" alt="Hone Pay QR Code" style={{ width: '200px' }} />
-            <p>Scan this QR code to pay</p>
-          </div>
-          <button onClick={handlePaymentConfirmation}>Confirm Payment</button>
-          <button onClick={() => setShowPaymentModal(false)}>Cancel</button>
-        </div>
-      )}
-
-      <div className="details-container">
-        <div className="progress-indicator">
-          <svg width="120" height="60">
-            <defs>
-              <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style={{ stopColor: '#4CAF50', stopOpacity: 1 }} />
-                <stop offset="100%" style={{ stopColor: '#FFC107', stopOpacity: 1 }} />
-              </linearGradient>
-            </defs>
-            <path
-              fill="none"
-              stroke="#ddd"
-              strokeWidth="10"
-              d={`M 10,60 A 50,50 0 0,1 110,60`}
-            />
-            <path
-              fill="none"
-              stroke="url(#gradient)"
-              strokeWidth="10"
-              strokeDasharray={circumference}
-              strokeDashoffset={dashOffset}
-              d={`M 10,60 A 50,50 0 0,1 110,60`}
-            />
-            <text x="60" y="30" textAnchor="middle" dy=".35em" fontSize="16" fill="#000">
-              {Math.round(progress)}%
-            </text>
-          </svg>
-          <p>Profit-Plan Fulfilment</p>
-        </div>
-
-        <div className="loan-details">
-          <p><strong>Total Amount:</strong> ${loanDetails.totalAmount}</p>
-          <p><strong>Interest Rate:</strong> {loanDetails.interestRate}%</p>
-          <p><strong>Completed Transactions:</strong> {loanDetails.completedTransactions}</p>
-          <p><strong>Pending Transactions:</strong> {loanDetails.pendingTransactions}</p>
-          <p><strong>Next Payable Date:</strong> {loanDetails.nextPayableDate}</p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default PaymentSchedule;
-*/
-/*
-
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { QRCodeCanvas } from 'qrcode.react'; // Correct import for QR code generation
-import '../user/PaymentSchedule.css';
-
-const PaymentSchedule = ({ loanId }) => {
-  const [payments, setPayments] = useState([]);
-  const [error, setError] = useState('');
-  const [loanDetails, setLoanDetails] = useState({
-    totalAmount: 0,
-    interestRate: 0,
-    completedTransactions: 0,
-    pendingTransactions: 0,
-    nextPayableDate: '',
-  });
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [currentPayment, setCurrentPayment] = useState(null);
-  const [transactionId, setTransactionId] = useState('');
-  const [upiId, setUpiId] = useState('');
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
-
-  useEffect(() => {
-    const fetchPaymentSchedule = async () => {
-      try {
-        const response = await axios.get(`http://localhost:5000/api/loans/schedule/${loanId}`);
-        const paymentSchedule = response.data;
-
-        if (paymentSchedule && Array.isArray(paymentSchedule)) {
-          setPayments(paymentSchedule);
-          calculateLoanDetails(paymentSchedule);
-        }
-      } catch (error) {
-        console.error('Error fetching payment schedule:', error);
-        setError('Error fetching payment schedule.');
-      }
-    };
-
-    fetchPaymentSchedule();
-  }, [loanId]);
-
-  const calculateLoanDetails = (payments) => {
-    const totalAmount = payments.reduce((acc, payment) => acc + parseFloat(payment.amount), 0);
-    const completedTransactions = payments.filter(payment => payment.status === 'Done').length;
-    const pendingTransactions = payments.length - completedTransactions;
-    const nextPayableDate = payments.find(payment => payment.status === 'Pay now')?.date || 'N/A';
-
-    setLoanDetails({
-      totalAmount: totalAmount.toFixed(2),
-      interestRate: 5, // Example interest rate, adjust as necessary
-      completedTransactions,
-      pendingTransactions,
-      nextPayableDate,
-    });
-  };
-
-  const handlePayNow = (payment) => {
-    setCurrentPayment(payment);
-    setShowPaymentModal(true);
-  };
-
-  const handlePaymentConfirmation = async () => {
-    if (!upiId) {
-      alert('Please enter your UPI ID or scan the QR code.');
-      return;
-    }
-
-    try {
-      // Simulate a transaction ID for now
-      const mockTransactionId = `TXN${Date.now()}`; 
-
-      const updatedPayments = payments.map(payment => {
-        if (payment.sno === currentPayment.sno) {
-          return { ...payment, status: 'Done', transactionId: mockTransactionId };
-        }
-        return payment;
-      });
-
-      setPayments(updatedPayments);
-      calculateLoanDetails(updatedPayments); 
-      setTransactionId(mockTransactionId);
-      setShowPaymentModal(false);
-      setPaymentSuccess(true);
-
-      // Update backend with the mock transaction
-      await axios.put(`http://localhost:5000/api/loans/payment/${loanId}/${currentPayment.sno}`, {
-        transactionId: mockTransactionId,
-      });
-
-      alert(`Payment for S.No ${currentPayment.sno} marked as done with Transaction ID: ${mockTransactionId}`);
-    } catch (error) {
-      console.error('Error updating payment status:', error);
-      alert('Error processing payment.');
-    }
-  };
-
-  const totalPayments = payments.length;
-  const completedPayments = loanDetails.completedTransactions;
-  const progress = totalPayments ? (completedPayments / totalPayments) * 100 : 0;
-
-  const radius = 50;
-  const circumference = Math.PI * radius;
-  const dashOffset = circumference - (progress / 100) * circumference;
-
-  return (
-    <div className="schedule-container">
-      <h2>Payment Schedule</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <div className="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>S.No</th>
-              <th>Date</th>
-              <th>Amount to be Paid</th>
-              <th>Status</th>
-              <th>Transaction ID</th>
-            </tr>
-          </thead>
-          <tbody>
-            {payments.map(payment => (
-              <tr key={payment.sno}>
-                <td>{payment.sno}</td>
-                <td>{payment.date}</td>
-                <td>${payment.amount}</td>
-                <td>
-                  {payment.status === 'Pay now' ? (
-                    <button onClick={() => handlePayNow(payment)}>Pay Now</button>
-                  ) : (
-                    'Done'
-                  )}
-                </td>
-                <td>{payment.transactionId || '--'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {showPaymentModal && (
-        <div className="payment-modal">
-          <h3>Pay for S.No {currentPayment.sno}</h3>
-          <p>Amount to be paid: ${currentPayment.amount}</p>
-
-          <div className="qr-code-placeholder">
-            <QRCodeCanvas 
-              value={`upi://pay?pa=upi@bank&pn=PayeeName&mc=&tid=${transactionId}&tr=12345&tn=Test Payment&am=${currentPayment.amount}&cu=INR`} 
-              size={200} 
-            />
-            <p>Scan this QR code to pay</p>
-          </div>
-
-          <p>Enter UPI ID or Scan QR Code:</p>
-          <input
-            type="text"
-            value={upiId}
-            onChange={(e) => setUpiId(e.target.value)}
-            placeholder="Enter your UPI ID"
-          />
-          
-          <button onClick={handlePaymentConfirmation}>Confirm Payment</button>
-          <button onClick={() => setShowPaymentModal(false)}>Cancel</button>
-        </div>
-      )}
-
-      <div className="details-container">
-        <div className="progress-indicator">
-          <svg width="120" height="60">
-            <defs>
-              <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style={{ stopColor: '#4CAF50', stopOpacity: 1 }} />
-                <stop offset="100%" style={{ stopColor: '#FFC107', stopOpacity: 1 }} />
-              </linearGradient>
-            </defs>
-            <path
-              fill="none"
-              stroke="#ddd"
-              strokeWidth="10"
-              d={`M 10,60 A 50,50 0 0,1 110,60`}
-            />
-            <path
-              fill="none"
-              stroke="url(#gradient)"
-              strokeWidth="10"
-              strokeDasharray={circumference}
-              strokeDashoffset={dashOffset}
-              d={`M 10,60 A 50,50 0 0,1 110,60`}
-            />
-            <text x="60" y="30" textAnchor="middle" dy=".35em" fontSize="16" fill="#000">
-              {Math.round(progress)}%
-            </text>
-          </svg>
-          <p>Profit-Plan Fulfilment</p>
-        </div>
-
-        <div className="loan-details">
-          <p><strong>Total Amount:</strong> ${loanDetails.totalAmount}</p>
-          <p><strong>Interest Rate:</strong> {loanDetails.interestRate}%</p>
-          <p><strong>Completed Transactions:</strong> {loanDetails.completedTransactions}</p>
-          <p><strong>Pending Transactions:</strong> {loanDetails.pendingTransactions}</p>
-          <p><strong>Next Payable Date:</strong> {loanDetails.nextPayableDate}</p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default PaymentSchedule;
- */
-
-/*
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import '../user/PaymentSchedule.css';
-
-const PaymentSchedule = ({ loanId }) => {
-  const [payments, setPayments] = useState([]);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    const fetchPaymentSchedule = async () => {
-      try {
-        const response = await axios.get(`http://localhost:5000/api/loans/schedule/${loanId}`);
-        const paymentSchedule = response.data;
-
-        if (paymentSchedule && Array.isArray(paymentSchedule)) {
-          setPayments(paymentSchedule);
-        }
-      } catch (error) {
-        console.error('Error fetching payment schedule:', error);
-        setError('Error fetching payment schedule.');
-      }
-    };
-
-    fetchPaymentSchedule();
-  }, [loanId]);
-
-  const handlePayment = async (sno) => {
-    try {
-      const updatedPayments = payments.map(payment => {
-        if (payment.sno === sno && payment.status === 'Pay now') {
-          return { ...payment, status: 'Done' }; // Update status locally
-        }
-        return payment;
-      });
-
-      setPayments(updatedPayments);
-
-      // Update the status in the backend
-      await axios.put(`http://localhost:5000/api/loans/payment/${loanId}/${sno}`);
-      alert(`Payment for S.No ${sno} marked as done.`);
-    } catch (error) {
-      console.error('Error updating payment status:', error);
-      alert('Error marking payment as done.');
-    }
-  };
-
-  return (
-    <div>
-      <h2>Payment Schedule</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <table>
-        <thead>
-          <tr>
-            <th>S.No</th>
-            <th>Date</th>
-            <th>Amount to be Paid</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {payments.map(payment => (
-            <tr key={payment.sno}>
-              <td>{payment.sno}</td>
-              <td>{payment.date}</td>
-              <td>${payment.amount}</td>
-              <td>
-                {payment.status === 'Pay now' ? (
-                  <button onClick={() => handlePayment(payment.sno)}>Pay Now</button>
-                ) : (
-                  'Done'
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
-
-export default PaymentSchedule;
-
-*/
-
-/*
-
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-
-const PaymentSchedule = ({ loanId }) => {
-  const [payments, setPayments] = useState([]);
-
-  useEffect(() => {
-    const fetchLoanData = async () => {
-      try {
-        const response = await axios.get(`http://localhost:5000/api/loans/${loanId}`);
-        const loanData = response.data;
-
-        if (loanData) {
-          generatePaymentSchedule(loanData);
-        }
-      } catch (error) {
-        console.error('Error fetching loan data:', error);
-      }
-    };
-
-    fetchLoanData();
-  }, [loanId]);
-
-  const generatePaymentSchedule = (loanData) => {
-    const { loanAmount, interestRate, loanTenure } = loanData;
-    const tenureMonths = parseInt(loanTenure.split(' ')[0]) * (loanTenure.includes('years') ? 12 : 1);
-    const monthlyInterestRate = parseFloat(interestRate) / 100 / 12;
-
-    const monthlyPayment = (loanAmount * monthlyInterestRate) / (1 - Math.pow(1 + monthlyInterestRate, -tenureMonths));
-
-    const schedule = [];
-    const startDate = new Date(); // Assuming the payment starts from the submission date
-
-    for (let i = 0; i < tenureMonths; i++) {
-      const paymentDate = new Date(startDate);
-      paymentDate.setMonth(paymentDate.getMonth() + i); // Increment by month
-      
-      schedule.push({
-        sno: i + 1,
-        date: paymentDate.toLocaleDateString(),
-        amount: monthlyPayment.toFixed(2),
-        status: 'Pay now',
-      });
-    }
-
-    setPayments(schedule);
-  };
-
-  const handlePayment = async (sno) => {
-    try {
-      const updatedPayments = payments.map(payment => {
-        if (payment.sno === sno && payment.status === 'Pay now') {
-          return { ...payment, status: 'Done' }; // Update status
-        }
-        return payment;
-      });
-
-      setPayments(updatedPayments);
-
-      // Optionally update the status in the backend
-      await axios.put(`http://localhost:5000/api/loans/payment/${loanId}/${sno}`);
-      alert(`Payment for S.No ${sno} marked as done.`);
-    } catch (error) {
-      console.error('Error updating payment status:', error);
-      alert('Error marking payment as done.');
-    }
-  };
-
-  return (
-    <div>
-      <h2>Payment Schedule</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>S.No</th>
-            <th>Date</th>
-            <th>Amount to be Paid</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {payments.map(payment => (
-            <tr key={payment.sno}>
-              <td>{payment.sno}</td>
-              <td>{payment.date}</td>
-              <td>${payment.amount}</td>
-              <td>
-                {payment.status === 'Pay now' ? (
-                  <button onClick={() => handlePayment(payment.sno)}>Pay Now</button>
-                ) : (
-                  'Done'
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
-
-export default PaymentSchedule;
-
-
-*/

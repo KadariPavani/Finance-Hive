@@ -176,7 +176,7 @@
 }
 
 .sidebar-container {
-  background-color: #6f68a5;
+  background-color: #000000;
   color: white;
   width: 250px;
   height: 100vh;
@@ -196,7 +196,7 @@
 .user-profile {
   display: flex;
   align-items: center;
-  background-color: #5c548d;
+  background-color: #4b39bf;
   padding: 10px;
   border-radius: 10px;
   margin-bottom: 20px;
