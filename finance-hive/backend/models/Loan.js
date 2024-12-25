@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 // Loan schema
 const loanSchema = new mongoose.Schema({
@@ -9,16 +9,21 @@ const loanSchema = new mongoose.Schema({
   repaymentFrequency: { type: String, required: true }, // e.g., monthly, quarterly
   remarks: { type: String, required: false },
   email: { type: String, required: true, trim: true, lowercase: true }, // New field for email
-  paymentSchedule: [{ // Add this field to store payment schedule
-    sno: { type: Number, required: true },
-    date: { type: String, required: true },
-    amount: { type: String, required: true },
-    status: { type: String, default: 'Pay now' }, // Default status
-  }]
+  paymentSchedule: [
+    {
+      sno: { type: Number, required: true },
+      date: { type: String, required: true },
+      amount: { type: String, required: true },
+      status: { type: String, default: "Pay now" }, // Default status
+      transactionId: { type: String, default: null }, // Added for storing transaction IDs
+      screenshot: { type: String, default: null }, // For storing file paths of screenshots
+      isVerified: { type: Boolean, default: false }, // Added for verification status
+    },
+  ],
 });
 
 // Export the Loan model
-module.exports = mongoose.model('loan_Forms', loanSchema);
+module.exports = mongoose.model("loan_Forms", loanSchema);
 
 /*
 const mongoose = require('mongoose');
