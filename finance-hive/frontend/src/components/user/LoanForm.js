@@ -19,7 +19,9 @@ const LoanForm = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [frequencyDisabled, setFrequencyDisabled] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [emailValid, setEmailValid] = useState(null); // Null for initial state
   const [isEligible, setIsEligible] = useState(true);
+  const [validationMessage, setValidationMessage] = useState('');
 
   useEffect(() => {
     const checkMobile = () => {
@@ -74,9 +76,33 @@ const LoanForm = () => {
     }));
   };
 
+  const validateEmail = async () => {
+    try {
+      const trimmedEmail = formData.email.trim();
+      const response = await axios.get(
+        `http://localhost:5000/api/users/validate-email/${trimmedEmail}`
+      );
+      console.log(response.data);
+
+      if (response.data.exists) {
+        setEmailValid(true);
+        setValidationMessage('Email is valid.');
+      } else {
+        setEmailValid(false);
+        setValidationMessage('Email not found. Please register first.');
+      }
+    } catch (error) {
+      console.error('Error validating email:', error);
+      setEmailValid(false);
+      setValidationMessage('Error validating email. Please try again later.');
+    }
+  };
+
   const checkEligibility = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/users/${formData.email}/eligibility`);
+      const response = await axios.get(
+        `http://localhost:5000/api/users/${formData.email}/eligibility`
+      );
       setIsEligible(response.data.isEligible);
     } catch (error) {
       console.error('Error checking eligibility:', error);
@@ -85,6 +111,11 @@ const LoanForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!emailValid) {
+      alert('Please validate your email first.');
+      return;
+    }
 
     if (!isEligible) {
       alert('You are not eligible to apply for a loan. Please clear pending payments first.');
@@ -126,15 +157,22 @@ const LoanForm = () => {
         <>
           <h2 className="loan-form-title">Loan Taking</h2>
           <form className="loan-form" onSubmit={handleSubmit}>
-            <input
-              type="email"
-              name="email"
-              placeholder="Your Email"
-              value={formData.email}
-              onChange={handleChange}
-              className="loan-form-input"
-              required
-            />
+            <div className="email-validation-section">
+              <input
+                type="email"
+                name="email"
+                placeholder="Your Email"
+                value={formData.email}
+                onChange={handleChange}
+                className="loan-form-input"
+                required
+              />
+              <button type="button" onClick={validateEmail} className="validate-button">
+                Validate
+              </button>
+            </div>
+            <p className="validation-message">{validationMessage}</p>
+
             <input
               type="text"
               name="loanAmount"
@@ -142,8 +180,10 @@ const LoanForm = () => {
               value={formData.loanAmount}
               onChange={handleChange}
               className="loan-form-input"
+              disabled={!emailValid}
               required
             />
+
             <input
               type="text"
               name="loanPurpose"
@@ -151,8 +191,10 @@ const LoanForm = () => {
               value={formData.loanPurpose}
               onChange={handleChange}
               className="loan-form-input"
+              disabled={!emailValid}
               required
             />
+
             <div className="loan-form-tenure-section">
               <input
                 type="number"
@@ -161,6 +203,7 @@ const LoanForm = () => {
                 value={formData.loanTenureValue}
                 onChange={handleChange}
                 className="loan-form-number-input"
+                disabled={!emailValid}
                 required
               />
               <select
@@ -168,18 +211,13 @@ const LoanForm = () => {
                 value={formData.loanTenureType}
                 onChange={handleChange}
                 className="loan-form-select"
+                disabled={!emailValid}
               >
                 <option value="months">Months</option>
                 <option value="years">Years</option>
               </select>
             </div>
-            <input
-              type="text"
-              name="interestRate"
-              value="1"
-              readOnly
-              className="loan-form-non-editable loan-form-input"
-            />
+
             <div className="loan-form-repayment-section">
               <label htmlFor="repaymentFrequency" className="loan-form-repayment-label">
                 Repayment Frequency:
@@ -204,21 +242,19 @@ const LoanForm = () => {
               value={formData.remarks}
               onChange={handleChange}
               className="loan-form-textarea"
+              disabled={!emailValid}
             ></textarea>
             <button
               type="submit"
               className="loan-form-button"
-              disabled={!isEligible || formSubmitted}
+              disabled={!emailValid || formSubmitted}
             >
-              Send Request
+              Submit Loan Request
             </button>
           </form>
         </>
       ) : (
         <div>
-          {/* <h3 className="loan-form-confirmation">
-            Form submitted successfully! Here's your payment schedule:
-          </h3> */}
           {loanId && <PaymentSchedule loanId={loanId} />}
         </div>
       )}
@@ -227,4 +263,3 @@ const LoanForm = () => {
 };
 
 export default LoanForm;
-
