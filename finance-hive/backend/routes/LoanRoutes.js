@@ -2,18 +2,24 @@ const express = require('express');
 const router = express.Router();
 const Loan = require('../models/Loan');
 const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
 
-// Configure multer for file uploads
+// Set up multer to save uploaded files in the 'payment_images' folder
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Specify the folder where screenshots are stored
+    const folderPath = path.join(__dirname, 'payment_images');  // Ensure absolute path
+    if (!fs.existsSync(folderPath)) {
+      fs.mkdirSync(folderPath, { recursive: true }); // Create folder if it doesn't exist
+    }
+    cb(null, folderPath);  // Use the folder path here
   },
   filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`); // Unique file name
+    cb(null, `${Date.now()}-${file.originalname}`); // Generate a unique filename based on timestamp
   },
 });
-const upload = multer({ storage });
 
+const upload = multer({ storage });
 // POST route to save/update loan details
 router.post('/', async (req, res) => {
   const {
@@ -141,10 +147,43 @@ router.get('/payment-schedule', async (req, res) => {
   }
 });
 
-// PUT route to update payment status with transaction ID and upload screenshot
+// // PUT route to update payment status with transaction ID and upload screenshot
+// router.put('/payment-schedule/:loanId/:sno', upload.single('screenshot'), async (req, res) => {
+//   const { loanId, sno } = req.params;
+//   const { transactionId } = req.body;
+
+//   try {
+//     const loan = await Loan.findById(loanId);
+//     if (!loan) {
+//       return res.status(404).json({ error: 'Loan not found' });
+//     }
+
+//     // Find the payment in the schedule and update its status
+//     const paymentIndex = loan.paymentSchedule.findIndex(payment => payment.sno === parseInt(sno));
+//     if (paymentIndex > -1) {
+//       loan.paymentSchedule[paymentIndex].status = 'Done'; // Update status
+//       loan.paymentSchedule[paymentIndex].transactionId = transactionId; // Add transaction ID
+//       loan.paymentSchedule[paymentIndex].screenshotPath = req.file ? req.file.path : null; // Save screenshot file path
+
+//       await loan.save(); // Save the loan with updated payment status
+//       return res.status(200).json({ message: 'Payment status updated successfully', payment: loan.paymentSchedule[paymentIndex] });
+//     } else {
+//       return res.status(404).json({ error: 'Payment not found' });
+//     }
+//   } catch (error) {
+//     console.error('Error updating payment status:', error);
+//     res.status(500).json({ error: 'Error updating payment status' });
+//   }
+// });
+// Your existing PUT route for updating the payment status (file upload)
+
+// PUT route for updating payment status with file upload
+// PUT route for updating payment status with file upload
 router.put('/payment-schedule/:loanId/:sno', upload.single('screenshot'), async (req, res) => {
   const { loanId, sno } = req.params;
   const { transactionId } = req.body;
+
+  console.log('Uploaded file details:', req.file);  // Log for debugging
 
   try {
     const loan = await Loan.findById(loanId);
@@ -155,11 +194,13 @@ router.put('/payment-schedule/:loanId/:sno', upload.single('screenshot'), async 
     // Find the payment in the schedule and update its status
     const paymentIndex = loan.paymentSchedule.findIndex(payment => payment.sno === parseInt(sno));
     if (paymentIndex > -1) {
-      loan.paymentSchedule[paymentIndex].status = 'Done'; // Update status
-      loan.paymentSchedule[paymentIndex].transactionId = transactionId; // Add transaction ID
-      loan.paymentSchedule[paymentIndex].screenshotPath = req.file ? req.file.path : null; // Save screenshot file path
+      loan.paymentSchedule[paymentIndex].status = 'Done';  // Update status
+      loan.paymentSchedule[paymentIndex].transactionId = transactionId;  // Add transaction ID
+      loan.paymentSchedule[paymentIndex].screenshotPath = req.file ? req.file.path : null;  // Save screenshot path
 
-      await loan.save(); // Save the loan with updated payment status
+      console.log('Updated payment details:', loan.paymentSchedule[paymentIndex]);
+
+      await loan.save();  // Save the loan with updated payment status
       return res.status(200).json({ message: 'Payment status updated successfully', payment: loan.paymentSchedule[paymentIndex] });
     } else {
       return res.status(404).json({ error: 'Payment not found' });
@@ -168,6 +209,15 @@ router.put('/payment-schedule/:loanId/:sno', upload.single('screenshot'), async 
     console.error('Error updating payment status:', error);
     res.status(500).json({ error: 'Error updating payment status' });
   }
+});
+
+// POST route to test file upload (for debugging purposes)
+router.post('/upload-test', upload.single('file'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+  console.log('Uploaded file:', req.file);
+  res.status(200).json({ message: 'File uploaded successfully', filePath: req.file.path });
 });
 
 

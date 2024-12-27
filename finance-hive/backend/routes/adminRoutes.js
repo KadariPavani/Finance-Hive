@@ -16,6 +16,40 @@ router.get('/:adminId', async (req, res) => {
   }
 });
 
+
+// Admin routes for payment management
+router.get('/admin/payments', async (req, res) => {
+  try {
+    const payments = await Payment.find()
+      .sort({ createdAt: -1 });
+    res.json(payments);
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching payments' });
+  }
+});
+
+router.put('/admin/payments/:paymentId/verify', async (req, res) => {
+  try {
+    const payment = await Payment.findByIdAndUpdate(
+      req.params.paymentId,
+      { status: 'Verified' },
+      { new: true }
+    );
+    res.json(payment);
+  } catch (error) {
+    res.status(500).json({ error: 'Error verifying payment' });
+  }
+});
+
+router.delete('/admin/payments/:paymentId', async (req, res) => {
+  try {
+    await Payment.findByIdAndDelete(req.params.paymentId);
+    res.json({ message: 'Payment deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Error deleting payment' });
+  }
+});
+
 // Add more admin-specific routes as needed
 
 module.exports = router;

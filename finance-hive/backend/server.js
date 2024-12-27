@@ -1104,25 +1104,25 @@ const UserSchema = new mongoose.Schema({
   mobileNumber: { type: String, required: true },
   address: { type: String, required: true },
   password: { type: String, required: true },
+  loginCount: { type: Number, default: 0 },
 });
 
-// Check if models are already defined to avoid overwriting
 const User = mongoose.models.User || mongoose.model('User', UserSchema);
 const Organizer = mongoose.models.Organizer || mongoose.model('Organizer', UserSchema);
 const Admin = mongoose.models.Admin || mongoose.model('Admin', UserSchema);
 
-// Multer setup for file uploads (screenshots)
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = './uploads';
-    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
-    cb(null, uploadDir);
+    cb(null, 'payment_screenshots/');  // Folder where screenshots will be saved
   },
   filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
+    cb(null, `${Date.now()}-${file.originalname}`);  // Generate a unique filename based on timestamp
   },
 });
+
 const upload = multer({ storage });
+
 
 // Role validation function
 const validateRole = (role) => ['User', 'Organizer', 'Admin'].includes(role);
@@ -1199,10 +1199,100 @@ app.get('/api/users/validate-email/:email', async (req, res) => {
   }
 });
 
+
+app.get('/organizer-details/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const organizer = await Organizer.findById(id);
+    if (!organizer) return res.status(404).json({ msg: 'Organizer not found' });
+    res.json(organizer);
+  } catch (error) {
+    res.status(500).json({ msg: 'Error fetching organizer details', error: error.message });
+  }
+});
+
+app.get('/admin-details/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const admin = await Admin.findById(id); // Corrected to use the Admin model
+    if (!admin) return res.status(404).json({ msg: 'Admin not found' });
+    res.json(admin);
+  } catch (error) {
+    res.status(500).json({ msg: 'Error fetching Admin details', error: error.message });
+  }
+});
+
+// Fetch login counts for all roles (Admin only)
+app.get('/login-count', authenticateToken, async (req, res) => {
+  if (req.user.role !== 'Admin') {
+    return res.status(403).json({ msg: 'Access denied: Only admins can access this data' });
+  }
+
+  try {
+    const userLoginCount = await User.aggregate([{ $group: { _id: null, totalLogins: { $sum: '$loginCount' } } }]);
+    const organizerLoginCount = await Organizer.aggregate([{ $group: { _id: null, totalLogins: { $sum: '$loginCount' } } }]);
+    const adminLoginCount = await Admin.aggregate([{ $group: { _id: null, totalLogins: { $sum: '$loginCount' } } }]);
+
+    res.status(200).json({
+      userLogins: userLoginCount[0]?.totalLogins || 0,
+      organizerLogins: organizerLoginCount[0]?.totalLogins || 0,
+      adminLogins: adminLoginCount[0]?.totalLogins || 0,
+    });
+  } catch (error) {
+    res.status(500).json({ msg: 'Error fetching login counts', error: error.message });
+  }
+});
+// Fetch signup counts for all roles (Admin only)
+app.get('/signup-count', authenticateToken, async (req, res) => {
+  if (req.user.role !== 'Admin') {
+    return res.status(403).json({ msg: 'Access denied: Only admins can access this data' });
+  }
+
+  try {
+    const userCount = await User.countDocuments();
+    const organizerCount = await Organizer.countDocuments();
+    const adminCount = await Admin.countDocuments();
+
+    res.status(200).json({
+      userSignups: userCount,
+      organizerSignups: organizerCount,
+      adminSignups: adminCount,
+    });
+  } catch (error) {
+    res.status(500).json({ msg: 'Error fetching signup counts', error: error.message });
+  }
+});
+
+
+
+app.get('/all-users', authenticateToken, async (req, res) => {
+  if (req.user.role !== 'Admin') return res.status(403).json({ msg: 'Access denied' });
+
+  try {
+    const users = await User.find({}, 'firstName lastName email role mobileNumber address userId');
+    const organizers = await Organizer.find({}, 'firstName lastName email role mobileNumber address userId');
+    const admins = await Admin.find({}, 'firstName lastName email role mobileNumber address userId');
+
+    res.json({ users, organizers, admins });
+  } catch (error) {
+    res.status(500).json({ msg: 'Error fetching users', error: error.message });
+  }
+});
+
+
+
+
+// Serve uploaded files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+
+
+
+
 // Loan Routes
 const loanRoutes = require('./routes/LoanRoutes');
 app.use('/api/loans', loanRoutes);
 
 // Start server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
