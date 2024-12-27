@@ -1062,7 +1062,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
-
+const { transferDonePayments } =require('./routes/LoanRoutes');
 const app = express();
 const userRoutes = require('./routes/userRoutes');
 // MongoDB URI

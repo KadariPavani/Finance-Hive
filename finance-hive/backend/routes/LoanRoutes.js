@@ -4,7 +4,8 @@ const Loan = require('../models/Loan');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
-
+const mongoose = require('mongoose');
+const Payment = require('../models/paymentSchema');
 // Set up multer to save uploaded files in the 'payment_images' folder
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -248,6 +249,99 @@ router.put('/payment/:loanId/:sno', upload.single('screenshot'), async (req, res
     res.status(500).json({ error: 'Error updating payment status' });
   }
 });
+
+// const transferDonePayments = async () => {
+//   try {
+//     console.log("Starting to transfer payments...");
+
+//     // Query the loans_update collection for payments with status "Done"
+//     const loans = await mongoose.model('loans_update').find({ 
+//       'paymentSchedule.status': 'Done' 
+//     });
+
+//     console.log(`Found ${loans.length} loans with payment status "Done"`); // Add log here
+
+//     if (loans.length === 0) {
+//       console.log('No loans with payment status "Done" found.');
+//       return;
+//     }
+
+//     // Extract relevant data for payments with "Done" status
+//     const payments = loans.flatMap(loan => 
+//       loan.paymentSchedule
+//         .filter(payment => payment.status === 'Done')
+//         .map(payment => ({
+//           date: payment.date,
+//           organization: loan.organization,
+//           email: loan.email,
+//           amount: payment.amount,
+//           status: payment.status,
+//           transactionId: payment.transactionId,
+//         }))
+//     );
+
+//     console.log('Extracted payments:', payments);  // Log the payments array
+
+//     if (payments.length > 0) {
+//       // Insert payments into the payments collection
+//       await Payment.insertMany(payments);
+//       console.log(`${payments.length} payments with status "Done" have been transferred successfully.`);
+//     } else {
+//       console.log('No payments with status "Done" found.');
+//     }
+//   } catch (error) {
+//     console.error('Error transferring payments:', error);
+//   }
+// };
+
+// // Call this function to transfer payments from loans_updates to payments collection
+// transferDonePayments();
+
+const transferDonePayments = async () => {
+  try {
+    // Query the loans_update collection for payments with status "Done"
+    const loans = await mongoose.model('loans_update').find({ 
+      'paymentSchedule.status': 'Done' 
+    });
+
+    // If no loans with payment status "Done" found, exit early
+    if (loans.length === 0) {
+      return;
+    }
+
+    // Extract relevant data for payments with "Done" status
+    const payments = loans.flatMap(loan => 
+      loan.paymentSchedule
+        .filter(payment => payment.status === 'Done')
+        .map(payment => ({
+          date: payment.date,
+          organization: loan.organization,
+          email: loan.email,
+          amount: payment.amount,
+          status: payment.status,
+          transactionId: payment.transactionId,
+        }))
+    );
+
+    // Loop through payments and check for duplicates before insertion
+    if (payments.length > 0) {
+      for (let payment of payments) {
+        // Check if payment with the same transactionId already exists
+        const existingPayment = await Payment.findOne({ transactionId: payment.transactionId });
+
+        // If no existing payment is found, insert the payment
+        if (!existingPayment) {
+          await Payment.create(payment);
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error transferring payments:', error);
+  }
+};
+
+// Call this function to transfer payments from loans_updates to payments collection
+transferDonePayments();
 
 
 // GET route to check user eligibility for loan (pending payments check)

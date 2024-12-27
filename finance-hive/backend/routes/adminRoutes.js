@@ -17,38 +17,34 @@ router.get('/:adminId', async (req, res) => {
 });
 
 
-// Admin routes for payment management
-router.get('/admin/payments', async (req, res) => {
-  try {
-    const payments = await Payment.find()
-      .sort({ createdAt: -1 });
-    res.json(payments);
-  } catch (error) {
-    res.status(500).json({ error: 'Error fetching payments' });
-  }
-});
+router.delete('/delete-payment/:loanId/:paymentSno', async (req, res) => {
+  const { loanId, paymentSno } = req.params;
 
-router.put('/admin/payments/:paymentId/verify', async (req, res) => {
   try {
-    const payment = await Payment.findByIdAndUpdate(
-      req.params.paymentId,
-      { status: 'Verified' },
-      { new: true }
-    );
-    res.json(payment);
-  } catch (error) {
-    res.status(500).json({ error: 'Error verifying payment' });
-  }
-});
+    const loan = await Loan.findById(loanId);
 
-router.delete('/admin/payments/:paymentId', async (req, res) => {
-  try {
-    await Payment.findByIdAndDelete(req.params.paymentId);
+    if (!loan) {
+      return res.status(404).json({ message: 'Loan not found' });
+    }
+
+    // Find the payment by sno and remove it
+    const paymentIndex = loan.paymentSchedule.findIndex(payment => payment.sno === Number(paymentSno));
+    
+    if (paymentIndex === -1) {
+      return res.status(404).json({ message: 'Payment not found' });
+    }
+
+    loan.paymentSchedule.splice(paymentIndex, 1); // Remove the payment
+
+    await loan.save(); // Save the updated loan document
+
     res.json({ message: 'Payment deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ error: 'Error deleting payment' });
+  } catch (err) {
+    console.error('Error deleting payment:', err);
+    res.status(500).json({ message: 'Error deleting payment', error: err });
   }
 });
+
 
 // Add more admin-specific routes as needed
 
