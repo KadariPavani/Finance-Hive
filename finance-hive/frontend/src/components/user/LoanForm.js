@@ -152,113 +152,133 @@ const LoanForm = () => {
   }, [formData.email]);
 
   return (
-    <div className={`loan-form-container ${isMobile ? 'disabled' : ''}`}>
-      {!formSubmitted ? (
-        <>
-          <h2 className="loan-form-title">Loan Taking</h2>
-          <form className="loan-form" onSubmit={handleSubmit}>
-            <div className="email-validation-section">
-              <input
-                type="email"
-                name="email"
-                placeholder="Your Email"
-                value={formData.email}
-                onChange={handleChange}
-                className="loan-form-input"
-                required
-              />
-              <button type="button" onClick={validateEmail} className="validate-button">
-                Validate
-              </button>
-            </div>
-            <p className="validation-message">{validationMessage}</p>
-
-            <input
-              type="text"
-              name="loanAmount"
-              placeholder="Loan Amount"
-              value={formData.loanAmount}
-              onChange={handleChange}
-              className="loan-form-input"
-              disabled={!emailValid}
-              required
-            />
-
-            <input
-              type="text"
-              name="loanPurpose"
-              placeholder="Loan Purpose"
-              value={formData.loanPurpose}
-              onChange={handleChange}
-              className="loan-form-input"
-              disabled={!emailValid}
-              required
-            />
-
-            <div className="loan-form-tenure-section">
-              <input
-                type="number"
-                name="loanTenureValue"
-                placeholder="Loan Tenure"
-                value={formData.loanTenureValue}
-                onChange={handleChange}
-                className="loan-form-number-input"
-                disabled={!emailValid}
-                required
-              />
-              <select
-                name="loanTenureType"
-                value={formData.loanTenureType}
-                onChange={handleChange}
-                className="loan-form-select"
-                disabled={!emailValid}
-              >
-                <option value="months">Months</option>
-                <option value="years">Years</option>
-              </select>
-            </div>
-
-            <div className="loan-form-repayment-section">
-              <label htmlFor="repaymentFrequency" className="loan-form-repayment-label">
-                Repayment Frequency:
-              </label>
-              <select
-                id="repaymentFrequency"
-                name="repaymentFrequency"
-                value={formData.repaymentFrequency}
-                onChange={handleChange}
-                className="loan-form-repayment-dropdown"
-                required
-                disabled={frequencyDisabled}
-              >
-                <option value="monthly">Monthly</option>
-                <option value="quarterly">Quarterly</option>
-                <option value="annually">Annually</option>
-              </select>
-            </div>
-            <textarea
-              name="remarks"
-              placeholder="Remarks"
-              value={formData.remarks}
-              onChange={handleChange}
-              className="loan-form-textarea"
-              disabled={!emailValid}
-            ></textarea>
-            <button
-              type="submit"
-              className="loan-form-button"
-              disabled={!emailValid || formSubmitted}
-            >
-              Submit Loan Request
-            </button>
-          </form>
-        </>
-      ) : (
-        <div>
-          {loanId && <PaymentSchedule loanId={loanId} />}
+<div className={`loan-form-container ${isMobile ? 'disabled' : ''}`}>
+  {!formSubmitted ? (
+    <>
+      <h2 className="loan-form-title">Loan Taking</h2>
+      <form className="loan-form" onSubmit={handleSubmit}>
+        <div className="email-validation-section">
+          <input
+            type="email"
+            name="email"
+            placeholder="Your Email"
+            value={formData.email}
+            onChange={handleChange}
+            className="loan-form-input"
+            required
+          />
+          <button type="button" onClick={validateEmail} className="validate-button">
+            Validate
+          </button>
         </div>
-      )}
+        <p className="validation-message">{validationMessage}</p>
+
+        <input
+          type="text"
+          name="loanAmount"
+          placeholder="Loan Amount"
+          value={formData.loanAmount}
+          onChange={handleChange}
+          className="loan-form-input"
+          disabled={!emailValid}
+          required
+        />
+
+        <input
+          type="text"
+          name="loanPurpose"
+          placeholder="Loan Purpose"
+          value={formData.loanPurpose}
+          onChange={handleChange}
+          className="loan-form-input"
+          disabled={!emailValid}
+          required
+        />
+
+        <div className="loan-form-tenure-section">
+          <input
+            type="number"
+            name="loanTenureValue"
+            placeholder="Loan Tenure"
+            value={formData.loanTenureValue}
+            onChange={handleChange}
+            className="loan-form-number-input"
+            disabled={!emailValid}
+            required
+          />
+          <select
+            name="loanTenureType"
+            value={formData.loanTenureType}
+            onChange={handleChange}
+            className="loan-form-select"
+            disabled={!emailValid}
+          >
+            <option value="months">Months</option>
+            <option value="years">Years</option>
+          </select>
+        </div>
+
+        <div className="loan-form-repayment-section">
+          <label htmlFor="repaymentFrequency" className="loan-form-repayment-label">
+            Repayment Frequency:
+          </label>
+          <select
+            id="repaymentFrequency"
+            name="repaymentFrequency"
+            value={formData.repaymentFrequency}
+            onChange={handleChange}
+            className="loan-form-repayment-dropdown"
+            required
+            disabled={frequencyDisabled}
+          >
+            <option value="monthly">Monthly</option>
+            <option value="quarterly">Quarterly</option>
+            <option value="annually">Annually</option>
+          </select>
+        </div>
+
+        <label htmlFor="organization" className="loan-form-label">
+        </label>
+        <select
+          id="organization"
+          name="organization"
+          value={formData.organization}
+          onChange={handleChange}
+          className="loan-form-select"
+          required
+          disabled={!emailValid}
+        >
+          <option value="">Select an organization</option>
+          <option value="K-HUB">K-HUB</option>
+          <option value="GCC">GCC</option>
+          <option value="TOASTMASTERS">TOASTMASTERS</option>
+          <option value="ROBOTICS">ROBOTICS</option>
+        </select>
+
+        <textarea
+          name="remarks"
+          placeholder="Remarks"
+          value={formData.remarks}
+          onChange={handleChange}
+          className="loan-form-textarea"
+          disabled={!emailValid}
+        ></textarea>
+        <button
+          type="submit"
+          className="loan-form-button"
+          disabled={!emailValid || formSubmitted}
+        >
+          Submit Loan Request
+        </button>
+      </form>
+    </>
+  ) : (
+    <div>
+      {loanId && <PaymentSchedule loanId={loanId} />}
     </div>
+  )}
+</div>
+
   );
 };
 

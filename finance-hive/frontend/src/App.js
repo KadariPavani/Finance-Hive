@@ -26,13 +26,15 @@ const App = () => {
   element={<PaymentSchedule />}
 />
 <Route path="/user-dashboard" element={<EmptyLoanPage />} />
+<Route path="/user-dashboard/:userId/money-matters" element={<PersonalDetailsForm />} />
 
         <Route path="/user-dashboard/:userId/settings" element={<ChangePassword />} />
+        <Route path="/user-dashboard/:userId/main-dashboard" element={<PaymentSchedule />} />
         <Route path="/user-dashboard/:userId/feedback" element={<FeedbackForm />} />
         <Route path="/user-dashboard/:userId/verification-status" element={<VerificationStatus />} />
         <Route path="/money-matters" element={<PersonalDetailsForm />} />
         <Route path="/user-dashboard/:userId" element={<UserDashboard />} />
-        <Route path="/user-dashboard/:loanId/payments/list" element={<PaymentSchedule />} />
+        {/* <Route path="/user-dashboard/:loanId/payments/list" element={<PaymentSchedule />} /> */}
         <Route path="/money-matters/completed" element={<CompletionPage />} />
         <Route path="/empty-loan" element={<EmptyLoanPage />} /> {/* Empty page route */}
         <Route path="user-dashboard/:userId/completion" element={<CompletionPage />} />

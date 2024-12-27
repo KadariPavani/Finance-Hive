@@ -18,7 +18,9 @@ const PaymentSchedule = ({ loanId }) => {
     completedTransactions: 0,
     pendingTransactions: 0,
     nextPayableDate: 'N/A',
+    organization: 'N/A',
   });
+  const [userTransactionId, setUserTransactionId] = useState(''); // Add a state for the transaction ID
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [currentPayment, setCurrentPayment] = useState(null);
   const [screenshot, setScreenshot] = useState(null);
@@ -54,6 +56,9 @@ const PaymentSchedule = ({ loanId }) => {
 
     fetchPaymentSchedule();
   }, [loanId]);
+
+
+
 
   const calculateLoanDetails = (payments) => {
     const totalAmount = payments.reduce((acc, payment) => acc + parseFloat(payment.amount), 0);
@@ -100,42 +105,40 @@ const PaymentSchedule = ({ loanId }) => {
   };
 
   const handlePaymentConfirmation = async () => {
-    if (!screenshot) {
-      alert('Please upload the payment screenshot.');
+    if (!screenshot || !userTransactionId) {
+      alert('Please upload the payment screenshot and enter the transaction ID.');
       return;
     }
-
+  
     try {
-      const transactionId = `TXN${Math.floor(Math.random() * 1000000000)}`;
-
       const updatedPayments = payments.map(payment =>
         payment.sno === currentPayment.sno
-          ? { ...payment, status: 'Done', transactionId }
+          ? { ...payment, status: 'Done', transactionId: userTransactionId }
           : payment
       );
-
+  
       setPayments(updatedPayments);
       calculateLoanDetails(updatedPayments);
-
+  
       // Update backend
       await axios.put(`http://localhost:5000/api/loans/payment/${loanId}/${currentPayment.sno}`, {
-        transactionId,
+        transactionId: userTransactionId,
         screenshot,
       });
-
-
+  
       // Save to localStorage as well
       localStorage.setItem('payments', JSON.stringify(updatedPayments));
-
+  
       setShowPaymentModal(false);
       setPaymentSuccess(true);
-
-      alert(`Payment for S.No ${currentPayment.sno} completed with Transaction ID: ${transactionId}`);
+  
+      alert(`Payment for S.No ${currentPayment.sno} completed with Transaction ID: ${userTransactionId}`);
     } catch (error) {
       console.error('Error updating payment status:', error);
       alert('Payment processing failed. Please try again.');
     }
   };
+  
 
   const handleScreenshotUpload = (event) => {
     const file = event.target.files[0];
@@ -227,19 +230,19 @@ const donutChartData = {
   <div className="ps-analytics-container">
     <div className="ps-analytics-card ps-money-taken">
       <h3>Money Payable</h3>
-      <p>${getMoneyTakenFromOrganization()}</p>
+      <p>₹{getMoneyTakenFromOrganization()}</p>
     </div>
     <div className="ps-analytics-card ps-total-paid">
       <h3>Total Amount Paid</h3>
-      <p>${getTotalPaidAmount()}</p>
+      <p>₹{getTotalPaidAmount()}</p>
     </div>
     <div className="ps-analytics-card ps-interest">
       <h3>Interest</h3>
-      <p>${getInterest()}</p>
+      <p>₹1</p>
     </div>
     <div className="ps-analytics-card ps-balance">
       <h3>Balance</h3>
-      <p>${getBalance()}</p>
+      <p>₹{getBalance()}</p>
     </div>
   </div>
 
@@ -252,7 +255,7 @@ const donutChartData = {
     <div className="ps-graph-header">
       <span className="ps-graph-title">Payment Timeline</span>
       <div className="ps-graph-total">
-        Total Payable: ${loanDetails.totalAmount}
+        Total Payable: ₹{loanDetails.totalAmount}
       </div>
     </div>
     <div className="ps-bar-graph">
@@ -269,9 +272,9 @@ const donutChartData = {
         // Using the same date format as shown in the table
         return (
           <div className="ps-bar-container" key={payment.sno}>
-            <div className="ps-bar-value">${amount.toLocaleString()}</div>
+            <div className="ps-bar-value">₹{amount.toLocaleString()}</div>
             <div
-              className={`ps-bar ${payment.status === 'Done' ? 'ps-active' : ''}`}
+              className={`ps-bar ₹{payment.status === 'Done' ? 'ps-active' : ''}`}
               style={{
                 height: `${height}px`,
                 backgroundColor: payment.status === 'Done' ? '#6366f1' : '#e2e8f0'
@@ -298,11 +301,11 @@ const donutChartData = {
         </tr>
       </thead>
       <tbody>
-        {payments.slice(0, 10).map((payment) => (
+        {payments.map((payment) => (
           <tr key={payment.sno}>
             <td>{payment.sno}</td>
             <td>{payment.date}</td>
-            <td>${payment.amount}</td>
+            <td>₹{payment.amount}</td>
             <td>
               {payment.status === 'Pay now' ? (
                 <button onClick={() => handlePayNow(payment)}>Pay Now</button>
@@ -319,23 +322,31 @@ const donutChartData = {
 
   {/* Payment Modal */}
   {showPaymentModal && (
-    <div className="ps-payment-modal">
-      <h3>Payment for S.No {currentPayment.sno}</h3>
-      <p>Amount: ${currentPayment.amount}</p>
+  <div className="ps-payment-modal">
+    <h3>Payment for S.No {currentPayment.sno}</h3>
+    <p>Amount: ₹{currentPayment.amount}</p>
 
-      <QRCodeCanvas
-        value={`upi://pay?pa=96660741389@ibl&pn=YourName&am=${currentPayment.amount}&cu=INR`}
-        size={200}
-      />
-      <p>Scan QR code to pay</p>
+    <QRCodeCanvas
+      value={`upi://pay?pa=96660741389@ibl&pn=YourName&am=${currentPayment.amount}&cu=INR`}
+      size={200}
+    />
+    <p>Scan QR to pay to: <strong>{loanDetails.organization}</strong></p>
 
-      <p>Upload Payment Screenshot:</p>
-      <input type="file" onChange={handleScreenshotUpload} accept="image/*" />
+    <p>Enter Transaction ID:</p>
+    <input
+      type="text"
+      placeholder="Transaction ID"
+      value={userTransactionId}
+      onChange={(e) => setUserTransactionId(e.target.value)}
+    />
 
-      <button onClick={handlePaymentConfirmation}>Confirm Payment</button>
-      <button onClick={() => setShowPaymentModal(false)}>Cancel</button>
-    </div>
-  )}
+    <p>Upload Payment Screenshot:</p>
+    <input type="file" onChange={handleScreenshotUpload} accept="image/*" />
+
+    <button onClick={handlePaymentConfirmation}>Confirm Payment</button>
+    <button onClick={() => setShowPaymentModal(false)}>Cancel</button>
+  </div>
+)}
 
   {/* Progress Indicator and Loan Details */}
   <div className="ps-details-container">
@@ -364,7 +375,7 @@ const donutChartData = {
     </div>
 
     <div className="ps-loan-details">
-      <p><strong>Total Amount:</strong> ${loanDetails.totalAmount}</p>
+      <p><strong>Total Amount:</strong> ₹{loanDetails.totalAmount}</p>
       <p><strong>Interest Rate:</strong> {loanDetails.interestRate}%</p>
       <p><strong>Completed Transactions:</strong> {loanDetails.completedTransactions}</p>
       <p><strong>Pending Transactions:</strong> {loanDetails.pendingTransactions}</p>

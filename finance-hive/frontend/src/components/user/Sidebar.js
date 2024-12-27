@@ -36,7 +36,7 @@ const Sidebar = ({ userData, setShowLoanForm }) => {
           <FaCheckCircle />
           <span>Verification Status</span>
         </NavLink>
-        <NavLink to="./payments/list" className="sidebar-item">
+        <NavLink to="./main-dashboard" className="sidebar-item">
           <FaDollarSign />
           <span>Payments</span>
         </NavLink>

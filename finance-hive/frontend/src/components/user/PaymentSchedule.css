@@ -716,8 +716,8 @@ button {
   background: linear-gradient(135deg, #1e3a8a, #3b82f6);
   color: white;
   border: none;
-  padding: 12px 24px;
-  border-radius: 6px;
+  /* padding: 12px 24px;
+  border-radius: 6px; */
   cursor: pointer;
   transition: background 0.3s ease, box-shadow 0.3s ease;
 }
