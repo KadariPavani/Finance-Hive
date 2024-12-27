@@ -105,30 +105,42 @@ const PaymentSchedule = ({ loanId }) => {
   };
 
   const handlePaymentConfirmation = async () => {
+    // Check if both the screenshot and transaction ID are provided
     if (!screenshot || !userTransactionId) {
       alert('Please upload the payment screenshot and enter the transaction ID.');
       return;
     }
   
     try {
+      // Create FormData to send the file and other details
+      const formData = new FormData();
+      formData.append('transactionId', userTransactionId);
+      formData.append('screenshot', screenshot);
+  
+      // Update the payment status in the state
       const updatedPayments = payments.map(payment =>
         payment.sno === currentPayment.sno
           ? { ...payment, status: 'Done', transactionId: userTransactionId }
           : payment
       );
   
+      // Set the updated payments data to state
       setPayments(updatedPayments);
+  
+      // Recalculate loan details based on updated payments
       calculateLoanDetails(updatedPayments);
   
-      // Update backend
-      await axios.put(`http://localhost:5000/api/loans/payment/${loanId}/${currentPayment.sno}`, {
-        transactionId: userTransactionId,
-        screenshot,
+      // Send the updated payment details (along with the screenshot) to the backend
+      const response = await axios.put(`http://localhost:5000/api/loans/payment/${loanId}/${currentPayment.sno}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
   
-      // Save to localStorage as well
+      // Save the updated payments data to localStorage as a fallback
       localStorage.setItem('payments', JSON.stringify(updatedPayments));
   
+      // Close the payment modal and show success message
       setShowPaymentModal(false);
       setPaymentSuccess(true);
   
@@ -138,6 +150,7 @@ const PaymentSchedule = ({ loanId }) => {
       alert('Payment processing failed. Please try again.');
     }
   };
+  
   
 
   const handleScreenshotUpload = (event) => {
