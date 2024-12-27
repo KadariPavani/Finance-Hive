@@ -23,7 +23,8 @@ router.post('/', async (req, res) => {
     interestRate,
     repaymentFrequency,
     remarks,
-    email // Extract email from the request body
+    email, // Extract email from the request body
+    organization
   } = req.body;
 
   try {
@@ -48,7 +49,8 @@ router.post('/', async (req, res) => {
         interestRate,
         repaymentFrequency,
         remarks,
-        email, // Save the email
+        email,
+        organization // Save the email
       });
     } else {
       // If a loan exists, update the existing loan details
@@ -58,6 +60,7 @@ router.post('/', async (req, res) => {
       loan.interestRate = interestRate;
       loan.repaymentFrequency = repaymentFrequency;
       loan.remarks = remarks;
+      loan.organization = organization; // Update organization
     }
 
     // Calculate monthly payment using the amortization formula
@@ -215,6 +218,8 @@ router.get('/users/:email/eligibility', async (req, res) => {
     res.status(500).json({ error: 'Error checking eligibility' });
   }
 });
+
+
 
 module.exports = router;
 
