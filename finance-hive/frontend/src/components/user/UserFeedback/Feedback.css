@@ -1,0 +1,82 @@
+.Feedback-body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #090909, #b79af1);
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.Feedback-form-container {
+  background-color: #1e1e2f;
+  border-radius: 12px;
+  padding: 40px 20px; /* Increased padding for better spacing */
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.Feedback-form-container h2 {
+  margin-bottom: 20px; /* Added more spacing below the title */
+  font-size: 26px;
+  text-align: center;
+  color: #b79af1;
+}
+
+.Feedback-form-container p {
+  font-size: 16px; /* Adjusted font size for better readability */
+  text-align: center;
+  margin-bottom: 25px;
+  color: #f0eded;
+}
+
+.Feedback-name-fields {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.Feedback-name-fields input {
+  flex: 1;
+}
+
+.Feedback-text-input {
+  width: 100%;
+  padding: 12px; /* Increased padding for better touch target size */
+  margin-bottom: 15px;
+  border: none;
+  border-radius: 8px;
+  background-color: #2c2c3c;
+  color: #fff;
+  font-size: 14px;
+}
+
+.Feedback-text-input::placeholder {
+  color: #b4acac;
+}
+
+.Feedback-submit-btn {
+  width: 100%;
+  padding: 14px; /* Adjusted padding to match input fields */
+  background-color: #b79af1;
+  color: #fff;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.Feedback-submit-btn:hover {
+  background-color: #8a2be2;
+}
+
+.Feedback-form-message {
+  margin-top: 20px; /* Added spacing above the message */
+  font-size: 14px;
+  text-align: center;
+  color: #28a745;
+}

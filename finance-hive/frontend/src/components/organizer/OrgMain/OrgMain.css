@@ -1,0 +1,54 @@
+.orgMainContent{
+    margin-top: 60px;
+}
+
+.homeView {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+    justify-content: center; /* Center the content */
+  }
+  
+  .homeView > * {
+    min-width: 300px; /* Ensure sections don't shrink too much on smaller screens */
+  }
+
+  .summarylinetable > * {
+    margin-top: 20px;
+    /* padding: 0; */
+  }
+  
+  .pieAndReports {
+    display: flex;
+    gap: 20px; /* Space between PieChartSection and UserReports */
+    justify-content: space-between;
+    width: 100%; /* Ensure it spans the full width */
+  }
+  
+  .pieAndReports > * {
+    flex: 1; /* Equal width for both sections */
+    aspect-ratio: 1; /* Ensure both sections are square */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff; /* Optional: Add a background for visualization */
+    border-radius: 0px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); 
+    min-width: 300px; /* Ensure a minimum width */
+    margin-top: 0;
+    margin-left: 0;
+  }
+  
+  /* Responsive Layout for Smaller Screens */
+  @media (max-width: 768px) {
+    .pieAndReports {
+      flex-direction: column; /* Stack sections vertically */
+    }
+  
+    .pieAndReports > * {
+      width: 100%; /* Full width for each section */
+      aspect-ratio: auto; /* Let the height adjust naturally */
+    }
+  }
+  

@@ -1,24 +1,22 @@
-/* Import Google font - Poppins */
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
 
-/* Base styles */
-* {
+/* * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: "Poppins", sans-serif;
-}
+  color: hwb(0 100% 0%);
+} */
 
-/* Form Container */
 .openform-form_container {
   position: fixed;
-  max-width: 500px;
-  width: 90%;
+  max-width: 1000px;
+  width: 200%;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) scale(1.2);
   z-index: 101;
-  background: #fff;
+  background: hsl(0, 43%, 99%);
   padding: 25px;
   border-radius: 12px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -33,7 +31,6 @@
   transform: translate(-50%, -50%) scale(1);
 }
 
-/* Form Elements */
 .openform-signup_form {
   display: none;
 }
@@ -48,8 +45,8 @@
 
 .openform-form_close {
   position: absolute;
-  top: 10px;
-  right: 20px;
+  top: 20px;
+  left: 20px;
   color: #0b0217;
   font-size: 22px;
   opacity: 0.7;
@@ -62,7 +59,6 @@
   text-align: center;
 }
 
-/* Input Fields */
 .openform-input_box {
   position: relative;
   margin-top: 20px;
@@ -75,7 +71,7 @@
   width: 100%;
   border: none;
   outline: none;
-  padding: 0 30px;
+  padding: 0 20px;
   color: #333;
   transition: all 0.2s ease;
   border-bottom: 1.5px solid #aaaaaa;
@@ -109,7 +105,6 @@
   cursor: pointer;
 }
 
-/* Input Row for Side by Side Fields */
 .openform-input_row {
   display: flex;
   gap: 20px;
@@ -120,7 +115,6 @@
   flex: 1;
 }
 
-/* Options Field */
 .openform-option_field {
   margin-top: 14px;
   display: flex;
@@ -145,7 +139,6 @@
   color: #0b0217;
 }
 
-/* Links & Buttons */
 .openform-form_container a {
   color: #7d2ae8;
   font-size: 12px;
@@ -167,13 +160,12 @@
 }
 
 .openform-login_signup {
-  font-size: 12px;
+  font-size: 10px;
   text-align: center;
   margin-top: 15px;
   color: gray;
 }
 
-/* Role Selection */
 .openform-role_selection {
   position: absolute;
   top: 10px;
@@ -183,14 +175,14 @@
 }
 
 .openform-role_selection label {
-  font-size: 14px;
+  font-size: 12px;
   color: #333;
   margin-bottom: 5px;
 }
 
 .openform-role_selection select {
   padding: 8px 12px;
-  border: 1.5px solid #7d2ae8;
+  border: 1.5px solid #b79af1;
   border-radius: 6px;
   background-color: #fff;
   color: #333;
@@ -203,7 +195,6 @@
   border-color: #5a19b4;
 }
 
-/* Media Queries */
 @media screen and (max-width: 991px) {
   .openform-form_container {
     max-width: 400px;
@@ -243,8 +234,6 @@
     font-size: 11px;
   }
 
-
-
   .openform-role_selection select {
     padding: 4px;
     font-size: 12px;
@@ -256,6 +245,145 @@
     margin-top: 20px;
   }
 }
+
 body.no-scroll {
   overflow: hidden;
+}
+
+.openform-login_layout {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.openform-login_image {
+  flex: 1;
+  text-align: center;
+  padding: 20px;
+}
+
+.openform-login_image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+.openform-login_form {
+  flex: 1;
+  padding: 20px;
+}
+
+.openform-option_field {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.openform-checkbox {
+  margin-right: 10px;
+}
+
+.forgot_pw {
+  text-decoration: none;
+  color: #b79af1;
+  padding-left: 10px;
+}
+
+.forgot_pw:hover {
+  text-decoration: underline;
+  color: #b79af1;
+}
+
+.openform-signup_layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  
+}
+
+.openform-signup_image img {
+  width: 300px;
+  height: auto;
+}
+
+.openform-signup_form {
+  width: 450%;
+  max-width: 700px;
+  padding: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .openform-login_layout,
+  .openform-signup_layout {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+
+  .openform-signup_image img {
+    width: 280px;
+  }
+
+  .openform-signup_form {
+    max-width: 130%;
+    padding-right: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .openform-signup_layout {
+    padding: 0.5rem;
+  }
+
+  .openform-signup_image img {
+    width: 200px;
+  }
+
+  .openform-signup_form {
+    max-width: 120%;
+    padding: 1rem;
+  }
+
+  .openform-option_field {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .forgot_pw {
+    padding-left: 0;
+  }
+  
+}
+.openform-role_selection {
+  margin: 1rem 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.openform-role_selection select {
+  width: 100%;
+  max-width: 300px;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  color: #333;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.openform-role_selection select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.openform-role_selection select option {
+  font-size: 1rem;
+  color: #333;
 }

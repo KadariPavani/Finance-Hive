@@ -83,8 +83,10 @@
 // };
 
 // export default FinancialWizardsSlider;
+// FinancialWizardsSlider.js
 import React, { useState, useEffect, useRef } from 'react';
 import './FinancialWizardsSlider.css';
+import { FaPiggyBank, FaChartLine, FaWallet, FaSearchDollar } from 'react-icons/fa'; // Import icons
 
 const FinancialWizardsSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -94,20 +96,24 @@ const FinancialWizardsSlider = () => {
 
   const testimonials = [
     {
+      icon: <FaPiggyBank />,
       name: "Savings Booster",
-      text: "Grow your savings effortlessly. Set goals, track progress, and get insights to maximize your financial potential."
+      text: "Set goals and grow your savings. 🐷"
     },
     {
+      icon: <FaWallet />,
       name: "Track Transactions",
-      text: "Easily monitor your expenses. Keep your spending under control with detailed insights and summaries."
+      text: "Monitor expenses easily. 💳"
     },
     {
+      icon: <FaChartLine />,
       name: "Finance Dashboard",
-      text: "View all your finances in one place. Income, expenses, savings, and investments—an overview made simple."
+      text: "All your finances in one view. 📊"
     },
     {
+      icon: <FaSearchDollar />,
       name: "Spending Analyzer",
-      text: "Analyze your spending habits. Identify patterns, reduce unnecessary costs, and save smarter."
+      text: "Analyze and save smarter. 💡"
     },
   ];
 
@@ -126,15 +132,11 @@ const FinancialWizardsSlider = () => {
     updateVisibleItems();
     window.addEventListener('resize', updateVisibleItems);
 
-    // Intersection Observer to trigger animation when the section is visible
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) {
-        entry.target.classList.add('animate'); // Trigger animation for the container
-        // Ensure the cardRefs are populated and valid
-        cardRefs.current.forEach((card, index) => {
-          if (card) { // Check if card is valid before accessing
-            card.classList.add('animate'); // Trigger animation for each card
-          }
+        entry.target.classList.add('animate');
+        cardRefs.current.forEach((card) => {
+          if (card) card.classList.add('animate');
         });
       }
     }, { threshold: 0.5 });
@@ -151,7 +153,7 @@ const FinancialWizardsSlider = () => {
   };
 
   const prevSlide = () => {
-    setCurrentIndex((prevIndex) => 
+    setCurrentIndex((prevIndex) =>
       (prevIndex - 1 + testimonials.length) % testimonials.length
     );
   };
@@ -169,28 +171,28 @@ const FinancialWizardsSlider = () => {
         <div className="navigation-arrows">
           <button onClick={prevSlide} className="arrow-btn prev">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
           <button onClick={nextSlide} className="arrow-btn next">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M9 6L15 12L9 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M9 6L15 12L9 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
         </div>
       </div>
       <div className="financial-wizards-wrapper">
         {getVisibleItems().map((testimonial, index) => (
-          <div 
-            key={index} 
-            className="financial-wizard-card" 
+          <div
+            key={index}
+            className="financial-wizard-card"
             ref={(el) => {
-              // Ensure we are pushing valid DOM elements into cardRefs
               if (el) {
                 cardRefs.current[index] = el;
               }
             }}
           >
+            <div className="wizard-icon">{testimonial.icon}</div>
             <p className="wizard-author">{testimonial.name}</p>
             <p className="wizard-text">{testimonial.text}</p>
           </div>

@@ -11,7 +11,7 @@ import TeamGrid from './home/TeamGrid';
 import TitleSection4 from './home/TitleSection4';
 import GetInTouch from './home/GetInTouch';
 import LoginRegisterForm from './home/LoginRegisterForm';
-import Footer from './user/Footer';
+import Footer from './user/UserFooter/Footer';
 const HomePage = () => {
   return (
     <>

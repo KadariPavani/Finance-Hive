@@ -164,9 +164,9 @@
   margin: 0 auto;
   padding: 60px 20px;
   position: relative;
-  background: linear-gradient(135deg, #f7fafc, #edf2f7);
+  /* background: linear-gradient(135deg, #f7fafc, #edf2f7);
   border-radius: 16px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); */
   transition: background-color 0.3s ease;
   z-index: 1;
 }
@@ -234,7 +234,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 32px;
-  overflow: hidden;
+  /* overflow: hidden; */
   position: relative;
   animation: fadeInGlow 1s ease-out;
   z-index: 2;

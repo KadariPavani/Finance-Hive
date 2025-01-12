@@ -1,10 +1,9 @@
 import React from 'react';
-import UserDashboard from './user/UserDashboard';
+import UserDashboard from './user/UserDashboard/UserDashboard';
 const UserPage = () => {
   return (
     <div>
       <UserDashboard />
-
     </div>
 
   );

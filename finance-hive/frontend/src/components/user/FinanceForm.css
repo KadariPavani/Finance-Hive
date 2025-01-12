@@ -1,0 +1,143 @@
+General Styling
+.finance-tracking-container {
+  margin: 20px auto;
+  padding: 20px;
+  max-width: 1200px;
+  font-family: Arial, sans-serif;
+}
+
+.finance-heading-primary, .finance-heading-secondary {
+  text-align: center;
+  color: #333;
+}
+
+.finance-message {
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.finance-message-success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.finance-message-error {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Form Styling */
+.finance-tracking-form {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.finance-form-group {
+  margin-bottom: 15px;
+}
+
+.finance-form-label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.finance-input-field {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.finance-submit-button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  background-color: #b79af1;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.finance-submit-button:hover {
+  background-color: #ad8ee9;
+}
+
+/* Chart and Table Styling */
+.finance-chart-container {
+  margin: 20px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.finance-table-container {
+  margin: 20px auto;
+  overflow-x: auto;
+}
+
+.finance-expense-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.finance-expense-table th, .finance-expense-table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+
+.finance-expense-table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .finance-tracking-container {
+    padding: 15px;
+  }
+
+  .finance-tracking-form {
+    padding: 15px;
+  }
+
+  .finance-input-field, .finance-submit-button {
+    font-size: 14px;
+  }
+
+  .finance-chart-container, .finance-table-container {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .finance-heading-primary, .finance-heading-secondary {
+    font-size: 20px;
+  }
+
+  .finance-form-group {
+    margin-bottom: 10px;
+  }
+
+  .finance-form-label {
+    font-size: 14px;
+  }
+
+  .finance-input-field, .finance-submit-button {
+    font-size: 12px;
+  }
+
+  .finance-chart-container {
+    padding: 1px;
+    width: 300px;
+  }
+}

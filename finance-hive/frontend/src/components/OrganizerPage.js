@@ -1,6 +1,6 @@
 
 import React from 'react';
-import OrganizerDashboard from './organizer/OrganizerDashboard';
+import OrganizerDashboard from './organizer/OrgDahboard/OrganizerDashboard';
 const OrganizerPage = () => {
   return (
     <div>

@@ -1,0 +1,23 @@
+.completion-page {
+  display: flex;
+  flex-direction: column; /* Stack items vertically */
+  align-items: center; /* Center horizontally */
+  justify-content: center; /* Center vertically */
+  height: 100vh; /* Full height of the viewport */
+  text-align: center; /* Center text */
+  padding: 20px;
+}
+
+.completion-page h2 {
+  color: #904293; /* Green color for the heading */
+}
+
+.completion-page img {
+  margin-top: 20px; /* Space above the image */
+  width: 300px; /* Fixed width */
+  height: auto; /* Maintain aspect ratio */
+  border-radius: 8px; /* Rounded corners */
+}
+h6{
+  color: red;
+}

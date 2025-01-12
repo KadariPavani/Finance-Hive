@@ -1,0 +1,93 @@
+/* Container Styling */
+.orgDataContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Center items horizontally */
+    align-items: center; /* Center items vertically */
+    /* padding: 20px; */
+    /* background-color: #f8f9fa; */
+    /* border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); */
+    width: 100%; /* Full width */
+    /* height: 100vh; */
+    margin: 0; /* Remove default margin */
+    overflow: hidden; /* Prevent content overflow */
+}
+
+/* Box Styling for Each Card */
+.orgValueBox {
+    background-color: #7e57c2;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: calc(25% - 20px); /* Each box takes 25% width minus the gap */
+    margin: 10px; /* Add space between cards */
+    height: 200px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Hover effect for interactive feel */
+.orgValueBox:hover {
+    transform: scale(1.05);
+}
+
+.orgValueBox h3 {
+    font-size: 18px;
+    color: #FFD700;
+    margin-top: 10px;
+    font-weight: 600;
+}
+
+.orgValueBox p {
+    font-size: 24px;
+    color: #fff;
+    font-weight: 700;
+    margin-top: 10px;
+}
+
+/* Icon Styling */
+.orgValueBox svg {
+    margin-bottom: 10px;
+    color: #007bff;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    /* .orgDataContainer {
+        margin-top: 80px;
+    } */
+    .orgValueBox {
+        width: calc(33.33% - 20px); /* For tablets, each box takes up 33.33% */
+    }
+}
+
+@media (max-width: 768px) {
+    .orgValueBox {
+        width: calc(50% - 20px); /* For small screens, each box takes 50% */
+    }
+}
+
+@media (max-width: 480px) {
+    .orgValueBox {
+        width: 93%; /* Each box takes full width */
+        margin-bottom: 20px;
+    }
+
+    .orgDataContainer {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .orgValueBox h3 {
+        font-size: 16px;
+    }
+
+    .orgValueBox p {
+        font-size: 20px;
+    }
+}

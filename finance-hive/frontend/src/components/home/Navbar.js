@@ -1,21 +1,18 @@
-// Navbar.js
+
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import '../home/Navbar.css';
-import LoginRegisterForm from './LoginRegisterForm';
+
 const Navbar = () => {
   const [menuVisible, setMenuVisible] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1118);
-  const [showLoginForm, setShowLoginForm] = useState(false);
+  const navigate = useNavigate();
 
   const toggleMenu = () => setMenuVisible(!menuVisible);
-  const toggleLoginForm = () => setShowLoginForm(!showLoginForm);
 
   const toggleDropdown = (index) => {
-    if (isMobile) {
-      setActiveDropdown((prev) => (prev === index ? null : index));
-    }
+    setActiveDropdown((prev) => (prev === index ? null : index));
   };
 
   useEffect(() => {
@@ -30,6 +27,10 @@ const Navbar = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const handleLoginRegisterClick = () => {
+    navigate('/login-register'); // Navigate to the Login/Register route
+  };
+
   return (
     <>
       <header className="header">
@@ -37,96 +38,68 @@ const Navbar = () => {
           <div className="nav__data">
             <Link to="/" className="nav__logo">
               <img src="../Images/FH_LogoFinal.png" alt="FMS Logo" />
+              <h3>FINANCE HIVE</h3>
             </Link>
             <div className="nav__toggle" onClick={toggleMenu}>
               <i className={`ri-menu-line nav__toggle-menu ${menuVisible ? 'show-icon' : ''}`}></i>
               <i className={`ri-close-line nav__toggle-close ${menuVisible ? '' : 'show-icon'}`}></i>
             </div>
-          </div>
 
-          <div className={`nav__menu ${menuVisible || !isMobile ? 'show-menu' : ''}`}>
-            <ul className="nav__list">
-              <li>
-                <Link to="/" className="nav__link">Home</Link>
-              </li>
+            <div className={`nav__menu ${menuVisible || !isMobile ? 'show-menu' : ''}`}>
+              <ul className="nav__list">
+                <li>
+                  <Link to="/" className="nav__link">Home</Link>
+                </li>
 
-              <DropdownItem
-                title="About FMS"
-                index={1}
-                activeDropdown={activeDropdown}
-                toggleDropdown={toggleDropdown}
-                isMobile={isMobile}
-              >
-                <DropdownGroup title="SERVICES" icon="ri-service-line">
-                  <DropdownLink to="#" label="Asset Management" />
-                  <DropdownLink to="#" label="Tax Savings" />
-                  <DropdownLink to="#" label="Money Growth" />
-                  <DropdownLink to="#" label="Higher Savings" />
-                </DropdownGroup>
+                <DropdownItem
+                  title="About FMS"
+                  index={1}
+                  activeDropdown={activeDropdown}
+                  toggleDropdown={toggleDropdown}
+                  isMobile={isMobile}
+                >
+                  <DropdownGroup title="SERVICES" icon="ri-service-line">
+                    <DropdownLink to="#" label="Asset Management" />
+                    <DropdownLink to="#" label="Tax Savings" />
+                    <DropdownLink to="#" label="Money Growth" />
+                    <DropdownLink to="#" label="Higher Savings" />
+                  </DropdownGroup>
 
-                <DropdownGroup title="FINANCIAL WIZARDS" icon="ri-bank-line">
-                  <DropdownLink to="#" label="Loans Directly from Organization" />
-                  <DropdownLink to="#" label="Payment scheduled by own" />
-                  <DropdownLink to="#" label="User Friendly" />
-                </DropdownGroup>
+                  <DropdownGroup title="FINANCIAL WIZARDS" icon="ri-bank-line">
+                    <DropdownLink to="#" label="Loans Directly from Organization" />
+                    <DropdownLink to="#" label="Payment scheduled by own" />
+                    <DropdownLink to="#" label="User Friendly" />
+                  </DropdownGroup>
 
-                <DropdownGroup title="GETTING STARTED WITH FMS" icon="ri-book-mark-line">
-                  <DropdownLink to="/register" label="Register" />
-                  <DropdownLink to="/login" label="Login" />
-                  <DropdownLink to="#" label="Track Finances" />
-                  <DropdownLink to="#" label="Take Loan" />
-                </DropdownGroup>
+                  <DropdownGroup title="GETTING STARTED WITH FMS" icon="ri-book-mark-line">
+                    <DropdownLink to="/register" label="Register" />
+                    <DropdownLink to="/login" label="Login" />
+                    <DropdownLink to="#" label="Track Finances" />
+                    <DropdownLink to="#" label="Take Loan" />
+                  </DropdownGroup>
 
-                <DropdownGroup title="SAFETY & QUALITY" icon="ri-shield-line">
-                  <DropdownLink to="#" label="Cookie settings" />
-                  <DropdownLink to="#" label="Privacy Policy" />
-                </DropdownGroup>
-              </DropdownItem>
+                  <DropdownGroup title="SAFETY & QUALITY" icon="ri-shield-line">
+                    <DropdownLink to="#" label="Cookie settings" />
+                    <DropdownLink to="#" label="Privacy Policy" />
+                  </DropdownGroup>
+                </DropdownItem>
 
-              {/* <DropdownItem
-                title="Company"
-                index={2}
-                activeDropdown={activeDropdown}
-                toggleDropdown={toggleDropdown}
-                isMobile={isMobile}
-              >
-                <DropdownGroup title="TEAM" icon="ri-community-line">
-                  <DropdownLink to="#" label="About us" />
-                  <DropdownLink to="#" label="News" />
-                  <DropdownLink to="#" label="Contact us" />
-                </DropdownGroup>
-
-                <DropdownGroup title="ORGANIZERS" icon="ri-pen-nib-line">
-                  <DropdownLink to="#" label="About us" />
-                  <DropdownLink to="#" label="News" />
-                  <DropdownLink to="#" label="Contact us" />
-                </DropdownGroup>
-
-                <DropdownGroup title="SUPPORTERS" icon="ri-apps-2-line">
-                  <DropdownLink to="#" label="About us" />
-                  <DropdownLink to="#" label="News" />
-                  <DropdownLink to="#" label="Contact us" />
-                </DropdownGroup>
-              </DropdownItem> */}
-
-              <li>
-                <Link to="/contact" className="nav__link">Contact</Link>
-              </li>
-              <li>
-                <a onClick={toggleLoginForm} className="nav__link" style={{ cursor: 'pointer' }}>
-                  Login/Register
-                </a>
-              </li>
-            </ul>
+                <li>
+                  <Link to="/contact" className="nav__link">Contact</Link>
+                </li>
+                <li>
+                  <a onClick={handleLoginRegisterClick} className="nav__link" style={{ cursor: 'pointer' }}>
+                    Login/Register
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
         </nav>
       </header>
-      
-      <LoginRegisterForm show={showLoginForm} onClose={toggleLoginForm} />
     </>
   );
 };
-
 // DropdownItem component
 const DropdownItem = ({ title, index, activeDropdown, toggleDropdown, isMobile, children }) => (
   <li
@@ -159,5 +132,7 @@ const DropdownLink = ({ to, label }) => (
     <Link to={to} className="dropdown__link">{label}</Link>
   </li>
 );
+
+// DropdownItem, DropdownGroup, DropdownLink remain the same...
 
 export default Navbar;

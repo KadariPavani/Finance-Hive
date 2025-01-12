@@ -1,0 +1,252 @@
+/* Default sidebar styles (desktop view) */
+.sidebar {
+  width: 260px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background-color: #141519;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px 10px;
+  z-index: 1000;
+  transition: left 0.3s ease-in-out;
+}
+
+.sidebar-heading {
+  color: white;
+}
+
+/* Sidebar logo or title */
+.sidebarIcon {
+  font-size: 28px;
+  font-weight: bold;
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+/* Navigation styles */
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Space between items */
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Space between icon and text */
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  color: white;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.navItem:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Profile section at the bottom */
+.profileSection {
+  display: flex;
+  align-items: center;
+  background-color: #5f42d2; /* Profile background */
+  padding: 10px;
+  border-radius: 8px;
+  color: white;
+  gap: 10px; /* Space between profile image and name */
+}
+
+.profileIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #000;
+}
+
+.profileName {
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1.2;
+}
+
+/* Hamburger icon for mobile view */
+.hamburger {
+  font-size: 30px;
+  cursor: pointer;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  color: rgb(48, 19, 65);
+  z-index: 1100;
+  display: none; /* Hide by default on desktop */
+}
+
+/* Media query for mobile devices */
+@media (max-width: 1050px) {
+  .sidebar {
+    left: -260px; /* Hide sidebar off-screen initially */
+    transition: left 0.3s ease-in-out;
+  }
+
+  .hamburger {
+    display: block;
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+}
+
+/* Additional styles moved from the component */
+
+/* Sidebar container */
+.sidebar-container {
+  background-color: #000000;
+  color: white;
+  width: 300px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  transform: translateX(-100%);
+}
+
+.sidebar-container.visible {
+  transform: translateX(0);
+}
+
+/* Topbar container */
+.topbar-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgb(207, 185, 251);
+  padding: 5px 10px;
+  z-index: 1000;
+}
+
+/* Menu button */
+.menu-button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: rgb(0, 0, 0);
+  cursor: pointer;
+  padding: 10px 20px;
+}
+
+.menu-button:hover {
+  background: white;
+}
+
+/* Search container */
+.search-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  margin: 0 20px;
+}
+
+/* Search input */
+.search-input {
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 200px;
+}
+
+@media (max-width: 768px) {
+  .search-input {
+    width: 100px;
+  }
+}
+
+/* Icon container */
+.icon-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.icon-link{
+  color: #333;
+}
+
+/* Sidebar item */
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: white;
+  margin-bottom: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.sidebar-item svg {
+  margin-right: 10px;
+  font-size: 24px;
+}
+
+.sidebar-item:hover {
+  background-color: #5c548d;
+}
+
+/* Profile section */
+.profile-section {
+  display: flex;
+  align-items: center;
+  background-color: #4b39bf;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 20px;
+}
+
+.profile-image {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+/* Sidebar header */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  color: white;
+}
+
+/* Close button */
+.close-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 10px 20px;
+}
+
+.close-button:hover {
+  background: white;
+  color: #000000;
+}
