@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const Admin = require('../models/Admin'); // Make sure this path is correct
+const bcrypt = require('bcryptjs');
+const Organizer = require('../models/Organizer');
+
+const auth = require('../middleware/auth'); // Correct import for auth middleware
 
 // Route to get admin details
 router.get('/:adminId', async (req, res) => {
@@ -16,35 +20,110 @@ router.get('/:adminId', async (req, res) => {
   }
 });
 
-
-router.delete('/delete-payment/:loanId/:paymentSno', async (req, res) => {
-  const { loanId, paymentSno } = req.params;
-
+// Route to add an admin
+router.post('/admin/add', auth, async (req, res) => {
   try {
-    const loan = await Loan.findById(loanId);
+    const { email, password, firstName, lastName, userId, mobileNumber, address } = req.body;
 
-    if (!loan) {
-      return res.status(404).json({ message: 'Loan not found' });
+    // Check if admin already exists
+    let admin = await Admin.findOne({ email });
+    if (admin) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Admin with this email already exists' 
+      });
     }
 
-    // Find the payment by sno and remove it
-    const paymentIndex = loan.paymentSchedule.findIndex(payment => payment.sno === Number(paymentSno));
-    
-    if (paymentIndex === -1) {
-      return res.status(404).json({ message: 'Payment not found' });
+    // Check if userId already exists
+    admin = await Admin.findOne({ userId });
+    if (admin) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Admin with this userId already exists' 
+      });
     }
 
-    loan.paymentSchedule.splice(paymentIndex, 1); // Remove the payment
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-    await loan.save(); // Save the updated loan document
+    // Create new admin
+    admin = new Admin({
+      role: 'Admin',
+      email,
+      firstName,
+      lastName,
+      userId,
+      mobileNumber,
+      address,
+      password: hashedPassword
+    });
 
-    res.json({ message: 'Payment deleted successfully' });
-  } catch (err) {
-    console.error('Error deleting payment:', err);
-    res.status(500).json({ message: 'Error deleting payment', error: err });
+    await admin.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Admin created successfully',
+      admin: {
+        email: admin.email,
+        firstName: admin.firstName,
+        lastName: admin.lastName,
+        userId: admin.userId,
+        role: admin.role
+      }
+    });
+
+  } catch (error) {
+    console.error('Error in adding admin:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while adding admin'
+    });
   }
 });
 
+// Route to add an organizer
+router.post('/add', auth, async (req, res) => {  // Use 'auth' middleware
+  const { email, firstName, lastName, userId, mobileNumber, address, password } = req.body;
+
+  // Basic validation
+  if (!email || !firstName || !lastName || !userId || !mobileNumber || !address || !password) {
+    return res.status(400).json({ success: false, message: 'All fields are required' });
+  }
+
+  try {
+    // Check if organizer already exists by email
+    const existingOrganizer = await Organizer.findOne({ email });
+    if (existingOrganizer) {
+      return res.status(400).json({ success: false, message: 'Organizer already exists with this email' });
+    }
+
+    // Hash the password before saving to the database
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create a new organizer
+    const newOrganizer = new Organizer({
+      email,
+      firstName,
+      lastName,
+      userId,
+      mobileNumber,
+      address,
+      password: hashedPassword, // Store hashed password
+      role: 'Organizer', // Default role is Organizer
+    });
+
+    // Save the organizer to the database
+    await newOrganizer.save();
+
+    // Return success response
+    res.status(201).json({ success: true, message: 'Organizer added successfully!' });
+
+  } catch (err) {
+    console.error('Error adding organizer:', err);
+    res.status(500).json({ success: false, message: 'Server error. Please try again later.' });
+  }
+});
 
 // Add more admin-specific routes as needed
 

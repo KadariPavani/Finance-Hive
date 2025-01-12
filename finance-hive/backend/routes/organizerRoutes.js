@@ -1,21 +1,29 @@
 const express = require('express');
+const Organization = require('../models/Organization');
+
 const router = express.Router();
-const Organizer = require('../models/Organizer');
 
-// Route to get organizer details
-router.get('/:organizerId', async (req, res) => {
-  const { organizerId } = req.params;
-
+// POST Endpoint to Save Organization Data
+router.post('/', async (req, res) => {
   try {
-    const organizer = await Organizer.findById(organizerId);
-    if (!organizer) return res.status(404).json({ msg: 'Organizer not found' });
-
-    res.json(organizer);
+    const newOrganization = new Organization(req.body);
+    await newOrganization.save();
+    res.status(201).json({ message: 'Organization data saved successfully!' });
   } catch (error) {
-    res.status(500).json({ msg: 'Error fetching organizer details', error: error.message });
+    console.error('Error saving organization data:', error);
+    res.status(500).json({ message: 'Error saving organization data', error: error.message });
   }
 });
 
-// Add more routes as needed
+// GET Endpoint to Fetch Organization Data
+router.get('/', async (req, res) => {
+  try {
+    const data = await Organization.find();
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching organization data:', error);
+    res.status(500).json({ error: 'Failed to fetch organization data.' });
+  }
+});
 
 module.exports = router;

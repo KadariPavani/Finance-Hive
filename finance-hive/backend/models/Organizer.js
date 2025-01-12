@@ -10,6 +10,7 @@ const OrganizerSchema = new mongoose.Schema({
   mobileNumber: { type: String, required: true },
   address: { type: String, required: true },
   password: { type: String, required: true },
+
 });
 
 // Check if the model is already compiled, if so, return that, else compile a new one
