@@ -11,3 +11,10 @@ backend/.cache/
 .env
 .DS_Store
 Thumbs.db
+
+# Ignore uploads directory in backend 
+backend/uploads/
+
+# Ignore payment_images directory in routes directory in backend
+backend/routes/payment_images/
+
