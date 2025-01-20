@@ -27,7 +27,7 @@ export const AddAdminForm = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post('http://localhost:5000/api/admin/add', formData, {
+      const response = await axios.post('http://localhost:5000/api/admin/add-admin', formData, {
         headers: { 
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -36,7 +36,7 @@ export const AddAdminForm = () => {
 
       if (response.data.success) {
         alert('Admin added successfully!');
-        navigate('/admin');
+        navigate('/admin-dashboard/:adminId');
       } else {
         setError(response.data.message || 'Failed to add admin');
       }

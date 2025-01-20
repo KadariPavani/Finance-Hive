@@ -428,35 +428,44 @@ const LoanForm = () => {
         setFormData((prevData) => ({ ...prevData, [name]: value }));
     };
 
-    // Validate email
-    const validateEmail = async () => {
-        const trimmedEmail = formData.email.trim();
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!trimmedEmail) {
+// Validate email
+const validateEmail = async () => {
+    const trimmedEmail = formData.email.trim(); // Ensure no leading/trailing spaces
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Standard email validation regex
+
+    // Check if email is empty
+    if (!trimmedEmail) {
+        setEmailValid(false);
+        setValidationMessage('Please enter an email address.');
+        return;
+    }
+
+    // Validate email format
+    if (!emailRegex.test(trimmedEmail)) {
+        setEmailValid(false);
+        setValidationMessage('Invalid email format. Example: user@example.com');
+        return;
+    }
+
+    try {
+        // Make the API call
+        const response = await axios.get(`http://localhost:5000/api/personal-details/validate-email/${trimmedEmail}`);
+        
+        // Handle response
+        if (response.data.exists) {
+            setEmailValid(true);
+            setValidationMessage(response.data.msg || 'Email is valid and found.');
+        } else {
             setEmailValid(false);
-            setValidationMessage('Please enter an email to validate.');
-            return;
+            setValidationMessage(response.data.msg || 'Email not found. Please register first.');
         }
-        if (!emailRegex.test(trimmedEmail)) {
-            setEmailValid(false);
-            setValidationMessage('Please provide a valid email format (e.g., user@example.com).');
-            return;
-        }
-        try {
-            const response = await axios.get(`http://localhost:5000/api/users/validate-email/${trimmedEmail}`);
-            if (response.data.exists) {
-                setEmailValid(true);
-                setValidationMessage('Email is valid.');
-            } else {
-                setEmailValid(false);
-                setValidationMessage('Email not found. Please register first.');
-            }
-        } catch (error) {
-            console.error('Error validating email:', error);
-            setEmailValid(false);
-            setValidationMessage('Error validating email. Please try again later.');
-        }
-    };
+    } catch (error) {
+        console.error('Error validating email:', error);
+        setEmailValid(false);
+        setValidationMessage('Unable to validate email. Please try again later.');
+    }
+};
+
 
     // Check eligibility
     const checkEligibility = async () => {

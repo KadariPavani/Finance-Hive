@@ -36,7 +36,7 @@ export const AddOrganizerForm = () => {
       }
 
       // Update the API endpoint if necessary
-      const response = await axios.post('http://localhost:5000/api/organizer/add', formData, {
+      const response = await axios.post('http://localhost:5000/api/organizer/add-organizer', formData, {
         headers: { 
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -45,7 +45,7 @@ export const AddOrganizerForm = () => {
 
       if (response.data.success) {
         alert('Organizer added successfully!');
-        navigate('/admin');
+        navigate('/admin-dashboard/:adminId');
       } else {
         setError(response.data.message || 'Failed to add organizer');
       }
