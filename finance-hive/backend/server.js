@@ -1,5 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const crypto = require('crypto');
+
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcryptjs');
@@ -42,7 +44,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/organizer', adminRoutes);
 app.use('/api/profiles', profileRoutes); // Use profile routes
 // JWT Secret
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
+const JWT_SECRET = process.env.JWT_SECRET || '600afee9bc9cc12851bdd610047217f14012d8a9018bbacf42a7042bba295ee6';
 
 // JWT Authentication Middleware
 const authenticateToken = (req, res, next) => {
@@ -73,7 +75,7 @@ const User = mongoose.models.User || mongoose.model('User', UserSchema);
 const Organizer = mongoose.models.Organizer || mongoose.model('Organizer', UserSchema);
 const Admin = mongoose.models.Admin || mongoose.model('Admin', UserSchema);
 
-
+const PersonalDetails = require('./models/PersonalDetails');
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'payment_screenshots/');  // Folder where screenshots will be saved
@@ -217,16 +219,33 @@ app.get('/user-details/:userId', authenticateToken, async (req, res) => {
   }
 });
 
-// Validate Email Route (Check if email exists in users collection)
-app.get('/api/users/validate-email/:email', async (req, res) => {
+// // Validate Email Route (Check if email exists in users collection)
+// app.get('/api/users/validate-email/:email', async (req, res) => {
+//   const { email } = req.params;
+
+//   try {
+//     const user = await User.findOne({ email });
+//     if (!user) return res.status(404).json({ msg: 'User not found' });
+//     res.json({ msg: 'Email found, form can be filled' });
+//   } catch (error) {
+//     res.status(500).json({ msg: 'Error fetching user email', error: error.message });
+//   }
+// });
+
+// Validate Email Route (Check if email exists in personaldetails collection)
+app.get('/api/personal-details/validate-email/:email', async (req, res) => {
   const { email } = req.params;
 
   try {
-    const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ msg: 'User not found' });
-    res.json({ msg: 'Email found, form can be filled' });
+      // Query the PersonalDetails collection for the provided email
+      const personalDetail = await PersonalDetails.findOne({ email });
+      if (!personalDetail) {
+          return res.status(200).json({ exists: false, msg: 'Email not found in personal details' });
+      }
+      return res.status(200).json({ exists: true, msg: 'Validate successfully' });
   } catch (error) {
-    res.status(500).json({ msg: 'Error fetching user email', error: error.message });
+      console.error('Error fetching email:', error.message);
+      return res.status(500).json({ exists: false, msg: 'Error fetching email from personal details', error: error.message });
   }
 });
 
@@ -318,6 +337,32 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 
+app.post('/api/payments', authenticateToken, async (req, res) => {
+  const { amount, dueDate } = req.body;
+
+  try {
+      const payment = new Payment({
+          userId: req.user.id, // Extracted from the JWT token
+          amount,
+          dueDate,
+          status: 'Pending',
+      });
+
+      await payment.save();
+      res.status(201).json({ msg: 'Payment schedule created', payment });
+  } catch (error) {
+      res.status(500).json({ msg: 'Error creating payment schedule', error: error.message });
+  }
+});
+
+app.get('/api/payments', authenticateToken, async (req, res) => {
+  try {
+      const payments = await Payment.find({ userId: req.user.id }); // Fetch only for the logged-in user
+      res.json(payments);
+  } catch (error) {
+      res.status(500).json({ msg: 'Error fetching payment schedules', error: error.message });
+  }
+});
 
 
 // Loan Routes

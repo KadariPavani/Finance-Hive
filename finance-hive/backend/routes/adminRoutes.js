@@ -21,7 +21,7 @@ router.get('/:adminId', async (req, res) => {
 });
 
 // Route to add an admin
-router.post('/admin/add', auth, async (req, res) => {
+router.post('/add-admin', auth, async (req, res) => {
   try {
     const { email, password, firstName, lastName, userId, mobileNumber, address } = req.body;
 
@@ -83,7 +83,7 @@ router.post('/admin/add', auth, async (req, res) => {
 });
 
 // Route to add an organizer
-router.post('/add', auth, async (req, res) => {  // Use 'auth' middleware
+router.post('/add-organizer', auth, async (req, res) => {  // Use 'auth' middleware
   const { email, firstName, lastName, userId, mobileNumber, address, password } = req.body;
 
   // Basic validation
