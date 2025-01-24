@@ -25,38 +25,40 @@ const PaymentSchedule = ({ loanId }) => {
   const [currentPayment, setCurrentPayment] = useState(null);
   const [screenshot, setScreenshot] = useState(null);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  // Fetch userId from localStorage
+  const userId = localStorage.getItem('userId');
+  const token = localStorage.getItem('token');
 
-  // Fetch the loan details and payment schedule based on loanId
   useEffect(() => {
-    const fetchPaymentSchedule = async () => {
+    const fetchPayments = async () => {
+      if (!userId) {
+        console.error('User ID is missing. Please log in again.');
+        return;
+      }
+
+      const url = loanId
+        ? `http://localhost:5000/api/loans/schedule/${loanId}`
+        : `http://localhost:5000/api/loans/payments/${userId}`;
+
       try {
-        const response = await axios.get(`http://localhost:5000/api/loans/schedule/${loanId}`);
-        const paymentSchedule = response.data;
+        const response = await axios.get(url, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const paymentData = response.data;
 
-        if (paymentSchedule && Array.isArray(paymentSchedule)) {
-          setPayments(paymentSchedule);
-          calculateLoanDetails(paymentSchedule);
-
-          // Save to localStorage for fallback
-          localStorage.setItem('payments', JSON.stringify(paymentSchedule));
+        if (Array.isArray(paymentData)) {
+          setPayments(paymentData);
+          calculateLoanDetails(paymentData);
+          localStorage.setItem('payments', JSON.stringify(paymentData));
         }
       } catch (error) {
-        console.error('Error fetching payment schedule:', error);
-        //       setError('Unable to fetch payment schedule. Please try again later.');
-
-        // Load from localStorage as a fallback
-        const cachedPayments = localStorage.getItem('payments');
-        if (cachedPayments) {
-          const parsedPayments = JSON.parse(cachedPayments);
-          setPayments(parsedPayments);
-          calculateLoanDetails(parsedPayments);
-        }
+        console.error('Error fetching payments:', error.message);
+        setError('Failed to fetch payments. Please try again later.');
       }
     };
 
-    fetchPaymentSchedule();
-  }, [loanId]);
-
+    fetchPayments();
+  }, [loanId, userId, token]);
 
 
 
@@ -98,59 +100,49 @@ const PaymentSchedule = ({ loanId }) => {
     return balance.toFixed(2);
   };
 
-
   const handlePayNow = (payment) => {
     setCurrentPayment(payment);
     setShowPaymentModal(true);
   };
 
   const handlePaymentConfirmation = async () => {
-    // Check if both the screenshot and transaction ID are provided
     if (!screenshot || !userTransactionId) {
-      alert('Please upload the payment screenshot and enter the transaction ID.');
+      alert('Please upload a payment screenshot and enter the transaction ID.');
       return;
     }
-  
+
     try {
-      // Create FormData to send the file and other details
       const formData = new FormData();
       formData.append('transactionId', userTransactionId);
       formData.append('screenshot', screenshot);
-  
-      // Update the payment status in the state
-      const updatedPayments = payments.map(payment =>
-        payment.sno === currentPayment.sno
+
+      const response = await axios.put(
+        `http://localhost:5000/api/loans/payments/${currentPayment.loanId}/${currentPayment.sno}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      // Update state after a successful payment
+      const updatedPayments = payments.map((payment) =>
+        payment.sno === currentPayment.sno && payment.loanId === currentPayment.loanId
           ? { ...payment, status: 'Done', transactionId: userTransactionId }
           : payment
       );
-  
-      // Set the updated payments data to state
       setPayments(updatedPayments);
-  
-      // Recalculate loan details based on updated payments
       calculateLoanDetails(updatedPayments);
-  
-      // Send the updated payment details (along with the screenshot) to the backend
-      const response = await axios.put(`http://localhost:5000/api/loans/payment/${loanId}/${currentPayment.sno}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-  
-      // Save the updated payments data to localStorage as a fallback
       localStorage.setItem('payments', JSON.stringify(updatedPayments));
-  
-      // Close the payment modal and show success message
       setShowPaymentModal(false);
-      setPaymentSuccess(true);
-  
-      alert(`Payment for S.No ${currentPayment.sno} completed with Transaction ID: ${userTransactionId}`);
+      alert(`Payment successful! Transaction ID: ${userTransactionId}`);
     } catch (error) {
-      console.error('Error updating payment status:', error);
+      console.error('Error updating payment status:', error.message);
       alert('Payment processing failed. Please try again.');
     }
   };
-  
   
 
   const handleScreenshotUpload = (event) => {
@@ -315,19 +307,21 @@ const donutChartData = {
       </thead>
       <tbody>
         {payments.map((payment) => (
-          <tr key={payment.sno}>
-            <td>{payment.sno}</td>
-            <td>{payment.date}</td>
-            <td>₹{payment.amount}</td>
-            <td>
-              {payment.status === 'Pay now' ? (
-                <button onClick={() => handlePayNow(payment)}>Pay Now</button>
-              ) : (
-                'Done'
-              )}
-            </td>
-            <td>{payment.transactionId || '--'}</td>
-          </tr>
+          <tr key={`${payment.loanId}-${payment.sno}`}>
+  <td>{payment.sno}</td>
+  <td>{payment.date}</td>
+  <td>₹{payment.amount}</td>
+  <td>{payment.loanPurpose || '--'}</td>
+  <td>
+    {payment.status === 'Pay now' ? (
+      <button onClick={() => handlePayNow(payment)}>Pay Now</button>
+    ) : (
+      'Done'
+    )}
+  </td>
+  <td>{payment.transactionId || '--'}</td>
+</tr>
+
         ))}
       </tbody>
     </table>
