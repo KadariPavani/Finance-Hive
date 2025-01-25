@@ -28,7 +28,7 @@ const Navbar = () => {
   }, []);
 
   const handleLoginRegisterClick = () => {
-    navigate('/login-register'); // Navigate to the Login/Register route
+    navigate('/login'); // Navigate to the Login/Register route
   };
 
   return (
@@ -88,9 +88,9 @@ const Navbar = () => {
                   <Link to="/contact" className="nav__link">Contact</Link>
                 </li>
                 <li>
-                  <a onClick={handleLoginRegisterClick} className="nav__link" style={{ cursor: 'pointer' }}>
-                    Login/Register
-                  </a>
+                <Link to="/login" className="nav__link">
+            Login
+          </Link>
                 </li>
               </ul>
             </div>

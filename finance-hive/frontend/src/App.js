@@ -2,16 +2,44 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './components/HomePage';
 import ContactForm from './components/home/GetInTouch';
+import Login from './components/home/Login';
+import AdminDashboard from './components/admin/AdminDashboard';
+import UserDashboard from './components/user/UserDashboard';
+import OrganizerDashboard from './components/organizer/OrganizerDashboard';
 const App = () => (
   <Router>
     <Routes>
-    <Route path="/" element={<HomePage />} />
-    <Route path="/contact" element={<ContactForm />} />
+      {/* Your existing routes */}
+      <Route path="/" element={<HomePage />} />
+      <Route path="/contact" element={<ContactForm />} />
+      
+      {/* New routes for login and dashboards */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/organizer" element={<OrganizerDashboard />} />
+      <Route path="/user" element={<UserDashboard />} />
     </Routes>
   </Router>
 );
 
 export default App;
+
+
+
+// import React from 'react';
+// import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+// import HomePage from './components/HomePage';
+// import ContactForm from './components/home/GetInTouch';
+// const App = () => (
+//   <Router>
+//     <Routes>
+//     <Route path="/" element={<HomePage />} />
+//     <Route path="/contact" element={<ContactForm />} />
+//     </Routes>
+//   </Router>
+// );
+
+// export default App;
 
 
 
