@@ -1,7 +1,10 @@
 import "./GetInTouch.css";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const ContactForm = () => {
+  const navigate = useNavigate(); // Initialize the navigate function
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -19,17 +22,17 @@ const ContactForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
       const response = await fetch("http://localhost:5000/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-  
+
       if (response.ok) {
         alert("Thank you! Your message has been sent.");
-        
+
         // Reset form fields after successful submission
         setFormData({
           firstName: "",
@@ -37,11 +40,10 @@ const ContactForm = () => {
           email: "",
           message: "",
         });
-  
-        // Optionally, refresh the page or navigate to another page
-        window.location.reload(); // Refresh the page
-        // OR
-        // history.push("/thank-you"); // Navigate to a thank-you page, if you're using react-router
+
+        // Navigate to the home page and scroll to the top
+        navigate("/");
+        window.scrollTo(0, 0);
       } else {
         alert("Oops! Something went wrong. Please try again.");
       }
@@ -50,7 +52,6 @@ const ContactForm = () => {
       alert("Unable to send the message. Please try later.");
     }
   };
-  
 
   return (
     <div className="contact-container">
