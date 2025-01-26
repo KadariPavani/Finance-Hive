@@ -1,7 +1,7 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
-
+const UserPayment = require("../models/UserPayment");
 exports.login = async (req, res) => {
   try {
     const { mobileNumber, password } = req.body;
@@ -314,7 +314,8 @@ exports.deleteUser = async (req, res) => {
 };
 
 
-// exports.updateUser = async (req, res) => {
+
+
 //   try {
 //     const { id } = req.params;
 //     const { name, email, mobileNumber, role, isActive } = req.body;
@@ -354,6 +355,8 @@ exports.deleteUser = async (req, res) => {
 // };
 
 // exports.deleteUser = async (req, res) => {
+
+
 //   try {
 //     const { id } = req.params;
 
@@ -380,3 +383,142 @@ exports.deleteUser = async (req, res) => {
 //     });
 //   }
 // };
+
+
+
+
+// Add user and send email
+
+
+// exports.addUserAndSendEmail = async (req, res) => {
+//   try {
+//     const { name, email, mobileNumber, password, amountBorrowed, tenure, interest } = req.body;
+
+//     // Check if the user already exists
+//     const existingUser = await UserPayment.findOne({ email });
+//     if (existingUser) {
+//       return res.status(400).json({ message: "User already exists." });
+//     }
+
+//     // Create user
+//     const newUser = await UserPayment.create({
+//       name,
+//       email,
+//       mobileNumber,
+//       password,
+//       amountBorrowed,
+//       tenure,
+//       interest,
+//     });
+
+//     // Send email with credentials
+//     const transporter = nodemailer.createTransport({
+//       service: "gmail",
+//       auth: {
+//         user: process.env.EMAIL_USER,
+//         pass: process.env.EMAIL_PASS,
+//       },
+//     });
+
+//     const mailOptions = {
+//       from: process.env.EMAIL_USER,
+//       to: email,
+//       subject: "Your Finance Hive Credentials",
+//       text: `Hello ${name},\n\nYour account has been created. Here are your credentials:\n\nMobile Number: ${mobileNumber}\nPassword: ${password}\n\nPlease log in to your account to view your details.\n\nThanks,\nFinance Hive Team`,
+//     };
+
+//     await transporter.sendMail(mailOptions);
+
+//     res.status(201).json({ message: "User added and email sent successfully." });
+//   } catch (error) {
+//     console.error("Error adding user:", error);
+//     res.status(500).json({ message: "Error adding user." });
+//   }
+// };
+
+// Get user details by ID (for User Dashboard)
+exports.getUserById = async (req, res) => {
+  try {
+    const user = await UserPayment.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).json({ message: "Error fetching user." });
+  }
+};
+
+
+exports.addUserAndSendEmail = async (req, res) => {
+  try {
+    const { name, email, mobileNumber, password, amountBorrowed, tenure, interest } = req.body;
+
+    // Check if the user already exists
+    let user = await UserPayment.findOne({ email });
+
+    if (user) {
+      // If the user exists, append the new payment details to their record
+      user.payments.push({
+        amountBorrowed,
+        tenure,
+        interest,
+        addedAt: new Date(), // Optional field to track when the payment was added
+      });
+
+      // Save the updated user document
+      await user.save();
+
+      return res.status(200).json({
+        message: "Existing user found. Payment details appended successfully.",
+      });
+    }
+
+    // If user doesn't exist, create a new user record
+    const newUser = await UserPayment.create({
+      name,
+      email,
+      mobileNumber,
+      loginCredentials: {
+        username: mobileNumber,
+        password, // Plain password for email; hashing happens in the pre-save hook
+      },
+      payments: [
+        {
+          amountBorrowed,
+          tenure,
+          interest,
+          addedAt: new Date(),
+        },
+      ],
+    });
+
+    // Send email with credentials
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Your Finance Hive Credentials",
+      text: `Hello ${name},\n\nYour account has been created. Here are your credentials:\n\nUsername (Mobile Number): ${mobileNumber}\nPassword: ${password}\n\nPlease log in to your account to view your details.\n\nThanks,\nFinance Hive Team`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(201).json({ message: "New user added and email sent successfully." });
+  } catch (error) {
+    console.error("Error adding or updating user:", error);
+    res.status(500).json({ message: "Error processing user." });
+  }
+};
+
+
+
+// exports.updateUser = async (req, res) => {
