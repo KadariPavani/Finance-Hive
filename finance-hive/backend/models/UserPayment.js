@@ -104,25 +104,96 @@
 
 
 
+// const mongoose = require("mongoose");
+
+// const paymentSchema = new mongoose.Schema({
+//   amountBorrowed: { type: Number, required: true },
+//   tenure: { type: String, required: true },
+//   interest: { type: Number, required: true },
+//   addedAt: { type: Date, default: Date.now },
+// });
+
+// const userPaymentSchema = new mongoose.Schema({
+//   name: { type: String, required: true },
+//   email: { type: String, required: true, unique: true },
+//   mobileNumber: { type: String, required: true, unique: true },
+//   loginCredentials: {
+//     username: { type: String, required: true, unique: true },
+//     password: { type: String, required: true },
+//   },
+//   payments: [paymentSchema], // Array to store multiple payment records
+//   organizer: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: "Organizer", // assuming you have an "Organizer" model
+//     required: true,
+//   },
+// });
+
+// module.exports = mongoose.model("UserPayment", userPaymentSchema);
+
+
+// const mongoose = require("mongoose");
+
+// const paymentSchema = new mongoose.Schema({
+//   amountBorrowed: { type: Number, required: true },
+//   tenure: { type: String, required: true },
+//   interest: { type: Number, required: true },
+//   addedAt: { type: Date, default: Date.now },
+// });
+
+// const userPaymentSchema = new mongoose.Schema({
+//   name: { type: String, required: true },
+//   email: { type: String, required: true, unique: true },
+//   mobileNumber: { type: String, required: true, unique: true },
+//   loginCredentials: {
+//     username: { type: String, required: true, unique: true },
+//     password: { type: String, required: true },
+//   },
+//   payments: [paymentSchema], // Array to store multiple payment records
+// });
+
+// module.exports = mongoose.model("UserPayment", userPaymentSchema);
+
+
+// In models/UserPaymentModel.js
+// const mongoose = require("mongoose");
+
+// const userPaymentSchema = new mongoose.Schema({
+//   name: { type: String, required: true },
+//   email: { type: String, required: true },
+//   mobileNumber: { type: String, required: true },
+//   password: { type: String, required: true },
+//   amountBorrowed: { type: Number, required: true },
+//   tenure: { type: Number, required: true },
+//   interest: { type: Number, required: true },
+//   organizerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },  // Reference to the organizer
+// }, { timestamps: true });
+
+// module.exports = mongoose.model("UserPayment", userPaymentSchema);
+
 
 const mongoose = require("mongoose");
 
-const paymentSchema = new mongoose.Schema({
-  amountBorrowed: { type: Number, required: true },
-  tenure: { type: String, required: true },
-  interest: { type: Number, required: true },
-  addedAt: { type: Date, default: Date.now },
-});
-
 const userPaymentSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  mobileNumber: { type: String, required: true, unique: true },
+  email: { type: String, required: true },
+  mobileNumber: { type: String, required: true },
+  password: { type: String, required: true },
+  amountBorrowed: { type: Number, required: true },
+  tenure: { type: Number, required: true },
+  interest: { type: Number, required: true },
+  organizerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   loginCredentials: {
-    username: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-  },
-  payments: [paymentSchema], // Array to store multiple payment records
-});
+    username: {
+      type: String,
+      required: [true, "Username is required"],  // Ensure username is always present
+      unique: true, // Make sure username is unique
+    },
+    password: {
+      type: String,
+      required: true,
+    }
+  }
+}, { timestamps: true });
 
 module.exports = mongoose.model("UserPayment", userPaymentSchema);

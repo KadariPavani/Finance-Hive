@@ -450,48 +450,128 @@ exports.getUserById = async (req, res) => {
   }
 };
 
+// exports.getUsersByOrganizer = async (req, res) => {
+//   try {
+//     const organizerId = req.user.id; // Assuming organizer ID is available in the token payload
+//     const users = await UserPayment.find();
 
+//     res.status(200).json({ success: true, data: users });
+//   } catch (error) {
+//     console.error("Error fetching users:", error);
+//     res.status(500).json({ success: false, message: "Error fetching users." });
+//   }
+// };
+// exports.getUsersByOrganizer = async (req, res) => {
+//   try {
+//     // Fetch all users added by the organizer
+//     const users = await UserPayment.find({}).select("name email mobileNumber amountBorrowed tenure interest");
+
+//     if (users.length === 0) {
+//       return res.status(404).json({ message: "No users found." });
+//     }
+
+//     res.status(200).json({ users });
+//   } catch (error) {
+//     console.error("Error fetching users:", error);
+//     res.status(500).json({ message: "Error fetching users." });
+//   }
+// };
+
+// exports.addUserAndSendEmail = async (req, res) => {
+//   try {
+//     const { name, email, mobileNumber, password, amountBorrowed, tenure, interest } = req.body;
+
+//     // Check if the user already exists
+//     let user = await UserPayment.findOne({ email });
+
+//     if (user) {
+//       // If the user exists, append the new payment details to their record
+//       user.payments.push({
+//         amountBorrowed,
+//         tenure,
+//         interest,
+//         addedAt: new Date(), // Optional field to track when the payment was added
+//       });
+
+//       // Save the updated user document
+//       await user.save();
+
+//       return res.status(200).json({
+//         message: "Existing user found. Payment details appended successfully.",
+//       });
+//     }
+
+//     // If user doesn't exist, create a new user record
+//     const newUser = await UserPayment.create({
+//       name,
+//       email,
+//       mobileNumber,
+//       loginCredentials: {
+//         username: mobileNumber,
+//         password, // Plain password for email; hashing happens in the pre-save hook
+//       },
+//       payments: [
+//         {
+//           amountBorrowed,
+//           tenure,
+//           interest,
+//           addedAt: new Date(),
+//         },
+//       ],
+//     });
+
+//     // Send email with credentials
+//     const transporter = nodemailer.createTransport({
+//       service: "gmail",
+//       auth: {
+//         user: process.env.EMAIL_USER,
+//         pass: process.env.EMAIL_PASS,
+//       },
+//     });
+
+//     const mailOptions = {
+//       from: process.env.EMAIL_USER,
+//       to: email,
+//       subject: "Your Finance Hive Credentials",
+//       text: `Hello ${name},\n\nYour account has been created. Here are your credentials:\n\nUsername (Mobile Number): ${mobileNumber}\nPassword: ${password}\n\nPlease log in to your account to view your details.\n\nThanks,\nFinance Hive Team`,
+//     };
+
+//     await transporter.sendMail(mailOptions);
+
+//     res.status(201).json({ message: "New user added and email sent successfully." });
+//   } catch (error) {
+//     console.error("Error adding or updating user:", error);
+//     res.status(500).json({ message: "Error processing user." });
+//   }
+// };
 exports.addUserAndSendEmail = async (req, res) => {
   try {
     const { name, email, mobileNumber, password, amountBorrowed, tenure, interest } = req.body;
+    const organizerId = req.user.id;  // Assuming the logged-in organizer's ID is available in req.user.id
 
     // Check if the user already exists
-    let user = await UserPayment.findOne({ email });
-
-    if (user) {
-      // If the user exists, append the new payment details to their record
-      user.payments.push({
-        amountBorrowed,
-        tenure,
-        interest,
-        addedAt: new Date(), // Optional field to track when the payment was added
-      });
-
-      // Save the updated user document
-      await user.save();
-
-      return res.status(200).json({
-        message: "Existing user found. Payment details appended successfully.",
-      });
+    const existingUser = await UserPayment.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists." });
     }
 
-    // If user doesn't exist, create a new user record
+    // Generate a username, or use email as a fallback for username
+    const username = email.split("@")[0]; // Use part of the email as username, or generate it as required
+
+    // Create user and associate with the organizer
     const newUser = await UserPayment.create({
       name,
       email,
       mobileNumber,
+      password,
+      amountBorrowed,
+      tenure,
+      interest,
+      organizerId,  // Link the user to the organizer
       loginCredentials: {
-        username: mobileNumber,
-        password, // Plain password for email; hashing happens in the pre-save hook
-      },
-      payments: [
-        {
-          amountBorrowed,
-          tenure,
-          interest,
-          addedAt: new Date(),
-        },
-      ],
+        username,  // Ensure username is set here
+        password,  // Use the password provided by the user
+      }
     });
 
     // Send email with credentials
@@ -518,7 +598,62 @@ exports.addUserAndSendEmail = async (req, res) => {
     res.status(500).json({ message: "Error processing user." });
   }
 };
+// In controllers/authController.js
+exports.getUsersByOrganizer = async (req, res) => {
+  try {
+    const organizerId = req.user.id;  // Get the organizer's ID from the authenticated user
+    const users = await UserPayment.find({ organizerId }).select("name email mobileNumber amountBorrowed tenure interest");
 
+    if (users.length === 0) {
+      return res.status(404).json({ message: "No users found." });
+    }
+
+    res.status(200).json({ users });
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ message: "Error fetching users." });
+  }
+};
+
+// exports.getUserDetails = async (req, res) => {
+//   try {
+//     const userId = req.user.id; // Assuming user ID is in the token payload
+//     const user = await UserPayment.findById(userId);
+//     if (!user) {
+//       return res.status(404).json({ success: false, message: "User not found." });
+//     }
+//     res.status(200).json({ success: true, data: user });
+//   } catch (error) {
+//     console.error("Error fetching user details:", error);
+//     res.status(500).json({ success: false, message: "Error fetching user details." });
+//   }
+// };
 
 
 // exports.updateUser = async (req, res) => {
+
+
+exports.getUserDetails = async (req, res) => {
+  try {
+    // Assuming `req.user._id` holds the logged-in user's ID
+    const user = await UserPayment.findOne({ _id: req.user._id });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: user,
+    });
+  } catch (error) {
+    console.error("Error fetching user details:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch user details.",
+    });
+  }
+};

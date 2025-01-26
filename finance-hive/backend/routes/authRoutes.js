@@ -8,7 +8,9 @@ const {
   getAllUsers,
   deleteUser,
   addUserAndSendEmail,
-  getUserById
+  getUserById,
+  getUsersByOrganizer,
+  getUserDetails
 } = require('../controllers/authController');
 
 const router = express.Router();
@@ -19,4 +21,7 @@ router.get('/users', protect, restrictTo('admin'), getAllUsers);
 router.delete('/users/:id', protect, restrictTo('admin'), deleteUser);  // New delete route
 router.post("/add-user-payment", protect, restrictTo("organizer"), addUserAndSendEmail);
 router.get("/user/me", protect, restrictTo("user"), getUserById);
+router.get("/organizer/users", protect, restrictTo("organizer"), getUsersByOrganizer);
+router.get("/user-details", protect, restrictTo("user"), getUserDetails);
+
 module.exports = router;
