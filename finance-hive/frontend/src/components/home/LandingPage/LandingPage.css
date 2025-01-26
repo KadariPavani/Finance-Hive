@@ -1,0 +1,30 @@
+.landing-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 40vh;
+  /* background-color: #faf8f6; Light beige background */
+}
+
+.card {
+  text-align: center;
+}
+
+.card h2 {
+  font-size: 64px; /* Large font size for "Welcome" style */
+  font-family: "Dancing Script", cursive; /* Script font */
+  color: #333; /* Darker color for contrast */
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.card p {
+  font-size: 20px; /* Slightly larger for secondary text */
+  font-family: "Georgia", serif; /* Classic serif font */
+  color: #666;
+  margin-top: 10px;
+}
+
+.card p:first-of-type {
+  margin-top: 20px; /* Add spacing for first paragraph */
+}

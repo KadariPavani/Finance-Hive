@@ -1,2 +1,14 @@
-const OrganizerDashboard = () => <h1>Organizer Dashboard</h1>;
+import LandingPage from "../home/LandingPage/LandingPage";
+
+const OrganizerDashboard = () => {
+  return (
+    <div>
+
+      
+      {/* Landing Page Content */}
+      <LandingPage />
+      
+    </div>
+  );
+};
 export default OrganizerDashboard;

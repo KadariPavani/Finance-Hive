@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
+
 const Login = () => {
   const [mobileNumber, setMobileNumber] = useState('');
   const [password, setPassword] = useState('');
@@ -16,20 +17,23 @@ const Login = () => {
         password
       });
 
-      // Store token in localStorage
+      // Store token and user info in localStorage
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('userRole', response.data.role);
+      localStorage.setItem('userName', response.data.name);
+      localStorage.setItem('userEmail', response.data.email);
       
       // Redirect based on role
       navigate(response.data.redirect);
     } catch (err) {
-      setError('Invalid mobile number or password');
+      setError(err.response?.data?.message || 'Login failed');
     }
   };
 
   return (
     <div className="login-container">
       <form onSubmit={handleLogin}>
-        <h2>Login</h2>
+        <h2>Finance Hive Login</h2>
         {error && <p style={{color: 'red'}}>{error}</p>}
         <input 
           type="text" 

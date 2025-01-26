@@ -1,58 +1,78 @@
-/* Login.css */
-
+/* General styling for the login container */
 .login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh; /* Full viewport height */
-  background-color: #f0f0f0; /* Light background color */
-}
-
-form {
-  background-color: white; /* White background for the form */
+  width: 100%;
+  max-width: 400px;
+  margin: 50px auto;
   padding: 20px;
-  border-radius: 8px; /* Rounded corners */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-  width: 300px; /* Fixed width for the form */
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  text-align: center;
+  font-family: Arial, sans-serif;
 }
 
-h2 {
-  text-align: center; /* Center the heading */
-  margin-bottom: 20px; /* Space below the heading */
-  color: #333; /* Darker text color */
+/* Form title styling */
+.login-container h2 {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 20px;
 }
 
-input {
-  width: 100%; /* Full width inputs */
-  padding: 10px; /* Padding inside inputs */
-  margin: 10px 0; /* Space between inputs */
-  border: 1px solid #ccc; /* Light border */
-  border-radius: 4px; /* Slightly rounded corners */
-  font-size: 16px; /* Font size */
+/* Input field styling */
+.login-container input {
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease-in-out;
 }
 
-input:focus {
-  border-color: #007bff; /* Change border color on focus */
-  outline: none; /* Remove default outline */
+/* Add focus effect on input fields */
+.login-container input:focus {
+  border-color: #007BFF;
+  outline: none;
 }
 
-button {
-  width: 100%; /* Full width button */
-  padding: 10px; /* Padding inside button */
-  background-color: #007bff; /* Primary button color */
-  color: white; /* White text color */
-  border: none; /* Remove border */
-  border-radius: 4px; /* Slightly rounded corners */
-  font-size: 16px; /* Font size */
-  cursor: pointer; /* Pointer cursor on hover */
-  transition: background-color 0.3s; /* Smooth transition */
+/* Button styling */
+.login-container button {
+  width: 100%;
+  padding: 12px 15px;
+  background-color: #007BFF;
+  color: #ffffff;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
 }
 
-button:hover {
-  background-color: #0056b3; /* Darker shade on hover */
+/* Button hover effect */
+.login-container button:hover {
+  background-color: #0056b3;
 }
 
-p {
-  text-align: center; /* Center the error message */
-  margin: 10px 0; /* Space around the error message */
+/* Error message styling */
+.login-container p {
+  font-size: 14px;
+  margin: 10px 0;
+}
+
+/* Error message text color */
+.login-container p[style*="color: red"] {
+  color: red;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 480px) {
+  .login-container {
+    padding: 15px;
+    margin: 20px;
+  }
+
+  .login-container h2 {
+    font-size: 20px;
+  }
 }
