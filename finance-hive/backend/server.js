@@ -7,7 +7,7 @@ const mongoose = require("mongoose");
 const contactRoutes = require("./routes/contactRoutes");
 const authRoutes = require("./routes/authRoutes");
 const { seedAdminUser } = require("./controllers/authController");
-
+const paymentRoutes = require("./routes/paymentRoutes");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -30,6 +30,7 @@ mongoose.connect(process.env.MONGO_URI, {
 // Use routes
 app.use("/api", contactRoutes);
 app.use("/api", authRoutes);
+app.use('/api', paymentRoutes);
 
 // Start the server
 app.listen(PORT, () => {

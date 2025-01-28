@@ -351,44 +351,44 @@ exports.addUserAndSendEmail = async (req, res) => {
 
 
 
-exports.createUserAndPayment = async (req, res) => {
-   try {
-    const { name, email, mobileNumber, password, amountBorrowed, tenure, interest } = req.body;
+// exports.createUserAndPayment = async (req, res) => {
+//    try {
+//     const { name, email, mobileNumber, password, amountBorrowed, tenure, interest } = req.body;
 
-    // Hash the password once
-    const hashedPassword = await hashPassword(password);
+//     // Hash the password once
+//     const hashedPassword = await hashPassword(password);
 
-    // Create user
-    const user = await User.create({
-      name,
-      email,
-      mobileNumber,
-      password: hashedPassword, // Store hashed password
-      role: "organizer", // Example role
-    });
+//     // Create user
+//     const user = await User.create({
+//       name,
+//       email,
+//       mobileNumber,
+//       password: hashedPassword, // Store hashed password
+//       role: "organizer", // Example role
+//     });
 
-    // Create user payment with the same hashed password
-    const userPayment = await UserPayment.create({
-      name,
-      email,
-      mobileNumber,
-      password: hashedPassword, // Use the same hashed password
-      amountBorrowed,
-      tenure,
-      interest,
-      organizerId: user._id,
-      loginCredentials: {
-        username: email,
-        password: hashedPassword, // Use the same hashed password
-      },
-    });
+//     // Create user payment with the same hashed password
+//     const userPayment = await UserPayment.create({
+//       name,
+//       email,
+//       mobileNumber,
+//       password: hashedPassword, // Use the same hashed password
+//       amountBorrowed,
+//       tenure,
+//       interest,
+//       organizerId: user._id,
+//       loginCredentials: {
+//         username: email,
+//         password: hashedPassword, // Use the same hashed password
+//       },
+//     });
 
-    res.status(201).json({ message: "User and payment created successfully.", user, userPayment });
-  } catch (error) {
-    console.error("Error creating user and payment:", error);
-    res.status(500).json({ message: "Error creating user and payment.", error: error.message });
-  }
-};
+//     res.status(201).json({ message: "User and payment created successfully.", user, userPayment });
+//   } catch (error) {
+//     console.error("Error creating user and payment:", error);
+//     res.status(500).json({ message: "Error creating user and payment.", error: error.message });
+//   }
+// };
 
 
 // In controllers/authController.js

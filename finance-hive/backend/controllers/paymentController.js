@@ -2,7 +2,6 @@
 // controllers/paymentController.js
 const { calculateEMI, generatePaymentSchedule } = require('../utils/calculatePayments');
 const UserPayment = require('../models/UserPayment');
-
 exports.createPaymentSchedule = async (req, res) => {
   try {
     const { userId } = req.params;
