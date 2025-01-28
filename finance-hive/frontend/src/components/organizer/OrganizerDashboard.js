@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./OrganizerDashboard.css";
 import { X, User, Phone, Mail, DollarSign, Calendar, Percent } from 'lucide-react';
+import LandingPage from '../home/LandingPage/LandingPage';
 
 const OrganizerDashboard = () => {
   const [formData, setFormData] = useState({
@@ -26,17 +27,26 @@ const OrganizerDashboard = () => {
 
   const fetchUsers = async () => {
     try {
+      // Retrieve token from localStorage
       const token = localStorage.getItem("token");
+
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
       const response = await axios.get("http://localhost:5000/api/organizer/users", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+
       setUsers(response.data.users);
     } catch (error) {
       console.error("Error fetching users:", error);
     }
   };
+  
   const [error, setError] = useState(null);
 
   // const fetchPaymentSchedule = async (userId) => {
@@ -61,14 +71,20 @@ const OrganizerDashboard = () => {
     try {
       setLoading(true);
       setError(null); // Reset error state
-      
+
       const token = localStorage.getItem("token");
+
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
       const response = await axios.get(`http://localhost:5000/api/payment-schedule/${userId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      
+
       if (response.data && response.data.schedule) {
         setPaymentSchedule(response.data.schedule);
         return response.data.schedule;
@@ -78,10 +94,9 @@ const OrganizerDashboard = () => {
     } catch (error) {
       console.error("Error fetching payment schedule:", error);
       let errorMessage = "Failed to fetch payment schedule";
-      
+
       if (error.response) {
         // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
         if (error.response.status === 404) {
           errorMessage = "Payment schedule not found for this user";
         } else if (error.response.data && error.response.data.message) {
@@ -91,7 +106,7 @@ const OrganizerDashboard = () => {
         // The request was made but no response was received
         errorMessage = "No response from server. Please check your connection.";
       }
-      
+
       setError(errorMessage);
       return null;
     } finally {
@@ -99,6 +114,71 @@ const OrganizerDashboard = () => {
     }
   };
 
+  const handleEditPayment = async (serialNo, updatedDetails) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
+      const response = await axios.put(
+        `http://localhost:5000/api/payment-schedule/${selectedUser._id}/${serialNo}`,
+        updatedDetails,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert("Payment updated successfully!");
+      fetchPaymentSchedule(selectedUser._id); // Refresh schedule
+    } catch (error) {
+      console.error("Error updating payment:", error);
+      alert("Failed to update payment.");
+    }
+  };
+
+  const handleUpdatePayment = async (serialNo, emiAmount, status) => {
+    if (!emiAmount || !status) {
+      alert("Please provide valid EMI amount and status.");
+      return;
+    }
+  
+    try {
+      const updatedDetails = { emiAmount, status };
+      const token = localStorage.getItem("token");
+  
+      // Assuming `selectedUser._id` is the user ID we are working with
+      const response = await axios.put(
+        `http://localhost:5000/api/payment-schedule/${selectedUser._id}/${serialNo}`,
+        updatedDetails,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      // Update local state to reflect the change and lock the row
+      const updatedPaymentSchedule = paymentSchedule.map(payment => {
+        if (payment.serialNo === serialNo) {
+          return {
+            ...payment,
+            emiAmount,
+            status,
+            locked: true, // Lock the row after update
+          };
+        }
+        return payment;
+      });
+  
+      setPaymentSchedule(updatedPaymentSchedule);
+      alert("Payment updated successfully!");
+    } catch (error) {
+      console.error("Error updating payment:", error);
+      alert("Failed to update payment.");
+    }
+  };
+  
+  
 
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString('en-IN', {
@@ -126,6 +206,12 @@ const OrganizerDashboard = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
+
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
       await axios.post("http://localhost:5000/api/add-user-payment", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -147,7 +233,6 @@ const OrganizerDashboard = () => {
       alert("Failed to add user.");
     }
   };
-
   // const handleUserClick = async (user) => {
   //   setSelectedUser(user);
   //   const schedule = await fetchPaymentSchedule(user._id);
@@ -170,6 +255,7 @@ const OrganizerDashboard = () => {
 
   return (
     <div className="organizer-dashboard">
+      <LandingPage />
       {/* Add User Form */}
       <div className="add-user-section">
         <h2>Add New User</h2>
@@ -377,7 +463,8 @@ const OrganizerDashboard = () => {
                   </div>
                 </div>
               )} */}
-                {loading ? (
+{
+  loading ? (
     <div className="loading-spinner">Loading payment schedule...</div>
   ) : error ? (
     <div className="error-message">
@@ -397,6 +484,7 @@ const OrganizerDashboard = () => {
               <th>Interest</th>
               <th>Balance</th>
               <th>Status</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -404,14 +492,47 @@ const OrganizerDashboard = () => {
               <tr key={index} className={payment.status.toLowerCase()}>
                 <td>{index + 1}</td>
                 <td>{formatDate(payment.paymentDate)}</td>
-                <td>{formatCurrency(payment.emiAmount)}</td>
+                <td>
+                  <input
+                    type="number"
+                    value={payment.emiAmount}
+                    onChange={(e) => {
+                      if (!payment.locked) {
+                        const updatedPaymentSchedule = [...paymentSchedule];
+                        updatedPaymentSchedule[index].emiAmount = e.target.value;
+                        setPaymentSchedule(updatedPaymentSchedule);
+                      }
+                    }}
+                    disabled={payment.locked} // Disable input if locked
+                  />
+                </td>
                 <td>{formatCurrency(payment.principal)}</td>
                 <td>{formatCurrency(payment.interest)}</td>
                 <td>{formatCurrency(payment.balance)}</td>
                 <td>
-                  <span className={`status-badge ${payment.status.toLowerCase()}`}>
-                    {payment.status}
-                  </span>
+                  <select
+                    value={payment.status}
+                    onChange={(e) => {
+                      if (!payment.locked) {
+                        const updatedPaymentSchedule = [...paymentSchedule];
+                        updatedPaymentSchedule[index].status = e.target.value;
+                        setPaymentSchedule(updatedPaymentSchedule);
+                      }
+                    }}
+                    disabled={payment.locked} // Disable select if locked
+                  >
+                    <option value="PENDING">Pending</option>
+                    <option value="PAID">Paid</option>
+                    <option value="OVERDUE">Overdue</option>
+                  </select>
+                </td>
+                <td>
+                  <button
+                    onClick={() => handleUpdatePayment(payment.serialNo, payment.emiAmount, payment.status)}
+                    disabled={payment.locked} // Disable button if locked
+                  >
+                    Update
+                  </button>
                 </td>
               </tr>
             ))}
@@ -423,7 +544,10 @@ const OrganizerDashboard = () => {
     <div className="no-schedule-message">
       <p>No payment schedule available for this user.</p>
     </div>
-  )}
+  )
+}
+
+
 
             </div>
           </div>

@@ -408,7 +408,7 @@ exports.getUsersByOrganizer = async (req, res) => {
   }
 };
 
-  exports.getUserDetails = async (req, res) => {
+exports.getUserDetails = async (req, res) => {
     try {
       const userId = req.user.id; // User ID from authenticated token
   

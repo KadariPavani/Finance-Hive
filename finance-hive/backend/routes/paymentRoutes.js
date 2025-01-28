@@ -53,7 +53,9 @@ const express = require('express');
 const router = express.Router();
 const paymentController = require('../controllers/paymentController');
 
+
 // Route for fetching payment schedule
 router.get('/payment-schedule/:userId', paymentController.createPaymentSchedule);
+router.put('/payment-schedule/:userId/:serialNo', paymentController.updatePaymentDetails);
 
 module.exports = router;
