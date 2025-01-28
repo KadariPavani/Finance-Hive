@@ -244,32 +244,62 @@
 
 // module.exports = mongoose.model("UserPayment", userPaymentSchema);
 
-const mongoose = require("mongoose");
+// const mongoose = require("mongoose");
 
-const userPaymentSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  mobileNumber: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  amountBorrowed: { type: Number, required: true },
-  tenure: { type: Number, required: true },
-  interest: { type: Number, required: true },
-  organizerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  loginCredentials: {
-    username: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-  },
-});
-
-// // Hash password only once
-// userPaymentSchema.pre("save", async function (next) {
-//   if (!this.isModified("password") && !this.isModified("loginCredentials.password")) return next(); // Skip hashing if not modified
-
-//   if (this.password) this.password = await hashPassword(this.password); // Hash the main password
-//   if (this.loginCredentials.password)
-//     this.loginCredentials.password = await hashPassword(this.loginCredentials.password); // Hash login credentials password
-
-//   next();
+// const userPaymentSchema = new mongoose.Schema({
+//   name: { type: String, required: true },
+//   email: { type: String, required: true, unique: true },
+//   mobileNumber: { type: String, required: true, unique: true },
+//   password: { type: String, required: true },
+//   amountBorrowed: { type: Number, required: true },
+//   tenure: { type: Number, required: true },
+//   interest: { type: Number, required: true },
+//   organizerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+//   loginCredentials: {
+//     username: { type: String, required: true, unique: true },
+//     password: { type: String, required: true },
+//   },
 // });
 
-module.exports = mongoose.model("UserPayment", userPaymentSchema);
+
+// module.exports = mongoose.model("UserPayment", userPaymentSchema);
+
+
+const mongoose = require('mongoose');
+
+const paymentScheduleSchema = new mongoose.Schema({
+  serialNo: Number,
+  paymentDate: Date,
+  emiAmount: Number,
+  principal: Number,
+  interest: Number,
+  balance: Number,
+  status: {
+    type: String,
+    enum: ['PENDING', 'PAID', 'OVERDUE'],
+    default: 'PENDING'
+  }
+});
+
+const userPaymentSchema = new mongoose.Schema({
+  _id: mongoose.Schema.Types.ObjectId,
+  name: String,
+  email: String,
+  mobileNumber: String,
+  password: String,
+  amountBorrowed: Number,
+  tenure: Number,
+  interest: Number,
+  organizerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  monthlyEMI: Number,
+  paymentSchedule: [paymentScheduleSchema],
+  loginCredentials: {
+    username: String,
+    password: String
+  }
+}, { timestamps: true });
+
+module.exports = mongoose.model('UserPayment', userPaymentSchema);

@@ -14,6 +14,7 @@ const {
 } = require('../controllers/authController');
 
 const router = express.Router();
+const paymentController = require('../controllers/paymentController');
 
 router.post('/login', login);
 router.post('/add-user', protect, restrictTo('admin'), addUser);
@@ -23,5 +24,6 @@ router.post("/add-user-payment", protect, restrictTo("organizer"), addUserAndSen
 router.get("/user/me", protect, restrictTo("user"), getUserById);
 router.get("/organizer/users", protect, restrictTo("organizer"), getUsersByOrganizer);
 router.get("/user-details", protect, restrictTo("user"), getUserDetails);
-
+router.post('/users/:userId/payment-schedule', paymentController.createPaymentSchedule);
+router.get('/users/:organizerId/payments', paymentController.getAllUsersWithPayments);
 module.exports = router;
