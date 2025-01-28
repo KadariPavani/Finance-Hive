@@ -172,28 +172,105 @@
 // module.exports = mongoose.model("UserPayment", userPaymentSchema);
 
 
+// const mongoose = require("mongoose");
+
+// const userPaymentSchema = new mongoose.Schema({
+//   name: { type: String, required: true },
+//   email: { type: String, required: true },
+//   mobileNumber: { type: String, required: true },
+//   password: { type: String, required: true },
+//   amountBorrowed: { type: Number, required: true },
+//   tenure: { type: Number, required: true },
+//   interest: { type: Number, required: true },
+//   organizerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+//   loginCredentials: {
+//     username: {
+//       type: String,
+//       required: [true, "Username is required"],  // Ensure username is always present
+//       unique: true, // Make sure username is unique
+//     },
+//     password: {
+//       type: String,
+//       required: true,
+//     }
+//   }
+// }, { timestamps: true });
+
+// module.exports = mongoose.model("UserPayment", userPaymentSchema);
+// const mongoose = require("mongoose");
+// const bcrypt = require("bcryptjs");
+
+// const userPaymentSchema = new mongoose.Schema(
+//   {
+//     name: { type: String, required: true },
+//     email: { type: String, required: true, unique: true },
+//     mobileNumber: { type: String, required: true, unique: true },
+//     password: { type: String, required: true },
+//     amountBorrowed: { type: Number, required: true },
+//     tenure: { type: Number, required: true },
+//     interest: { type: Number, required: true },
+//     organizerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+//     loginCredentials: {
+//       username: {
+//         type: String,
+//         required: [true, "Username is required"],
+//         unique: true, // Must be unique
+//       },
+//       password: { type: String, required: true },
+//     },
+//   },
+//   { timestamps: true }
+// );
+
+// // Hash passwords before saving
+// userPaymentSchema.pre("save", async function (next) {
+//   if (!this.isModified("password")) return next();
+
+//   console.log("Pre-save Hook: Hashing password for user:", this.name);
+//   const salt = await bcrypt.genSalt(12);
+//   this.password = await bcrypt.hash(this.password, salt);
+
+//   console.log("Pre-save Hook: Generated hash:", this.password);
+//   next();
+// });
+
+// // Add comparePassword method to the schema
+// userPaymentSchema.methods.comparePassword = async function (enteredPassword) {
+//   const passwordMatch = await bcrypt.compare(enteredPassword, this.password);
+//   const loginCredentialsPasswordMatch = await bcrypt.compare(enteredPassword, this.loginCredentials.password);
+
+//   return passwordMatch || loginCredentialsPasswordMatch;  // Return true if either matches
+// };
+
+// module.exports = mongoose.model("UserPayment", userPaymentSchema);
+
 const mongoose = require("mongoose");
+const { hashPassword } = require("../utils/hashUtils");
 
 const userPaymentSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  email: { type: String, required: true },
-  mobileNumber: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  mobileNumber: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   amountBorrowed: { type: Number, required: true },
   tenure: { type: Number, required: true },
   interest: { type: Number, required: true },
   organizerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   loginCredentials: {
-    username: {
-      type: String,
-      required: [true, "Username is required"],  // Ensure username is always present
-      unique: true, // Make sure username is unique
-    },
-    password: {
-      type: String,
-      required: true,
-    }
-  }
-}, { timestamps: true });
+    username: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+  },
+});
+
+// Hash password only once
+userPaymentSchema.pre("save", async function (next) {
+  if (!this.isModified("password") && !this.isModified("loginCredentials.password")) return next(); // Skip hashing if not modified
+
+  if (this.password) this.password = await hashPassword(this.password); // Hash the main password
+  if (this.loginCredentials.password)
+    this.loginCredentials.password = await hashPassword(this.loginCredentials.password); // Hash login credentials password
+
+  next();
+});
 
 module.exports = mongoose.model("UserPayment", userPaymentSchema);

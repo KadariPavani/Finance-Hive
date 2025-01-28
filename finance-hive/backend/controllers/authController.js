@@ -2,55 +2,42 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const UserPayment = require("../models/UserPayment");
+
 exports.login = async (req, res) => {
   try {
     const { mobileNumber, password } = req.body;
 
-    // Find user by mobile number
+    // Find user in `User` collection
     const user = await User.findOne({ mobileNumber });
+
     if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(404).json({ message: "User not found." });
     }
 
-    // Check if user is active
-    if (!user.isActive) {
-      return res.status(403).json({ message: 'Account is not active' });
+    // Compare entered password with stored password (raw password comparison)
+    if (password !== user.password) {
+      return res.status(401).json({ message: "Invalid credentials." });
     }
 
-    // Check password
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
-
-    // Update last login
-    user.lastLogin = new Date();
-    await user.save();
-
-    // Create token
-    const token = jwt.sign(
-      { 
-        id: user._id, 
-        role: user.role,
+    // Return success with user details
+    res.status(200).json({
+      message: "Login successful.",
+      user: {
+        id: user._id,
         name: user.name,
-        email: user.email
-      }, 
-      process.env.JWT_SECRET, 
-      { expiresIn: '1h' }
-    );
-
-    // Send response based on role
-    res.json({ 
-      token, 
-      role: user.role,
-      name: user.name,
-      email: user.email,
-      redirect: `/${user.role}`
+        role: user.role,
+      },
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Error logging in.", error: error.message });
   }
 };
+
+
+
+
+
 
 // Seed initial admin user
 exports.seedAdminUser = async () => {
@@ -80,47 +67,65 @@ exports.seedAdminUser = async () => {
 
 // Middleware for authentication
 
+// exports.protect = async (req, res, next) => {
+//   try {
+//     // Check if Authorization header exists
+//     const authHeader = req.headers.authorization;
+//     if (!authHeader) {
+//       console.error('No Authorization header');
+//       return res.status(401).json({ message: 'No token, authorization denied' });
+//     }
+
+//     // Extract token
+//     const token = authHeader.split(' ')[1];
+//     if (!token) {
+//       console.error('Token not found in Authorization header');
+//       return res.status(401).json({ message: 'Token not found' });
+//     }
+
+//     // Verify token
+//     let decoded;
+//     try {
+//       decoded = jwt.verify(token, process.env.JWT_SECRET);
+//     } catch (verifyError) {
+//       console.error('Token verification error:', verifyError.message);
+//       return res.status(401).json({ message: 'Invalid token' });
+//     }
+
+//     // Check if user exists
+//     const currentUser = await User.findById(decoded.id);
+//     if (!currentUser) {
+//       console.error('User not found for token');
+//       return res.status(401).json({ message: 'User no longer exists' });
+//     }
+
+//     // Attach user to request
+//     req.user = currentUser;
+//     next();
+//   } catch (error) {
+//     console.error('Protection middleware error:', error);
+//     res.status(500).json({ message: 'Authentication error', error: error.message });
+//   }
+// };
+
+// In middleware/auth.js
+
 exports.protect = async (req, res, next) => {
   try {
-    // Check if Authorization header exists
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      console.error('No Authorization header');
-      return res.status(401).json({ message: 'No token, authorization denied' });
+    const token = req.headers.authorization.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(401).json({ message: "Unauthorized" });
     }
 
-    // Extract token
-    const token = authHeader.split(' ')[1];
-    if (!token) {
-      console.error('Token not found in Authorization header');
-      return res.status(401).json({ message: 'Token not found' });
-    }
-
-    // Verify token
-    let decoded;
-    try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET);
-    } catch (verifyError) {
-      console.error('Token verification error:', verifyError.message);
-      return res.status(401).json({ message: 'Invalid token' });
-    }
-
-    // Check if user exists
-    const currentUser = await User.findById(decoded.id);
-    if (!currentUser) {
-      console.error('User not found for token');
-      return res.status(401).json({ message: 'User no longer exists' });
-    }
-
-    // Attach user to request
-    req.user = currentUser;
+    req.user = user;  // Attach user info to the request for further use
     next();
   } catch (error) {
-    console.error('Protection middleware error:', error);
-    res.status(500).json({ message: 'Authentication error', error: error.message });
+    return res.status(401).json({ message: "Unauthorized" });
   }
 };
-
 
 
 // Role-based authorization
@@ -224,20 +229,39 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+// Admin controller for adding admin/organizer users
+// In your user creation controller (for creating organizers)
 exports.addUser = async (req, res) => {
   try {
     const { name, email, mobileNumber, password, role } = req.body;
+    
+    console.log("\n=== Creating New User ===");
+    console.log("Role:", role);
+    console.log("Mobile Number:", mobileNumber);
 
-    // Create new user
+    // Generate hash using bcrypt directly
+    const hashedPassword = await bcrypt.hash(password, 12);
+    
+    // Log the hash being stored (first 20 chars for security)
+    console.log("Generated hash:", hashedPassword.substring(0, 20) + "...");
+
+    // Create new user with pre-hashed password
     const newUser = new User({
       name,
       email,
       mobileNumber,
-      password,
-      role
+      password: hashedPassword,
+      role,
+      isActive: true
     });
 
+    // Skip the pre-save middleware to prevent double hashing
+    newUser.$__.saveOptions = { ...newUser.$__.saveOptions, skipMiddleware: true };
     await newUser.save();
+
+    // Verify the stored hash
+    const savedUser = await User.findOne({ _id: newUser._id });
+    console.log("Verification - Stored hash:", savedUser.password.substring(0, 20) + "...");
 
     // Send email notification
     const mailOptions = {
@@ -264,11 +288,75 @@ exports.addUser = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('User creation error:', error);
+    console.error('\nUser creation error:', error);
     res.status(500).json({ 
       message: 'Error adding user', 
       error: error.message 
     });
+  }
+};
+
+// Modified login controller with additional logging
+exports.login = async (req, res) => {
+  try {
+    const { mobileNumber, password } = req.body;
+    console.log("\n=== Login Attempt ===");
+    console.log("Mobile Number:", mobileNumber);
+
+    // Find user with more detailed logging
+    const user = await User.findOne({ mobileNumber });
+    if (user) {
+      console.log("\nUser details:", {
+        _id: user._id,
+        name: user.name,
+        role: user.role,
+        isActive: user.isActive,
+        hashedPasswordLength: user.password?.length
+      });
+
+      // Check if user is active
+      if (!user.isActive) {
+        console.log("User account is inactive");
+        return res.status(403).json({ message: "Account is not active" });
+      }
+
+      // Test password comparison
+      const isMatch = await bcrypt.compare(password, user.password);
+      console.log("Password comparison result:", isMatch);
+
+      if (isMatch) {
+        // Update last login
+        user.lastLogin = new Date();
+        await user.save();
+
+        const token = jwt.sign(
+          {
+            id: user._id,
+            role: user.role,
+            name: user.name,
+            email: user.email,
+          },
+          process.env.JWT_SECRET,
+          { expiresIn: "1h" }
+        );
+
+        return res.json({
+          token,
+          role: user.role,
+          name: user.name,
+          email: user.email,
+          redirect: `/${user.role}`,
+        });
+      }
+    }
+
+    // If we get here, either user wasn't found or password didn't match
+    console.log("Authentication failed");
+    return res.status(401).json({ message: "Invalid credentials" });
+
+  } catch (error) {
+    console.error("\nError during login:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -439,14 +527,31 @@ exports.deleteUser = async (req, res) => {
 // Get user details by ID (for User Dashboard)
 exports.getUserById = async (req, res) => {
   try {
-    const user = await UserPayment.findById(req.user.id);
+    // Fetch user details from UserPayment by userId
+    const user = await UserPayment.findOne({ userId: req.user.id }).populate("organizerId", "name email");
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
-    res.status(200).json(user);
+
+    // Return user details and associated payment info
+    res.status(200).json({
+      data: {
+        name: user.name,
+        email: user.email,
+        mobileNumber: user.mobileNumber,
+        payments: [
+          {
+            amountBorrowed: user.amountBorrowed,
+            tenure: user.tenure,
+            interest: user.interest,
+          },
+        ],
+        organizer: user.organizerId, // Optional: Include organizer info if needed
+      },
+    });
   } catch (error) {
-    console.error("Error fetching user:", error);
-    res.status(500).json({ message: "Error fetching user." });
+    console.error("Error fetching user details:", error);
+    res.status(500).json({ message: "Error fetching user details." });
   }
 };
 
@@ -544,60 +649,119 @@ exports.getUserById = async (req, res) => {
 //     res.status(500).json({ message: "Error processing user." });
 //   }
 // };
+const bcrypt = require("bcryptjs");
+
+
 exports.addUserAndSendEmail = async (req, res) => {
   try {
-    const { name, email, mobileNumber, password, amountBorrowed, tenure, interest } = req.body;
-    const organizerId = req.user.id;  // Assuming the logged-in organizer's ID is available in req.user.id
+    const { name, email, mobileNumber, password, amountBorrowed, tenure, interest, role } = req.body;
 
-    // Check if the user already exists
-    const existingUser = await UserPayment.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: "User already exists." });
-    }
+    // Ensure role is provided and default to "user" if not
+    const userRole = role === 'organizer' || role === 'admin' ? role : 'user'; // Default to "user" if not "admin" or "organizer"
 
-    // Generate a username, or use email as a fallback for username
-    const username = email.split("@")[0]; // Use part of the email as username, or generate it as required
-
-    // Create user and associate with the organizer
-    const newUser = await UserPayment.create({
+    // Create User in `User` collection
+    const user = new User({
       name,
       email,
       mobileNumber,
-      password,
+      password, // Raw password
+      role: userRole, // Dynamically set role
+    });
+    await user.save();
+
+    // Use the same `user._id` as a reference in `UserPayment`
+    const userPayment = new UserPayment({
+      _id: user._id,
+      name,
+      email,
+      mobileNumber,
+      password, // Raw password
       amountBorrowed,
       tenure,
       interest,
-      organizerId,  // Link the user to the organizer
+      organizerId: req.user.id,
       loginCredentials: {
-        username,  // Ensure username is set here
-        password,  // Use the password provided by the user
-      }
+        username: mobileNumber,
+        password, // Raw password
+      },
     });
+    await userPayment.save();
 
-    // Send email with credentials
+    // Email sending logic using environment variables
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      service: "gmail", // You can change this to another service if needed
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: process.env.EMAIL_USER, // Use email from .env
+        pass: process.env.EMAIL_PASS,  // Use app password from .env
       },
     });
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: process.env.EMAIL_USER, // From address from .env
       to: email,
-      subject: "Your Finance Hive Credentials",
-      text: `Hello ${name},\n\nYour account has been created. Here are your credentials:\n\nUsername (Mobile Number): ${mobileNumber}\nPassword: ${password}\n\nPlease log in to your account to view your details.\n\nThanks,\nFinance Hive Team`,
+      subject: `Welcome to ${userRole === 'organizer' ? 'Organizer' : 'User'} Portal`,
+      text: `Hello ${name},\n\nWelcome to our platform! You have been successfully added as a ${userRole}.\n\nYour login credentials are:\n\nMobile Number: ${mobileNumber}\nPassword: ${password}\n\nThank you for joining us!`,
     };
 
-    await transporter.sendMail(mailOptions);
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending email:", error);
+        return res.status(500).json({ message: "Error sending email", error: error.message });
+      }
+      console.log("Email sent: " + info.response);
+    });
 
-    res.status(201).json({ message: "New user added and email sent successfully." });
+    res.status(201).json({ message: "User added successfully and email sent!" });
   } catch (error) {
-    console.error("Error adding or updating user:", error);
-    res.status(500).json({ message: "Error processing user." });
+    console.error("Error adding user:", error);
+    res.status(500).json({ message: "Error adding user.", error: error.message });
   }
 };
+
+
+
+
+
+exports.createUserAndPayment = async (req, res) => {
+  try {
+    const { name, email, mobileNumber, password, amountBorrowed, tenure, interest } = req.body;
+
+    // Hash the password once
+    const hashedPassword = await hashPassword(password);
+
+    // Create user
+    const user = await User.create({
+      name,
+      email,
+      mobileNumber,
+      password: hashedPassword, // Store hashed password
+      role: "organizer", // Example role
+    });
+
+    // Create user payment with the same hashed password
+    const userPayment = await UserPayment.create({
+      name,
+      email,
+      mobileNumber,
+      password: hashedPassword, // Use the same hashed password
+      amountBorrowed,
+      tenure,
+      interest,
+      organizerId: user._id,
+      loginCredentials: {
+        username: email,
+        password: hashedPassword, // Use the same hashed password
+      },
+    });
+
+    res.status(201).json({ message: "User and payment created successfully.", user, userPayment });
+  } catch (error) {
+    console.error("Error creating user and payment:", error);
+    res.status(500).json({ message: "Error creating user and payment.", error: error.message });
+  }
+};
+
+
 // In controllers/authController.js
 exports.getUsersByOrganizer = async (req, res) => {
   try {
@@ -632,28 +796,62 @@ exports.getUsersByOrganizer = async (req, res) => {
 
 // exports.updateUser = async (req, res) => {
 
+  exports.getUserDetails = async (req, res) => {
+    try {
+      const userId = req.user.id; // User ID from authenticated token
+  
+      // Find user details in `UserPayment` collection using the same `_id`
+      const userDetails = await UserPayment.findById(userId);
+      if (!userDetails) {
+        return res.status(404).json({ message: "User details not found." });
+      }
+  
+      res.status(200).json({ data: userDetails });
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+      res.status(500).json({ message: "Error fetching user details." });
+    }
+  };
+  
 
-exports.getUserDetails = async (req, res) => {
+// Login User
+
+exports.userLogin = async (req, res) => {
   try {
-    // Assuming `req.user._id` holds the logged-in user's ID
-    const user = await UserPayment.findOne({ _id: req.user._id });
+    const { mobileNumber, password } = req.body;
 
+    // Find the user by mobile number
+    const user = await User.findOne({ mobileNumber });
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found.",
-      });
+      return res.status(404).json({ message: "User not found." });
     }
 
+    // Compare entered password with hashed password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Invalid credentials." });
+    }
+
+    // Generate a JWT token
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
     res.status(200).json({
-      success: true,
-      data: user,
+      message: "Login successful.",
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        mobileNumber: user.mobileNumber,
+        role: user.role,
+      },
     });
   } catch (error) {
-    console.error("Error fetching user details:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch user details.",
-    });
+    console.error("Error during login:", error);
+    res.status(500).json({ message: "Error during login.", error: error.message });
   }
 };

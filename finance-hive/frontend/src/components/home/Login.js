@@ -11,24 +11,31 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError(""); // Reset error message
     try {
-      const response = await axios.post('http://localhost:5000/api/login', {
+      console.log("Attempting login with:", { mobileNumber, password }); // Debug
+  
+      const response = await axios.post("http://localhost:5000/api/login", {
         mobileNumber,
-        password
+        password,
       });
-
+  
+      console.log("Login successful:", response.data);
+  
       // Store token and user info in localStorage
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('userRole', response.data.role);
-      localStorage.setItem('userName', response.data.name);
-      localStorage.setItem('userEmail', response.data.email);
-      
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("userRole", response.data.role);
+      localStorage.setItem("userName", response.data.name);
+      localStorage.setItem("userEmail", response.data.email);
+  
       // Redirect based on role
       navigate(response.data.redirect);
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      console.error("Login error:", err.response?.data || err.message);
+      setError(err.response?.data?.message || "Login failed");
     }
   };
+  
 
   return (
     <div className="login-container">
