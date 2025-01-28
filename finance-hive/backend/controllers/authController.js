@@ -6,31 +6,59 @@ const UserPayment = require("../models/UserPayment");
 exports.login = async (req, res) => {
   try {
     const { mobileNumber, password } = req.body;
+    console.log("\n=== Login Attempt ===");
+    console.log("Mobile Number:", mobileNumber);
 
-    // Find user in `User` collection
+    // Find user with detailed logging
     const user = await User.findOne({ mobileNumber });
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found." });
-    }
-
-    // Compare entered password with stored password (raw password comparison)
-    if (password !== user.password) {
-      return res.status(401).json({ message: "Invalid credentials." });
-    }
-
-    // Return success with user details
-    res.status(200).json({
-      message: "Login successful.",
-      user: {
-        id: user._id,
+    if (user) {
+      console.log("\nUser found:", {
+        _id: user._id,
         name: user.name,
         role: user.role,
-      },
-    });
+        isActive: user.isActive
+      });
+
+      // Check if user is active
+      if (!user.isActive) {
+        console.log("User account is inactive");
+        return res.status(403).json({ message: "Account is not active" });
+      }
+
+      // Direct password comparison
+      if (password === user.password) {
+        // Update last login
+        user.lastLogin = new Date();
+        await user.save();
+
+        const token = jwt.sign(
+          {
+            id: user._id,
+            role: user.role,
+            name: user.name,
+            email: user.email,
+          },
+          process.env.JWT_SECRET,
+          { expiresIn: "1h" }
+        );
+
+        return res.json({
+          token,
+          role: user.role,
+          name: user.name,
+          email: user.email,
+          redirect: `/${user.role}`,
+        });
+      }
+    }
+
+    // If we get here, either user wasn't found or password didn't match
+    console.log("Authentication failed");
+    return res.status(401).json({ message: "Invalid credentials" });
+
   } catch (error) {
-    console.error("Login error:", error);
-    res.status(500).json({ message: "Error logging in.", error: error.message });
+    console.error("\nError during login:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -234,34 +262,23 @@ const transporter = nodemailer.createTransport({
 exports.addUser = async (req, res) => {
   try {
     const { name, email, mobileNumber, password, role } = req.body;
-    
+
     console.log("\n=== Creating New User ===");
     console.log("Role:", role);
     console.log("Mobile Number:", mobileNumber);
 
-    // Generate hash using bcrypt directly
-    const hashedPassword = await bcrypt.hash(password, 12);
-    
-    // Log the hash being stored (first 20 chars for security)
-    console.log("Generated hash:", hashedPassword.substring(0, 20) + "...");
-
-    // Create new user with pre-hashed password
+    // Create new user without hashing the password
     const newUser = new User({
       name,
       email,
       mobileNumber,
-      password: hashedPassword,
+      password, // Directly storing the plain text password
       role,
       isActive: true
     });
 
-    // Skip the pre-save middleware to prevent double hashing
-    newUser.$__.saveOptions = { ...newUser.$__.saveOptions, skipMiddleware: true };
+    // Save the user
     await newUser.save();
-
-    // Verify the stored hash
-    const savedUser = await User.findOne({ _id: newUser._id });
-    console.log("Verification - Stored hash:", savedUser.password.substring(0, 20) + "...");
 
     // Send email notification
     const mailOptions = {
@@ -297,68 +314,68 @@ exports.addUser = async (req, res) => {
 };
 
 // Modified login controller with additional logging
-exports.login = async (req, res) => {
-  try {
-    const { mobileNumber, password } = req.body;
-    console.log("\n=== Login Attempt ===");
-    console.log("Mobile Number:", mobileNumber);
+// exports.login = async (req, res) => {
+//   try {
+//     const { mobileNumber, password } = req.body;
+//     console.log("\n=== Login Attempt ===");
+//     console.log("Mobile Number:", mobileNumber);
 
-    // Find user with more detailed logging
-    const user = await User.findOne({ mobileNumber });
-    if (user) {
-      console.log("\nUser details:", {
-        _id: user._id,
-        name: user.name,
-        role: user.role,
-        isActive: user.isActive,
-        hashedPasswordLength: user.password?.length
-      });
+//     // Find user with more detailed logging
+//     const user = await User.findOne({ mobileNumber });
+//     if (user) {
+//       console.log("\nUser details:", {
+//         _id: user._id,
+//         name: user.name,
+//         role: user.role,
+//         isActive: user.isActive,
+//         hashedPasswordLength: user.password?.length
+//       });
 
-      // Check if user is active
-      if (!user.isActive) {
-        console.log("User account is inactive");
-        return res.status(403).json({ message: "Account is not active" });
-      }
+//       // Check if user is active
+//       if (!user.isActive) {
+//         console.log("User account is inactive");
+//         return res.status(403).json({ message: "Account is not active" });
+//       }
 
-      // Test password comparison
-      const isMatch = await bcrypt.compare(password, user.password);
-      console.log("Password comparison result:", isMatch);
+//       // Test password comparison
+//       const isMatch = await bcrypt.compare(password, user.password);
+//       console.log("Password comparison result:", isMatch);
 
-      if (isMatch) {
-        // Update last login
-        user.lastLogin = new Date();
-        await user.save();
+//       if (isMatch) {
+//         // Update last login
+//         user.lastLogin = new Date();
+//         await user.save();
 
-        const token = jwt.sign(
-          {
-            id: user._id,
-            role: user.role,
-            name: user.name,
-            email: user.email,
-          },
-          process.env.JWT_SECRET,
-          { expiresIn: "1h" }
-        );
+//         const token = jwt.sign(
+//           {
+//             id: user._id,
+//             role: user.role,
+//             name: user.name,
+//             email: user.email,
+//           },
+//           process.env.JWT_SECRET,
+//           { expiresIn: "1h" }
+//         );
 
-        return res.json({
-          token,
-          role: user.role,
-          name: user.name,
-          email: user.email,
-          redirect: `/${user.role}`,
-        });
-      }
-    }
+//         return res.json({
+//           token,
+//           role: user.role,
+//           name: user.name,
+//           email: user.email,
+//           redirect: `/${user.role}`,
+//         });
+//       }
+//     }
 
-    // If we get here, either user wasn't found or password didn't match
-    console.log("Authentication failed");
-    return res.status(401).json({ message: "Invalid credentials" });
+//     // If we get here, either user wasn't found or password didn't match
+//     console.log("Authentication failed");
+//     return res.status(401).json({ message: "Invalid credentials" });
 
-  } catch (error) {
-    console.error("\nError during login:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
+//   } catch (error) {
+//     console.error("\nError during login:", error);
+//     res.status(500).json({ message: "Server error" });
+//   }
+// };
 
 // Get all users (admin and organizer)
 exports.getAllUsers = async (req, res) => {
@@ -657,66 +674,61 @@ exports.addUserAndSendEmail = async (req, res) => {
     const { name, email, mobileNumber, password, amountBorrowed, tenure, interest, role } = req.body;
 
     // Ensure role is provided and default to "user" if not
-    const userRole = role === 'organizer' || role === 'admin' ? role : 'user'; // Default to "user" if not "admin" or "organizer"
+    const userRole = role === 'organizer' || role === 'admin' ? role : 'user';
 
-    // Create User in `User` collection
+    // Create User in User collection without hashing
     const user = new User({
       name,
       email,
       mobileNumber,
-      password, // Raw password
-      role: userRole, // Dynamically set role
+      password, // Store plain password
+      role: userRole,
     });
     await user.save();
 
-    // Use the same `user._id` as a reference in `UserPayment`
+    // Create UserPayment record with plain password
     const userPayment = new UserPayment({
       _id: user._id,
       name,
       email,
       mobileNumber,
-      password, // Raw password
+      password, // Store plain password
       amountBorrowed,
       tenure,
       interest,
       organizerId: req.user.id,
       loginCredentials: {
         username: mobileNumber,
-        password, // Raw password
+        password, // Store plain password
       },
     });
     await userPayment.save();
 
-    // Email sending logic using environment variables
+    // Email configuration
     const transporter = nodemailer.createTransport({
-      service: "gmail", // You can change this to another service if needed
+      service: "gmail",
       auth: {
-        user: process.env.EMAIL_USER, // Use email from .env
-        pass: process.env.EMAIL_PASS,  // Use app password from .env
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
       },
     });
 
     const mailOptions = {
-      from: process.env.EMAIL_USER, // From address from .env
+      from: process.env.EMAIL_USER,
       to: email,
       subject: `Welcome to ${userRole === 'organizer' ? 'Organizer' : 'User'} Portal`,
       text: `Hello ${name},\n\nWelcome to our platform! You have been successfully added as a ${userRole}.\n\nYour login credentials are:\n\nMobile Number: ${mobileNumber}\nPassword: ${password}\n\nThank you for joining us!`,
     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error("Error sending email:", error);
-        return res.status(500).json({ message: "Error sending email", error: error.message });
-      }
-      console.log("Email sent: " + info.response);
-    });
-
+    await transporter.sendMail(mailOptions);
+    
     res.status(201).json({ message: "User added successfully and email sent!" });
   } catch (error) {
     console.error("Error adding user:", error);
     res.status(500).json({ message: "Error adding user.", error: error.message });
   }
 };
+
 
 
 
@@ -826,30 +838,29 @@ exports.userLogin = async (req, res) => {
       return res.status(404).json({ message: "User not found." });
     }
 
-    // Compare entered password with hashed password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
+    // Direct password comparison
+    if (password === user.password) {
+      // Generate JWT token
+      const token = jwt.sign(
+        { id: user._id, role: user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: "1d" }
+      );
+
+      res.status(200).json({
+        message: "Login successful.",
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          mobileNumber: user.mobileNumber,
+          role: user.role,
+        },
+      });
+    } else {
       return res.status(401).json({ message: "Invalid credentials." });
     }
-
-    // Generate a JWT token
-    const token = jwt.sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
-
-    res.status(200).json({
-      message: "Login successful.",
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        mobileNumber: user.mobileNumber,
-        role: user.role,
-      },
-    });
   } catch (error) {
     console.error("Error during login:", error);
     res.status(500).json({ message: "Error during login.", error: error.message });

@@ -245,7 +245,6 @@
 // module.exports = mongoose.model("UserPayment", userPaymentSchema);
 
 const mongoose = require("mongoose");
-const { hashPassword } = require("../utils/hashUtils");
 
 const userPaymentSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -262,15 +261,15 @@ const userPaymentSchema = new mongoose.Schema({
   },
 });
 
-// Hash password only once
-userPaymentSchema.pre("save", async function (next) {
-  if (!this.isModified("password") && !this.isModified("loginCredentials.password")) return next(); // Skip hashing if not modified
+// // Hash password only once
+// userPaymentSchema.pre("save", async function (next) {
+//   if (!this.isModified("password") && !this.isModified("loginCredentials.password")) return next(); // Skip hashing if not modified
 
-  if (this.password) this.password = await hashPassword(this.password); // Hash the main password
-  if (this.loginCredentials.password)
-    this.loginCredentials.password = await hashPassword(this.loginCredentials.password); // Hash login credentials password
+//   if (this.password) this.password = await hashPassword(this.password); // Hash the main password
+//   if (this.loginCredentials.password)
+//     this.loginCredentials.password = await hashPassword(this.loginCredentials.password); // Hash login credentials password
 
-  next();
-});
+//   next();
+// });
 
 module.exports = mongoose.model("UserPayment", userPaymentSchema);
