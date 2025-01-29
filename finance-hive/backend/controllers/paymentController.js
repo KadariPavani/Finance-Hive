@@ -39,47 +39,35 @@ exports.createPaymentSchedule = async (req, res) => {
 
 // Update Payment Details (EMI and Status)
 exports.updatePaymentDetails = async (req, res) => {
-  try {
-    const { userId, serialNo } = req.params;
-    const { emiAmount, status } = req.body;
-    
-    console.log("Received update request:", { userId, serialNo, emiAmount, status }); // Add this
+  const { userId, serialNo } = req.params;
+  const { emiAmount, status } = req.body;
 
+  try {
     const userPayment = await UserPayment.findById(userId);
     if (!userPayment) {
-      console.log("User payment not found for ID:", userId); // Add this
-      return res.status(404).json({ message: "User payment details not found" });
+      return res.status(404).json({ message: 'User not found' });
     }
 
-    // Find the payment schedule entry
-    const paymentIndex = userPayment.paymentSchedule.findIndex(
-      s => s.serialNo === parseInt(serialNo)
-    );
-    
-    console.log("Found payment at index:", paymentIndex); // Add this
-    
-    if (paymentIndex === -1) {
-      console.log("Payment schedule entry not found for serial:", serialNo); // Add this
-      return res.status(404).json({ message: "Payment schedule entry not found" });
+    // Find and update the specific payment
+    const payment = userPayment.paymentSchedule.find(p => p.serialNo === Number(serialNo));
+    if (!payment) {
+      return res.status(404).json({ message: 'Payment not found' });
     }
 
-    // Update the payment details
-    userPayment.paymentSchedule[paymentIndex].status = status;
-    if (emiAmount) {
-      userPayment.paymentSchedule[paymentIndex].emiAmount = emiAmount;
-    }
+    payment.emiAmount = emiAmount;
+    payment.status = status;
 
-    console.log("Saving updated payment schedule"); // Add this
+    // Save the updated document
     await userPayment.save();
 
-    console.log("Payment updated successfully"); // Add this
+    // Return the updated payment schedule
     res.status(200).json({
-      message: "Payment details updated successfully",
-      schedule: userPayment.paymentSchedule
+      message: 'Payment updated successfully',
+      schedule: userPayment.paymentSchedule, // Return the updated schedule
     });
   } catch (error) {
-    console.error("Error in updatePaymentDetails:", error); // Modified this
-    res.status(500).json({ message: "Error updating payment details" });
+    console.error('Error updating payment:', error);
+    res.status(500).json({ message: 'Error updating payment details' });
   }
 };
 
