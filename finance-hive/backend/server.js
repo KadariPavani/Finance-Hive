@@ -36,6 +36,7 @@ app.use("/api", authRoutes);
 app.use('/api', paymentRoutes);
 app.use('/api', userRoutes);
 autoUpdateOverdueStatus();
+app.use(express.json()); // Make sure this middleware is included
 
 // Start the server
 app.listen(PORT, () => {
