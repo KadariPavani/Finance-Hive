@@ -1,4 +1,4 @@
-
+const mongoose = require('mongoose');
 // controllers/paymentController.js
 const { calculateEMI, generatePaymentSchedule } = require('../utils/calculatePayments');
 const UserPayment = require('../models/UserPayment');
@@ -48,75 +48,88 @@ exports.updatePaymentDetails = async (req, res) => {
       return res.status(404).json({ message: "User payment details not found" });
     }
 
-    const schedule = userPayment.paymentSchedule.find(s => s.serialNo === Number(serialNo));
-    if (!schedule) {
+    // Find the payment schedule entry
+    const paymentIndex = userPayment.paymentSchedule.findIndex(
+      s => s.serialNo === Number(serialNo)
+    );
+    
+    if (paymentIndex === -1) {
       return res.status(404).json({ message: "Payment schedule entry not found" });
     }
 
-    let remainingBalance = userPayment.amountBorrowed;
-    let updatedSchedule = [...userPayment.paymentSchedule];
-
-    // Update the EMI for the current row if EMI amount is provided
-    if (emiAmount) {
-      schedule.emiAmount = emiAmount;
+    // Check if payment is already locked
+    if (userPayment.paymentSchedule[paymentIndex].locked) {
+      return res.status(400).json({ 
+        message: "This payment has already been updated and cannot be modified again",
+        isLocked: true
+      });
     }
 
-    // Calculate the extra amount paid (if any) for this payment
-    let extraPayment = 0;
-    if (emiAmount && schedule.emiAmount < emiAmount) {
-      extraPayment = emiAmount - schedule.emiAmount;  // Extra amount paid
-    }
-
-    // Recalculate the balance for the current row and future rows
-    for (let i = serialNo - 1; i < updatedSchedule.length; i++) {
-      let currentPayment = updatedSchedule[i];
-
-      // If it's the current row being updated, adjust the EMI
-      if (i === serialNo - 1 && emiAmount) {
-        currentPayment.emiAmount = emiAmount;
-      }
-
-      // Subtract the EMI from the remaining balance
-      remainingBalance -= currentPayment.emiAmount;
-
-      // If extraPayment exists, reduce it from the principal (balance)
-      if (extraPayment > 0) {
-        remainingBalance -= extraPayment;
-        extraPayment = 0;  // Reset extra payment after it's applied to the balance
-      }
-
-      // Ensure that the balance does not go negative
-      remainingBalance = Math.max(remainingBalance, 0);
-
-      // Update the remaining balance for the future payments
-      currentPayment.balance = remainingBalance;
-
-      // Adjust EMI dynamically for future payments (spread the remaining balance across the remaining payments)
-      if (i === updatedSchedule.length - 1 && remainingBalance > 0) {
-        // Adjust the last row to make sure the balance reaches 0
-        currentPayment.emiAmount += remainingBalance;
-        currentPayment.balance = 0;  // The last payment will settle the remaining balance
-      }
-    }
-
-    // If status is updated, update it
+    // Update the payment details
     if (status) {
-      schedule.status = status;
+      userPayment.paymentSchedule[paymentIndex].status = status;
+    }
+    
+    if (emiAmount) {
+      userPayment.paymentSchedule[paymentIndex].emiAmount = emiAmount;
+      
+      // Recalculate balances
+      let remainingBalance = userPayment.paymentSchedule[paymentIndex].balance + 
+                           userPayment.paymentSchedule[paymentIndex].emiAmount - emiAmount;
+      
+      for (let i = paymentIndex + 1; i < userPayment.paymentSchedule.length; i++) {
+        userPayment.paymentSchedule[i].balance = remainingBalance;
+        remainingBalance -= userPayment.paymentSchedule[i].emiAmount;
+      }
     }
 
-    // Mark the payment as 'locked' after update to prevent future edits
-    schedule.locked = true;
+    // Lock the payment
+    userPayment.paymentSchedule[paymentIndex].locked = true;
 
-    // Save the updated schedule
-    userPayment.paymentSchedule = updatedSchedule;
     await userPayment.save();
 
-    res.status(200).json({ message: "Payment details updated successfully", schedule });
+    res.status(200).json({
+      message: "Payment details updated successfully",
+      schedule: userPayment.paymentSchedule
+    });
   } catch (error) {
     console.error("Error updating payment details:", error);
     res.status(500).json({ message: "Error updating payment details" });
   }
 };
+
+
+const updatePaymentDetails = async (req, res) => {
+  try {
+    const { userId, serialNo } = req.params;
+    const { emiAmount, status } = req.body;
+
+    // Your logic to update payment
+    const updatedPayment = await UserPayment.findOneAndUpdate(
+      { userId: mongoose.Types.ObjectId(userId), "payments.serialNo": serialNo },
+      {
+        $set: {
+          "payments.$.emiAmount": emiAmount,
+          "payments.$.status": status,
+        },
+      },
+      { new: true }
+    );
+
+    if (!updatedPayment) {
+      return res.status(404).send({ message: 'Payment not found or unable to update.' });
+    }
+
+    res.status(200).send(updatedPayment);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: 'Error updating payment details' });
+  }
+};
+
+
+
+
 
 
 

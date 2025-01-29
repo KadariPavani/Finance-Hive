@@ -52,10 +52,24 @@
 const express = require('express');
 const router = express.Router();
 const paymentController = require('../controllers/paymentController');
-
+const authMiddleware = require('../middleware/auth');
+router.patch('/payment/:userId/:serialNo', paymentController.updatePaymentDetails);
+const { updatePaymentDetails } = require('../controllers/paymentController');
+router.patch('/payment/:userId/:serialNo', updatePaymentDetails);
 
 // Route for fetching payment schedule
 router.get('/payment-schedule/:userId', paymentController.createPaymentSchedule);
-router.put('/payment-schedule/:userId/:serialNo', paymentController.updatePaymentDetails);
-
+// router.put('/payment-schedule/:userId/:serialNo', paymentController.updatePaymentDetails);
+router.get('/api/user/:userId', authMiddleware, async (req, res) => {
+  try {
+    const user = await UserPayment.findById(req.params.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user);
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ message: 'Error fetching user data' });
+  }
+});
 module.exports = router;

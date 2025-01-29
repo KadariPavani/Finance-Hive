@@ -7,7 +7,7 @@ import AdminDashboard from './components/admin/AdminDashboard';
 import UserDashboard from './components/user/UserDashboard';
 import OrganizerDashboard from './components/organizer/OrganizerDashboard';
 import AddUser from './components/admin/AddUser';
-
+import UserPaymentDetails from './components/organizer/UserpaymentDetails';
 const App = () => (
   <Router>
     <Routes>
@@ -20,7 +20,7 @@ const App = () => (
       <Route path="/admin" element={<AdminDashboard />} />
       <Route path="/organizer" element={<OrganizerDashboard />} />
       <Route path="/user" element={<UserDashboard />} />
-
+      <Route path="/user-payments/:userId" element={<UserPaymentDetails />} />
       <Route path="/add-admin" element={<AddUser role="admin" />} />
       <Route path="/add-organizer" element={<AddUser role="organizer" />} />
 
