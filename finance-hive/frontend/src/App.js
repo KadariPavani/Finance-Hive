@@ -1,5 +1,8 @@
+// App.js
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { I18nextProvider } from 'react-i18next';
+import i18n from './i18n'; // Import your i18n configuration
 import HomePage from './components/HomePage';
 import ContactForm from './components/home/GetInTouch';
 import Login from './components/home/Login';
@@ -8,28 +11,32 @@ import UserDashboard from './components/user/UserDashboard';
 import OrganizerDashboard from './components/organizer/OrganizerDashboard';
 import AddUser from './components/admin/AddUser';
 import UserPaymentDetails from './components/organizer/UserpaymentDetails';
-const App = () => (
-  <Router>
-    <Routes>
-      {/* Your existing routes */}
-      <Route path="/" element={<HomePage />} />
-      <Route path="/contact" element={<ContactForm />} />
-      
-      {/* New routes for login and dashboards */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/admin" element={<AdminDashboard />} />
-      <Route path="/organizer" element={<OrganizerDashboard />} />
-      <Route path="/user" element={<UserDashboard />} />
-      <Route path="/user-payments/:userId" element={<UserPaymentDetails />} />
-      <Route path="/add-admin" element={<AddUser role="admin" />} />
-      <Route path="/add-organizer" element={<AddUser role="organizer" />} />
+import Notifications from './components/Notifications/Notifications';
+import LanguageSwitcher from './components/LanguageSwitcher';
 
-    </Routes>
-  </Router>
+const App = () => (
+  <I18nextProvider i18n={i18n}>
+    <Router>
+      <Routes>
+        {/* Your existing routes */}
+        <Route path="/" element={<HomePage />} />
+        <Route path="/contact" element={<ContactForm />} />
+        
+        {/* New routes for login and dashboards */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/organizer" element={<OrganizerDashboard />} />
+        <Route path="/user" element={<UserDashboard />} />
+        <Route path="/user-payments/:userId" element={<UserPaymentDetails />} />
+        <Route path="/add-admin" element={<AddUser role="admin" />} />
+        <Route path="/add-organizer" element={<AddUser role="organizer" />} />
+        <Route path="/notifications" element={<Notifications />} />
+      </Routes>
+    </Router>
+  </I18nextProvider>
 );
 
 export default App;
-
 
 
 // import React from 'react';

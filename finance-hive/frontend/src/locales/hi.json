@@ -1,0 +1,104 @@
+{
+  "dashboard": {
+    "overview": "डैशबोर्ड अवलोकन",
+    "personal_info": "व्यक्तिगत जानकारी",
+    "name": "नाम:",
+    "email": "ईमेल:",
+    "mobile": "मोबाइल:",
+    "password": "पासवर्ड:",
+    "loan_details": "ऋण विवरण",
+    "amount_borrowed": "उधार ली गई राशि:",
+    "tenure": "अवधि:",
+    "interest": "ब्याज दर:",
+    "next_payment": "अगला भुगतान:",
+    "payment_schedule": "भुगतान अनुसूची",
+    "payment_date": "भुगतान तिथि",
+    "emi_amount": "ईएमआई राशि",
+    "principal": "मूल राशि",
+    "balance": "शेष राशि",
+    "status": "स्थिति",
+    "loading": "उपयोगकर्ता विवरण लोड हो रहा है...",
+    "months": "महीने",
+    "add_new_user": "नया उपयोगकर्ता जोड़ें",
+    "your_users": "आपके उपयोगकर्ता",
+    "loading_users": "उपयोगकर्ताओं को लोड किया जा रहा है...",
+    "user_added_successfully": "उपयोगकर्ता सफलतापूर्वक जोड़ा गया!",
+    "failed_to_add_user": "उपयोगकर्ता जोड़ने में विफल",
+    "add_user": "उपयोगकर्ता जोड़ें",
+    "language": "भाषा",
+    "select_language": "भाषा चुनें",
+    "form_labels": {
+      "name": "नाम:",
+      "email": "ईमेल:",
+      "mobile": "मोबाइल:",
+      "password": "पासवर्ड:",
+      "amount_borrowed": "उधार ली गई राशि:",
+      "tenure": "अवधि:",
+      "interest": "ब्याज दर:"
+    },
+    "error_messages": {
+      "required_field": "यह फ़ील्ड आवश्यक है",
+      "invalid_email": "अमान्य ईमेल पता",
+      "invalid_mobile": "अमान्य मोबाइल नंबर",
+      "invalid_amount": "अमान्य राशि",
+      "server_error": "सर्वर त्रुटि हुई"
+    },
+    "tooltips": {
+      "mobile_format": "10 अंकों का मोबाइल नंबर दर्ज करें",
+      "interest_range": "0-100% के बीच ब्याज दर दर्ज करें",
+      "tenure_months": "महीनों में अवधि दर्ज करें"
+    },
+    "card_labels": {
+      "contact_info": "संपर्क जानकारी",
+      "loan_info": "ऋण जानकारी",
+      "view_details": "विवरण देखें"
+    }
+  },
+  "notifications": {
+    "title": "सूचनाएं",
+    "loading": "सूचनाएं लोड हो रही हैं...",
+    "error": "सूचनाएं लोड करने में विफल",
+    "none": "कोई सूचनाएं नहीं हैं",
+    "mark_read": "पढ़ा हुआ चिह्नित करें",
+    "new_payment": "नया भुगतान",
+    "payment_reminder": "भुगतान रिमाइंडर",
+    "payment_overdue": "भुगतान बाकी",
+    "clear_all": "सभी हटाएं",
+    "username": "उपयोगकर्ता नाम:",
+  "password": "पासवर्ड:"
+  },
+  "common": {
+    "on": "पर",
+    "finance_hive": "फाइनेंस हाइव",
+    "logout": "लॉग आउट",
+    "profile": "प्रोफ़ाइल",
+    "save": "सहेजें",
+    "cancel": "रद्द करें",
+    "edit": "संपादित करें",
+    "delete": "हटाएं",
+    "back": "वापस",
+    "next": "अगला",
+    "search": "खोजें",
+    "filter": "फ़िल्टर",
+    "sort": "क्रमबद्ध करें",
+    "refresh": "रीफ्रेश",
+    "loading": "लोड हो रहा है..."
+  },
+  "time": {
+    "just_now": "अभी अभी",
+    "minutes_ago": "{{count}} मिनट पहले |||| {{count}} मिनट पहले",
+    "hours_ago": "{{count}} घंटा पहले |||| {{count}} घंटे पहले",
+    "days_ago": "{{count}} दिन पहले |||| {{count}} दिन पहले",
+    "weeks_ago": "{{count}} सप्ताह पहले |||| {{count}} सप्ताह पहले",
+    "months_ago": "{{count}} महीना पहले |||| {{count}} महीने पहले"
+  },
+  "status": {
+    "pending": "लंबित",
+    "paid": "भुगतान किया गया",
+    "overdue": "समय सीमा समाप्त",
+    "processing": "प्रोसेसिंग",
+    "completed": "पूर्ण",
+    "cancelled": "रद्द",
+    "failed": "विफल"
+  }
+}

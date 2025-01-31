@@ -1,3 +1,50 @@
+// const express = require("express");
+// const nodemailer = require("nodemailer");
+// const bodyParser = require("body-parser");
+// const cors = require("cors");
+// require('dotenv').config();
+// const mongoose = require("mongoose");
+// const contactRoutes = require("./routes/contactRoutes");
+// const authRoutes = require("./routes/authRoutes");
+// const { seedAdminUser } = require("./controllers/authController");
+// const paymentRoutes = require("./routes/paymentRoutes");
+// const app = express();
+// const PORT = process.env.PORT || 5000;
+// const autoUpdateOverdueStatus = require('./utils/cronJobs');
+// const userRoutes = require('./routes/userRoutes');
+// const notificationRoutes = require('./routes/notificationRoutes');
+// // Middleware
+// app.use(cors());
+// app.use(bodyParser.json());
+
+// // MongoDB connection
+// mongoose.connect(process.env.MONGO_URI, {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true,
+// }).then(async () => {
+//   console.log("MongoDB connected");
+//   // Seed admin user
+//   await seedAdminUser();
+// }).catch((err) => {
+//   console.error("MongoDB connection error:", err);
+// });
+
+// // Use routes
+// app.use("/api", contactRoutes);
+// app.use("/api", authRoutes);
+// app.use('/api', paymentRoutes);
+// app.use('/api', userRoutes);
+// app.use('/api/notifications', notificationRoutes);
+
+// autoUpdateOverdueStatus();
+// app.use(express.json()); // Make sure this middleware is included
+
+// // Start the server
+// app.listen(PORT, () => {
+//   console.log(`Server running on port ${PORT}`);
+// });
+
+// server.js
 const express = require("express");
 const nodemailer = require("nodemailer");
 const bodyParser = require("body-parser");
@@ -12,7 +59,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const autoUpdateOverdueStatus = require('./utils/cronJobs');
 const userRoutes = require('./routes/userRoutes');
-
+const notificationRoutes = require('./routes/notifications');
 
 // Middleware
 app.use(cors());
@@ -35,6 +82,7 @@ app.use("/api", contactRoutes);
 app.use("/api", authRoutes);
 app.use('/api', paymentRoutes);
 app.use('/api', userRoutes);
+app.use('/api/notifications', require('./routes/notifications'));
 autoUpdateOverdueStatus();
 app.use(express.json()); // Make sure this middleware is included
 
@@ -42,8 +90,6 @@ app.use(express.json()); // Make sure this middleware is included
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
-
 
 
 
