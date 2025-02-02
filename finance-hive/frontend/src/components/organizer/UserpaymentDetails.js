@@ -160,7 +160,7 @@ const UserPaymentDetails = () => {
   return (
     <div className="user-payment-details">
       <div className="payment-details-container">
-        <button onClick={() => navigate('/')} className="back-button">
+        <button onClick={() => navigate('/organizer')} className="back-button">
           <X size={24} />
         </button>
 

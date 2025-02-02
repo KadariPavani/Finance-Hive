@@ -1,100 +1,60 @@
-/* General Styles */
 .user-payment-details {
-  min-height: 100vh;
-  background-color: #f9fafb;
-  font-family: 'Arial', sans-serif;
+  padding: 2rem;
+  width: 100%;
 }
 
 .payment-details-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  position: relative;
 }
 
-/* Back Button */
 .back-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 10px;
+  padding: 0.5rem;
   border-radius: 50%;
-  transition: background-color 0.3s;
+  transition: background-color 0.2s;
 }
 
 .back-button:hover {
-  background-color: #e5e7eb;
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
-/* Error Message */
-.error-message {
-  background-color: #fee2e2;
-  border: 1px solid #ef4444;
-  color: #dc2626;
-  padding: 10px;
-  border-radius: 5px;
-  margin-bottom: 20px;
-}
-
-/* Loading Container */
-.loading-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: #f9fafb;
-}
-
-.loading-content {
-  text-align: center;
-}
-
-.loading-spinner {
-  animation: spin 1s linear infinite;
-  color: #3b82f6;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.loading-text {
-  margin-top: 10px;
-  color: #4b5563;
-}
-
-/* Payment Schedule Table */
 .payment-schedule-table {
   width: 100%;
   overflow-x: auto;
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-top: 20px;
+  margin-top: 2rem;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 800px;
 }
 
-th,
-td {
-  padding: 12px;
+th, td {
+  padding: 1rem;
   text-align: left;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 th {
-  background-color: #f3f4f6;
+  background-color: #f8fafc;
   font-weight: 600;
+  color: #64748b;
 }
 
-/* Payment Row Styles */
+.payment-row:hover {
+  background-color: #f8fafc;
+}
+
 .payment-row-paid {
   background-color: #f0fdf4;
 }
@@ -103,33 +63,33 @@ th {
   background-color: #fef2f2;
 }
 
-/* Payment Status Select */
 .payment-status-container {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .payment-status-select {
-  padding: 8px;
+  padding: 0.5rem;
   border-radius: 4px;
-  border: 1px solid #d1d5db;
+  border: 1px solid #e2e8f0;
+  background-color: white;
   cursor: pointer;
 }
 
 .payment-status-paid {
-  background-color: #dcfce7;
-  border-color: #34d399;
+  color: #16a34a;
+  border-color: #16a34a;
 }
 
 .payment-status-overdue {
-  background-color: #fee2e2;
-  border-color: #ef4444;
+  color: #dc2626;
+  border-color: #dc2626;
 }
 
 .payment-status-pending {
-  background-color: #ffffff;
-  border-color: #d1d5db;
+  color: #ca8a04;
+  border-color: #ca8a04;
 }
 
 .payment-status-disabled {
@@ -139,40 +99,62 @@ th {
 
 .payment-status-loader {
   animation: spin 1s linear infinite;
-  color: #3b82f6;
 }
 
-/* Responsive Styles */
-@media (max-width: 768px) {
-  .payment-details-container {
-    padding: 10px;
-  }
+.download-button {
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  table {
-    font-size: 14px;
-  }
+.download-button:hover:not(:disabled) {
+  background-color: rgba(0, 0, 0, 0.05);
+}
 
-  th,
-  td {
-    padding: 8px;
-  }
+.download-button-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
-  .payment-status-select {
-    padding: 6px;
+.download-loader {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 
-@media (max-width: 480px) {
-  table {
-    font-size: 12px;
-  }
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
 
-  th,
-  td {
-    padding: 6px;
-  }
+.loading-content {
+  text-align: center;
+}
 
-  .payment-status-select {
-    padding: 4px;
-  }
+.loading-spinner {
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+.error-message {
+  background-color: #fef2f2;
+  color: #dc2626;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
 }

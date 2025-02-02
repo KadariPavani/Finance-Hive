@@ -65,7 +65,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Bell, User, LogOut } from 'lucide-react';
+import { Bell, User, LogOut, PiggyBank, LineChart } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Navigation.css';
@@ -76,12 +76,14 @@ const Navigation = ({ userDetails, onLogout }) => {
   const navigate = useNavigate();
   const [unreadCount, setUnreadCount] = useState(0);
 
+
   const fetchUnreadCount = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:5000/api/notifications/unread-count", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+// Navigation.js - This path is now correct
+const response = await axios.get("http://localhost:5000/api/notifications/unread-count", {
+  headers: { Authorization: `Bearer ${token}` },
+});
       setUnreadCount(response.data.count);
     } catch (error) {
       console.error("Error fetching unread count:", error);
@@ -97,16 +99,18 @@ const Navigation = ({ userDetails, onLogout }) => {
   return (
     <nav className="dashboard-nav">
       <div className="nav-logo">
-        <Link to="/" className="nav__logo">
+        <Link to="/" className="nav__logo_sub">
           <div className="logo-container">
             <img src="../Images/FH_LogoFinal.png" alt="FMS Logo" className="logo-img" />
           </div>
-          {/* <h3 className="logo-text">{t('common.finance_hive')}</h3> */}
           <h3 className="logo-text">FINANCE HIVE</h3>
         </Link>      
       </div>
 
       <div className="nav-actions">
+        <Link to="/tracking" className="nav-icon-btn" title={t('common.tracking')}>
+          <LineChart className="nav-icon" />
+        </Link>
         <Link to="/notifications" className="nav-icon-btn" title={t('notifications.title')}>
           <div className="notification-icon-wrapper">
             <Bell className="nav-icon" />

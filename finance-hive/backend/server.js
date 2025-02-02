@@ -60,10 +60,21 @@ const PORT = process.env.PORT || 5000;
 const autoUpdateOverdueStatus = require('./utils/cronJobs');
 const userRoutes = require('./routes/userRoutes');
 const notificationRoutes = require('./routes/notifications');
-
+const trackingsRoutes = require('./routes/tracking');
 // Middleware
-app.use(cors());
+// app.use(cors());
+// server.js - Update CORS configuration
+app.use(cors({
+  origin: 'http://localhost:3000', // Replace with your frontend URL
+  credentials: true
+}));
 app.use(bodyParser.json());
+// server.js - Add this for debugging
+// Add request logging for debugging
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.originalUrl}`);
+  next();
+});
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI, {
@@ -82,9 +93,21 @@ app.use("/api", contactRoutes);
 app.use("/api", authRoutes);
 app.use('/api', paymentRoutes);
 app.use('/api', userRoutes);
+app.use('/api/tracking', require('./routes/tracking'));
 app.use('/api/notifications', require('./routes/notifications'));
 autoUpdateOverdueStatus();
 app.use(express.json()); // Make sure this middleware is included
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
+
+// Add 404 handler
+app.use((req, res) => {
+  console.log(`404: ${req.method} ${req.path}`);
+  res.status(404).send('Route not found');
+});
 
 // Start the server
 app.listen(PORT, () => {

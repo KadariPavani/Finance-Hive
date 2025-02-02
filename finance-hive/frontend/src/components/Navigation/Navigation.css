@@ -13,10 +13,26 @@
   z-index: 1000;
 }
 
-.nav-logo {
-  height: 40px;
+.nav__logo_sub {
+  display: inline-flex;
+  align-items: center;
+  column-gap: 0.25rem;
+  color: var(--title-color);
+  font-weight: var(--font-semi-bold);
+  transition: color 0.3s;
 }
-.nav__logo h3 {
+
+.nav__logo_sub img {
+  max-width: 100%; /* Ensures the image scales down */
+  height: auto; /* Maintains aspect ratio */
+  max-height: 60px; /* Set a max height to prevent overflow */
+}
+
+.nav__logo:hover {
+  color: var(--first-color);
+}
+
+.nav__logo_sub h3 {
   color: #333; /* Darker text for better visibility */
   font-weight: bold;
 }

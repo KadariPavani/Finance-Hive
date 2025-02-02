@@ -6,7 +6,7 @@ import axios from "axios";
 import "./OrganizerDashboard.css";
 import { User, Phone, Mail, DollarSign, Calendar, Percent } from 'lucide-react';
 import LandingPage from '../home/LandingPage/LandingPage';
-import Navigation from "../Navigation/Navigation";
+import NavigationOrganizer from "../Navigation/NavigationOrganizer";
 import { useTranslation } from 'react-i18next';
 
 const OrganizerDashboard = () => {
@@ -52,7 +52,7 @@ const OrganizerDashboard = () => {
 
       setOrganizerDetails({
         ...response.data.data,
-        role: 'organizer'
+        role: 'organizer' // Ensure role is set explicitly
       });
     } catch (error) {
       console.error("Error fetching organizer details:", error);
@@ -147,7 +147,7 @@ const OrganizerDashboard = () => {
   return (
     <div className="organizer-dashboard">
       <LandingPage />
-      <Navigation userDetails={organizerDetails} onLogout={handleLogout} />
+      <NavigationOrganizer organizerDetails={organizerDetails} onLogout={handleLogout} />
 
 
 
