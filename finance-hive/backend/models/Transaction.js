@@ -22,13 +22,13 @@ const transactionSchema = new mongoose.Schema({
   },
   date: {
     type: Date,
-    required: true
-  },
-  notes: String,
-  createdAt: {
-    type: Date,
     default: Date.now
+  },
+  notes: {
+    type: String
   }
+}, {
+  timestamps: true
 });
 
 module.exports = mongoose.model('Transaction', transactionSchema);

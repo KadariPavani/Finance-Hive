@@ -17,18 +17,17 @@ const savingsGoalSchema = new mongoose.Schema({
   },
   currentAmount: {
     type: Number,
-    required: true,
     default: 0
   },
   targetDate: {
     type: Date,
     required: true
   },
-  description: String,
-  createdAt: {
-    type: Date,
-    default: Date.now
+  description: {
+    type: String
   }
+}, {
+  timestamps: true
 });
 
 module.exports = mongoose.model('SavingsGoal', savingsGoalSchema);

@@ -55,6 +55,7 @@ router.get('/transactions', auth, async (req, res) => {
 });
 
 // Get transaction statistics
+// routes/tracking.js - Update the statistics endpoint
 router.get('/statistics', auth, async (req, res) => {
   try {
     const { period = 'month' } = req.query;
@@ -75,30 +76,60 @@ router.get('/statistics', auth, async (req, res) => {
         startDate = new Date(now.setMonth(now.getMonth() - 1));
     }
 
-    const stats = await Transaction.aggregate([
-      {
-        $match: {
-          userId: req.user._id,
-          date: { $gte: startDate }
-        }
-      },
-      {
-        $group: {
-          _id: {
-            type: '$type',
-            category: '$category',
-            date: { $dateToString: { format: '%Y-%m-%d', date: '$date' } }
-          },
-          total: { $sum: '$amount' }
-        }
-      }
-    ]);
+    const transactions = await Transaction.find({
+      userId: req.user.id,
+      date: { $gte: startDate }
+    });
 
-    res.json(stats);
+    const totalIncome = transactions
+      .filter(t => t.type === 'income')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const totalExpenses = transactions
+      .filter(t => t.type === 'expense')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    // Group by date for trend
+    const trend = {};
+    transactions.forEach(t => {
+      const dateStr = t.date.toISOString().split('T')[0];
+      if (!trend[dateStr]) {
+        trend[dateStr] = { date: dateStr, income: 0, expenses: 0 };
+      }
+      if (t.type === 'income') {
+        trend[dateStr].income += t.amount;
+      } else {
+        trend[dateStr].expenses += t.amount;
+      }
+    });
+
+    // Group expenses by category
+    const expensesByCategory = transactions
+      .filter(t => t.type === 'expense')
+      .reduce((acc, t) => {
+        if (!acc[t.category]) {
+          acc[t.category] = 0;
+        }
+        acc[t.category] += t.amount;
+        return acc;
+      }, {});
+
+    res.json({
+      totalIncome,
+      totalExpenses,
+      totalSavings: totalIncome - totalExpenses,
+      trend: Object.values(trend),
+      expensesByCategory: Object.entries(expensesByCategory).map(([category, amount]) => ({
+        category,
+        amount
+      }))
+    });
   } catch (error) {
+    console.error('Error fetching statistics:', error);
     res.status(500).send('Server Error');
   }
 });
+
 
 // Add savings goal
 router.post('/savings', auth, async (req, res) => {
@@ -147,6 +178,7 @@ router.put('/savings/:id', auth, async (req, res) => {
 
 
 // In your tracking routes file
+// Add income
 router.post('/income', auth, async (req, res) => {
   try {
     const { amount, category, date, notes } = req.body;
@@ -155,12 +187,13 @@ router.post('/income', auth, async (req, res) => {
       type: 'income',
       amount,
       category,
-      date,
+      date: date || new Date(),
       notes
     });
     await transaction.save();
     res.json(transaction);
   } catch (error) {
+    console.error('Error saving income:', error);
     res.status(500).send('Server Error');
   }
 });

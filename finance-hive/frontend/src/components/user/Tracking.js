@@ -90,6 +90,7 @@ const Tracking = () => {
   }, [period]);
 
 // Tracking.js - Update the API paths
+// Tracking.js - Add logging to fetchData
 const fetchData = async () => {
   try {
     setLoading(true);
@@ -106,6 +107,9 @@ const fetchData = async () => {
       axios.get('http://localhost:5000/api/tracking/savings', { headers })
     ]);
 
+    console.log('Statistics:', statsRes.data);
+    console.log('Savings:', savingsRes.data);
+
     setStatistics(statsRes.data);
     setSavingsGoals(savingsRes.data);
   } catch (error) {
@@ -116,6 +120,23 @@ const fetchData = async () => {
   } finally {
     setLoading(false);
   }
+};
+// Tracking.js - Add data validation before rendering
+const formatChartData = (data) => {
+  if (!data) return [];
+  return data.map(item => ({
+    ...item,
+    income: Number(item.income) || 0,
+    expenses: Number(item.expenses) || 0
+  }));
+};
+
+const formatExpenseCategories = (categories) => {
+  if (!categories) return [];
+  return categories.map(cat => ({
+    category: cat.category || 'Other',
+    amount: Number(cat.amount) || 0
+  }));
 };
 
   const COLORS = ['#2563eb', '#16a34a', '#dc2626', '#f59e0b'];

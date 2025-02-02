@@ -60,7 +60,8 @@ const PORT = process.env.PORT || 5000;
 const autoUpdateOverdueStatus = require('./utils/cronJobs');
 const userRoutes = require('./routes/userRoutes');
 const notificationRoutes = require('./routes/notifications');
-const trackingsRoutes = require('./routes/tracking');
+const trackingRoutes = require('./routes/tracking');
+
 // Middleware
 // app.use(cors());
 // server.js - Update CORS configuration
@@ -93,7 +94,7 @@ app.use("/api", contactRoutes);
 app.use("/api", authRoutes);
 app.use('/api', paymentRoutes);
 app.use('/api', userRoutes);
-app.use('/api/tracking', require('./routes/tracking'));
+app.use('/api/tracking', trackingRoutes);
 app.use('/api/notifications', require('./routes/notifications'));
 autoUpdateOverdueStatus();
 app.use(express.json()); // Make sure this middleware is included
