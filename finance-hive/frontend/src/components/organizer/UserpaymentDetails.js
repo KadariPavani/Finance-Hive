@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { X, User, Phone, Mail, DollarSign, Calendar, Percent } from 'lucide-react';
-import { Loader2 } from 'lucide-react';
-import './UserPaymentDetails.css'; // Import the CSS file
+import { X, Loader2 } from 'lucide-react';
+import './UserPaymentDetails.css';
 
-// Create axios instance with default config
 const api = axios.create({
   baseURL: 'http://localhost:5000/api',
   timeout: 10000,
@@ -13,9 +11,7 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+  if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
@@ -27,135 +23,91 @@ const UserPaymentDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [updateInProgress, setUpdateInProgress] = useState({});
+  const [editingEmi, setEditingEmi] = useState({ serialNo: null, value: '' });
 
   const fetchUserData = useCallback(async () => {
     try {
       setLoading(true);
-      setError(null);
-
-      const userResponse = await api.get(`/user/${userId}`);
-      const userData = userResponse.data;
-
-      if (!userData) {
-        throw new Error('Invalid data received from server');
-      }
-
-      console.log('Fetched user data:', userData); // Debug log
-
-      // Set user data and payment schedule
-      setUserData(userData);
-      setPaymentSchedule(userData.paymentSchedule || []); // Ensure paymentSchedule is set correctly
+      const response = await api.get(`/user/${userId}`);
+      if (!response.data) throw new Error('Invalid server response');
+      
+      setUserData(response.data);
+      setPaymentSchedule(response.data.paymentSchedule || []);
     } catch (error) {
-      console.error('Error fetching data:', error);
-      setError(error.response?.data?.message || 'Failed to load payment details. Please try again.');
+      setError(error.response?.data?.message || 'Failed to load payment details');
     } finally {
       setLoading(false);
     }
   }, [userId]);
 
-  useEffect(() => {
-    fetchUserData();
-  }, [fetchUserData]);
+  useEffect(() => { fetchUserData(); }, [fetchUserData]);
 
-  const handleUpdatePayment = async (serialNo, emiAmount, newStatus) => {
+  const handlePaymentUpdate = async (serialNo, field, value) => {
     if (updateInProgress[serialNo]) return;
-
-    console.log('Starting payment update:', { serialNo, newStatus }); // Debug log
-
+    
     try {
-      setUpdateInProgress((prev) => ({ ...prev, [serialNo]: true }));
-      setError(null);
+      setUpdateInProgress(prev => ({ ...prev, [serialNo]: true }));
+      
+      // Optimistic update
+      setPaymentSchedule(prev => prev.map(p => 
+        p.serialNo === serialNo ? { ...p, [field]: value } : p
+      ));
 
-      // Optimistically update the UI
-      setPaymentSchedule((prevSchedule) =>
-        prevSchedule.map((payment) =>
-          payment.serialNo === serialNo ? { ...payment, status: newStatus } : payment
-        )
-      );
-
-      const response = await api.patch(`/payment/${userId}/${serialNo}`, {
-        emiAmount: Number(emiAmount),
-        status: newStatus,
+      await api.patch(`/payment/${userId}/${serialNo}`, { 
+        [field]: field === 'emiAmount' ? Number(value) : value 
       });
-
-      console.log('Server response:', response.data); // Debug log
-
-      // Update the payment schedule with the response from the server
-      if (response.data?.schedule) {
-        setPaymentSchedule(response.data.schedule);
-      }
+      
+      await fetchUserData(); // Refresh data from server
     } catch (error) {
-      console.error('Update failed:', error);
-      setError('Failed to update payment status. Please try again.');
-      // Revert the optimistic update
-      fetchUserData();
+      setError('Update failed. Reverting changes...');
+      fetchUserData(); // Revert on error
     } finally {
-      setUpdateInProgress((prev) => ({ ...prev, [serialNo]: false }));
+      setUpdateInProgress(prev => ({ ...prev, [serialNo]: false }));
+      setEditingEmi({ serialNo: null, value: '' });
     }
   };
 
-  const formatDate = useCallback((date) => {
-    return new Date(date).toLocaleDateString('en-IN', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  }, []);
+  const formatDate = useCallback(date => 
+    new Date(date).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' }), 
+  []);
 
-  const formatCurrency = useCallback((amount) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-    }).format(amount);
-  }, []);
+  const formatCurrency = useCallback(amount => 
+    new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount), 
+  []);
 
-  useEffect(() => {
-    console.log('Current payment schedule:', paymentSchedule); // Debug log
-  }, [paymentSchedule]);
+  // Calculate total remaining balance
+  const totalPaidPrincipal = paymentSchedule.reduce((acc, payment) => 
+    payment.status === 'PAID' ? acc + payment.principal : acc, 0);
+  const totalBalance = userData?.amountBorrowed ? 
+    userData.amountBorrowed - totalPaidPrincipal : 0;
 
-  const renderPaymentStatus = useCallback(
-    (payment) => (
-      <div className="payment-status-container">
-        <select
-          key={`${payment.serialNo}-${payment.status}`} // Force re-render on status change
-          value={payment.status}
-          onChange={(e) => {
-            console.log(
-              `Changing status for payment ${payment.serialNo} from ${payment.status} to ${e.target.value}`
-            );
-            handleUpdatePayment(payment.serialNo, payment.emiAmount, e.target.value);
-          }}
-          className={`payment-status-select ${
-            payment.status === 'PAID'
-              ? 'payment-status-paid'
-              : payment.status === 'OVERDUE'
-              ? 'payment-status-overdue'
-              : 'payment-status-pending'
-          } ${updateInProgress[payment.serialNo] ? 'payment-status-disabled' : ''}`}
-          disabled={updateInProgress[payment.serialNo]}
-        >
-          <option value="PENDING">Pending</option>
-          <option value="PAID">Paid</option>
-          <option value="OVERDUE">Overdue</option>
-        </select>
-        {updateInProgress[payment.serialNo] && (
-          <Loader2 className="payment-status-loader" />
-        )}
+  if (loading) return (
+    <div className="loading-container">
+      <div className="loading-content">
+        <Loader2 className="loading-spinner" />
+        <p className="loading-text">Loading payment details...</p>
       </div>
-    ),
-    [updateInProgress, handleUpdatePayment]
+    </div>
   );
 
-  if (loading) {
-    return (
-      <div className="loading-container">
-        <div className="loading-content">
-          <Loader2 className="loading-spinner" />
-          <p className="loading-text">Loading payment details...</p>
-        </div>
-      </div>
-    );
-  }
+  const handleEmiUpdate = async (serialNo, newValue) => {
+    try {
+      setUpdateInProgress(prev => ({ ...prev, [serialNo]: true }));
+      
+      await api.patch(`/payment/${userId}/${serialNo}`, {
+        emiAmount: Number(newValue),
+        status: userData.paymentSchedule.find(p => p.serialNo === serialNo).status
+      });
+  
+      // Force full refresh of data
+      await fetchUserData(); 
+    } catch (error) {
+      setError('Failed to update EMI amount');
+    } finally {
+      setUpdateInProgress(prev => ({ ...prev, [serialNo]: false }));
+      setEditingEmi({ serialNo: null, value: '' });
+    }
+  };
 
   return (
     <div className="user-payment-details">
@@ -166,8 +118,12 @@ const UserPaymentDetails = () => {
 
         {error && <div className="error-message">{error}</div>}
 
-        {userData && paymentSchedule.length > 0 && (
+        {userData && (
           <div className="payment-details-content">
+            <div className="total-balance">
+              <h3>Total Remaining Balance: {formatCurrency(totalBalance)}</h3>
+            </div>
+
             <div className="payment-schedule-table">
               <table>
                 <thead>
@@ -175,25 +131,52 @@ const UserPaymentDetails = () => {
                     <th>Serial No.</th>
                     <th>Due Date</th>
                     <th>EMI Amount</th>
+                    <th>Remaining Balance</th>
                     <th>Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {paymentSchedule.map((payment) => (
-                    <tr
-                      key={payment.serialNo}
-                      className={`payment-row ${
-                        payment.status === 'PAID'
-                          ? 'payment-row-paid'
-                          : payment.status === 'OVERDUE'
-                          ? 'payment-row-overdue'
-                          : ''
-                      }`}
-                    >
+                  {paymentSchedule.map(payment => (
+                    <tr key={payment.serialNo} className={`payment-row ${payment.status.toLowerCase()}`}>
                       <td>{payment.serialNo}</td>
                       <td>{formatDate(payment.paymentDate)}</td>
-                      <td>{formatCurrency(payment.emiAmount)}</td>
-                      <td>{renderPaymentStatus(payment)}</td>
+                      <td className="emi-amount-cell">
+                        {editingEmi.serialNo === payment.serialNo ? (
+                          <input
+                            type="number"
+                            value={editingEmi.value}
+                            onChange={e => setEditingEmi({ ...editingEmi, value: e.target.value })}
+                            onBlur={() => handlePaymentUpdate(payment.serialNo, 'emiAmount', editingEmi.value)}
+                            onKeyPress={e => e.key === 'Enter' && 
+                              handlePaymentUpdate(payment.serialNo, 'emiAmount', editingEmi.value)}
+                            autoFocus
+                          />
+                        ) : (
+                          <span onClick={() => setEditingEmi({ 
+                            serialNo: payment.serialNo, 
+                            value: payment.emiAmount 
+                          })}>
+                            {formatCurrency(payment.emiAmount)}
+                          </span>
+                        )}
+                        {updateInProgress[payment.serialNo] && <Loader2 className="emi-update-loader" />}
+                      </td>
+                      <td>{formatCurrency(payment.balance)}</td>
+                      <td>
+                        <div className="payment-status-container">
+                          <select
+                            value={payment.status}
+                            onChange={e => handlePaymentUpdate(payment.serialNo, 'status', e.target.value)}
+                            className={`payment-status-select ${payment.status.toLowerCase()}`}
+                            disabled={updateInProgress[payment.serialNo]}
+                          >
+                            <option value="PENDING">Pending</option>
+                            <option value="PAID">Paid</option>
+                            <option value="OVERDUE">Overdue</option>
+                          </select>
+                          {updateInProgress[payment.serialNo] && <Loader2 className="payment-status-loader" />}
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

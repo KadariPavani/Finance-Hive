@@ -39,35 +39,61 @@ exports.createPaymentSchedule = async (req, res) => {
 
 // Update Payment Details (EMI and Status)
 exports.updatePaymentDetails = async (req, res) => {
-  const { userId, serialNo } = req.params;
-  const { emiAmount, status } = req.body;
-
   try {
+    const { userId, serialNo } = req.params;
+    const { emiAmount, status } = req.body;
+
+    // Find the user payment document
     const userPayment = await UserPayment.findById(userId);
     if (!userPayment) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'User payment not found' });
     }
 
-    // Find and update the specific payment
-    const payment = userPayment.paymentSchedule.find(p => p.serialNo === Number(serialNo));
-    if (!payment) {
+    // Find the specific payment
+    const paymentIndex = userPayment.paymentSchedule.findIndex(
+      p => p.serialNo === Number(serialNo)
+    );
+    if (paymentIndex === -1) {
       return res.status(404).json({ message: 'Payment not found' });
     }
 
-    payment.emiAmount = emiAmount;
-    payment.status = status;
+    // Update payment details
+    const payment = userPayment.paymentSchedule[paymentIndex];
+    if (emiAmount) payment.emiAmount = emiAmount;
+    if (status) payment.status = status;
 
-    // Save the updated document
+    // Recalculate entire schedule from the modified payment onward
+    let currentBalance = paymentIndex === 0 
+      ? userPayment.amountBorrowed
+      : userPayment.paymentSchedule[paymentIndex - 1].balance;
+
+    for (let i = paymentIndex; i < userPayment.paymentSchedule.length; i++) {
+      const p = userPayment.paymentSchedule[i];
+      
+      // Only recalculate if payment is not locked
+      if (!p.locked) {
+        p.interest = currentBalance * (userPayment.interest / 100) / 12;
+        p.principal = payment.emiAmount - p.interest;
+        p.balance = currentBalance - p.principal;
+        
+        // Prevent negative balance
+        if (p.balance < 0) {
+          p.principal += p.balance;
+          p.balance = 0;
+        }
+        
+        currentBalance = p.balance;
+      }
+    }
+
     await userPayment.save();
-
-    // Return the updated payment schedule
-    res.status(200).json({
+    res.json({ 
       message: 'Payment updated successfully',
-      schedule: userPayment.paymentSchedule, // Return the updated schedule
+      schedule: userPayment.paymentSchedule 
     });
   } catch (error) {
     console.error('Error updating payment:', error);
-    res.status(500).json({ message: 'Error updating payment details' });
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
