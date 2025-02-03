@@ -48,7 +48,7 @@ const UserPaymentDetails = () => {
     try {
       setUpdateInProgress(prev => ({ ...prev, [serialNo]: true }));
       
-      // Optimistic update
+      // Optimistic update for immediate UI response
       setPaymentSchedule(prev => prev.map(p => 
         p.serialNo === serialNo ? { ...p, [field]: value } : p
       ));
@@ -57,7 +57,8 @@ const UserPaymentDetails = () => {
         [field]: field === 'emiAmount' ? Number(value) : value 
       });
       
-      await fetchUserData(); // Refresh data from server
+      // Refresh data to get recalculated balances
+      await fetchUserData();
     } catch (error) {
       setError('Update failed. Reverting changes...');
       fetchUserData(); // Revert on error
@@ -75,10 +76,11 @@ const UserPaymentDetails = () => {
     new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount), 
   []);
 
-  // Calculate total remaining balance
+  // Calculate dynamic balances
   const totalPaidPrincipal = paymentSchedule.reduce((acc, payment) => 
     payment.status === 'PAID' ? acc + payment.principal : acc, 0);
-  const totalBalance = userData?.amountBorrowed ? 
+  
+  const currentBalance = userData?.amountBorrowed ? 
     userData.amountBorrowed - totalPaidPrincipal : 0;
 
   if (loading) return (
@@ -89,25 +91,6 @@ const UserPaymentDetails = () => {
       </div>
     </div>
   );
-
-  const handleEmiUpdate = async (serialNo, newValue) => {
-    try {
-      setUpdateInProgress(prev => ({ ...prev, [serialNo]: true }));
-      
-      await api.patch(`/payment/${userId}/${serialNo}`, {
-        emiAmount: Number(newValue),
-        status: userData.paymentSchedule.find(p => p.serialNo === serialNo).status
-      });
-  
-      // Force full refresh of data
-      await fetchUserData(); 
-    } catch (error) {
-      setError('Failed to update EMI amount');
-    } finally {
-      setUpdateInProgress(prev => ({ ...prev, [serialNo]: false }));
-      setEditingEmi({ serialNo: null, value: '' });
-    }
-  };
 
   return (
     <div className="user-payment-details">
@@ -121,7 +104,7 @@ const UserPaymentDetails = () => {
         {userData && (
           <div className="payment-details-content">
             <div className="total-balance">
-              <h3>Total Remaining Balance: {formatCurrency(totalBalance)}</h3>
+              <h3>Total Remaining Balance: {formatCurrency(currentBalance)}</h3>
             </div>
 
             <div className="payment-schedule-table">
@@ -130,7 +113,7 @@ const UserPaymentDetails = () => {
                   <tr>
                     <th>Serial No.</th>
                     <th>Due Date</th>
-                    <th>EMI Amount</th>
+                    <th>Payable Amount</th>
                     <th>Remaining Balance</th>
                     <th>Status</th>
                   </tr>
@@ -161,7 +144,13 @@ const UserPaymentDetails = () => {
                         )}
                         {updateInProgress[payment.serialNo] && <Loader2 className="emi-update-loader" />}
                       </td>
-                      <td>{formatCurrency(payment.balance)}</td>
+                      <td>
+                        {updateInProgress[payment.serialNo] ? (
+                          <div className="balance-updating-indicator" />
+                        ) : (
+                          formatCurrency(payment.balance)
+                        )}
+                      </td>
                       <td>
                         <div className="payment-status-container">
                           <select
@@ -190,7 +179,6 @@ const UserPaymentDetails = () => {
 };
 
 export default UserPaymentDetails;
-
 
 // import React, { useState, useEffect, useCallback } from 'react';
 // import { useParams, useNavigate } from 'react-router-dom';

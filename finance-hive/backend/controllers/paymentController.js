@@ -43,57 +43,48 @@ exports.updatePaymentDetails = async (req, res) => {
     const { userId, serialNo } = req.params;
     const { emiAmount, status } = req.body;
 
-    // Find the user payment document
     const userPayment = await UserPayment.findById(userId);
-    if (!userPayment) {
-      return res.status(404).json({ message: 'User payment not found' });
-    }
-
-    // Find the specific payment
     const paymentIndex = userPayment.paymentSchedule.findIndex(
       p => p.serialNo === Number(serialNo)
     );
-    if (paymentIndex === -1) {
-      return res.status(404).json({ message: 'Payment not found' });
-    }
 
     // Update payment details
     const payment = userPayment.paymentSchedule[paymentIndex];
     if (emiAmount) payment.emiAmount = emiAmount;
     if (status) payment.status = status;
 
-    // Recalculate entire schedule from the modified payment onward
-    let currentBalance = paymentIndex === 0 
-      ? userPayment.amountBorrowed
-      : userPayment.paymentSchedule[paymentIndex - 1].balance;
+    // Recalculate balances starting from previous payment
+    let currentBalance = paymentIndex > 0 
+      ? userPayment.paymentSchedule[paymentIndex - 1].balance
+      : userPayment.amountBorrowed;
 
     for (let i = paymentIndex; i < userPayment.paymentSchedule.length; i++) {
       const p = userPayment.paymentSchedule[i];
       
-      // Only recalculate if payment is not locked
       if (!p.locked) {
-        p.interest = currentBalance * (userPayment.interest / 100) / 12;
-        p.principal = payment.emiAmount - p.interest;
+        const monthlyInterest = currentBalance * (userPayment.interest / 100) / 12;
+        const principal = p.emiAmount - monthlyInterest;
+        
+        // Ensure principal doesn't exceed remaining balance
+        p.principal = Math.min(principal, currentBalance);
+        p.interest = p.emiAmount - p.principal;
         p.balance = currentBalance - p.principal;
-        
-        // Prevent negative balance
-        if (p.balance < 0) {
-          p.principal += p.balance;
-          p.balance = 0;
-        }
-        
+
+        // Update for next iteration
         currentBalance = p.balance;
+        
+        // Auto-lock paid payments
+        if (p.status === 'PAID') p.locked = true;
       }
     }
 
     await userPayment.save();
     res.json({ 
-      message: 'Payment updated successfully',
-      schedule: userPayment.paymentSchedule 
+      schedule: userPayment.paymentSchedule,
+      amountBorrowed: userPayment.amountBorrowed 
     });
   } catch (error) {
-    console.error('Error updating payment:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Error updating payment' });
   }
 };
 
