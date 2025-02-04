@@ -270,6 +270,10 @@ const mongoose = require('mongoose');
 const paymentScheduleSchema = new mongoose.Schema({
   serialNo: Number,
   paymentDate: Date,
+  paidDate: {
+    type: Date,
+    default: null
+  },
   emiAmount: Number,
   principal: Number,
   interest: Number,

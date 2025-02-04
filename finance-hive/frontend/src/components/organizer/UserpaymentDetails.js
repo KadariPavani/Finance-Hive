@@ -137,51 +137,54 @@ const UserPaymentDetails = () => {
             </div>
 
             <div className="payment-schedule-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Serial No.</th>
-                    <th>Due Date</th>
-                    <th>Payable Amount</th>
-                    <th>Remaining Balance</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paymentSchedule.map(payment => (
-                    <tr key={payment.serialNo} className={`payment-row ${payment.status.toLowerCase()}`}>
-                      <td>{payment.serialNo}</td>
-                      <td>{formatDate(payment.paymentDate)}</td>
-                      <td className="emi-amount-cell">
-                        {renderEmiAmount(payment)}
-                        {updateInProgress[payment.serialNo] && <Loader2 className="emi-update-loader" />}
-                      </td>
-                      <td>
-                        {updateInProgress[payment.serialNo] ? (
-                          <div className="balance-updating-indicator" />
-                        ) : (
-                          formatCurrency(payment.balance)
-                        )}
-                      </td>
-                      <td>
-                        <div className="payment-status-container">
-                          <select
-                            value={payment.status}
-                            onChange={e => handlePaymentUpdate(payment.serialNo, 'status', e.target.value)}
-                            className={`payment-status-select ${payment.status.toLowerCase()}`}
-                            disabled={updateInProgress[payment.serialNo]}
-                          >
-                            <option value="PENDING">Pending</option>
-                            <option value="PAID">Paid</option>
-                            <option value="OVERDUE">Overdue</option>
-                          </select>
-                          {updateInProgress[payment.serialNo] && <Loader2 className="payment-status-loader" />}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+{/* In the UserPaymentDetails component, update the payment schedule table */}
+<table>
+  <thead>
+    <tr>
+      <th>Serial No.</th>
+      <th>Due Date</th>
+      <th>Paid Date</th>
+      <th>Payable Amount</th>
+      <th>Remaining Balance</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {paymentSchedule.map(payment => (
+      <tr key={payment.serialNo} className={`payment-row ${payment.status.toLowerCase()}`}>
+        <td>{payment.serialNo}</td>
+        <td>{formatDate(payment.paymentDate)}</td>
+        <td>{payment.paidDate ? formatDate(payment.paidDate) : '-'}</td>
+        <td className="emi-amount-cell">
+          {renderEmiAmount(payment)}
+          {updateInProgress[payment.serialNo] && <Loader2 className="emi-update-loader" />}
+        </td>
+        <td>
+          {updateInProgress[payment.serialNo] ? (
+            <div className="balance-updating-indicator" />
+          ) : (
+            formatCurrency(payment.balance)
+          )}
+        </td>
+        <td>
+          <div className="payment-status-container">
+            <select
+              value={payment.status}
+              onChange={e => handlePaymentUpdate(payment.serialNo, 'status', e.target.value)}
+              className={`payment-status-select ${payment.status.toLowerCase()}`}
+              disabled={updateInProgress[payment.serialNo]}
+            >
+              <option value="PENDING">Pending</option>
+              <option value="PAID">Paid</option>
+              <option value="OVERDUE">Overdue</option>
+            </select>
+            {updateInProgress[payment.serialNo] && <Loader2 className="payment-status-loader" />}
+          </div>
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
             </div>
           </div>
         )}

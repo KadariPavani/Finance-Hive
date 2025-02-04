@@ -584,34 +584,37 @@ const UserDashboard = () => {
                   <h2>{t('dashboard.payment_schedule')}</h2>
                   <div className="user-table-wrapper">
                     <table className="user-payment-table">
-                      <thead>
-                        <tr>
-                          <th>{t('dashboard.sno')}</th>
-                          <th>{t('dashboard.payment_date')}</th>
-                          <th>{t('dashboard.emi_amount')}</th>
-                          <th>{t('dashboard.principal')}</th>
-                          <th>{t('dashboard.interest')}</th>
-                          <th>{t('dashboard.balance')}</th>
-                          <th>{t('dashboard.status')}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {userDetails.paymentSchedule.map((payment) => (
-                          <tr key={payment.serialNo}>
-                            <td>{payment.serialNo}</td>
-                            <td>{formatDate(payment.paymentDate)}</td>
-                            <td>{formatCurrency(payment.emiAmount)}</td>
-                            <td>{formatCurrency(payment.principal)}</td>
-                            <td>{formatCurrency(payment.interest)}</td>
-                            <td>{formatCurrency(payment.balance)}</td>
-                            <td>
-                              <span className={`user-payment-status user-status-${payment.status.toLowerCase()}`}>
-                                {t(`status.${payment.status.toLowerCase()}`)}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
+{/* In the UserDashboard component, update the payment schedule table */}
+<thead>
+  <tr>
+    <th>{t('dashboard.sno')}</th>
+    <th>{t('dashboard.payment_date')}</th>
+    <th>{t('dashboard.paid_date')}</th>
+    <th>{t('dashboard.emi_amount')}</th>
+    <th>{t('dashboard.principal')}</th>
+    <th>{t('dashboard.interest')}</th>
+    <th>{t('dashboard.balance')}</th>
+    <th>{t('dashboard.status')}</th>
+  </tr>
+</thead>
+<tbody>
+  {userDetails.paymentSchedule.map((payment) => (
+    <tr key={payment.serialNo}>
+      <td>{payment.serialNo}</td>
+      <td>{formatDate(payment.paymentDate)}</td>
+      <td>{payment.paidDate ? formatDate(payment.paidDate) : '-'}</td>
+      <td>{formatCurrency(payment.emiAmount)}</td>
+      <td>{formatCurrency(payment.principal)}</td>
+      <td>{formatCurrency(payment.interest)}</td>
+      <td>{formatCurrency(payment.balance)}</td>
+      <td>
+        <span className={`user-payment-status user-status-${payment.status.toLowerCase()}`}>
+          {t(`status.${payment.status.toLowerCase()}`)}
+        </span>
+      </td>
+    </tr>
+  ))}
+</tbody>
                     </table>
                   </div>
                 </div>

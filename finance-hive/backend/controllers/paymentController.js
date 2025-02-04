@@ -52,7 +52,17 @@ exports.updatePaymentDetails = async (req, res) => {
     // Update payment details
     const payment = userPayment.paymentSchedule[paymentIndex];
     if (emiAmount) payment.emiAmount = emiAmount;
-    if (status) payment.status = status;
+    if (status) {
+      payment.status = status;
+      // Automatically set paid date when status is PAID
+      if (status === 'PAID') {
+        payment.paidDate = new Date(); // Set current date and time
+      } else if (status !== 'PAID') {
+        // Clear paid date if status changes from PAID
+        payment.paidDate = null;
+      }
+    }
+
 
     // Recalculate balances starting from previous payment
     let currentBalance = paymentIndex > 0 
