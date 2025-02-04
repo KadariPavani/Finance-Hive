@@ -40,7 +40,9 @@ const UserPaymentDetails = () => {
     }
   }, [userId]);
 
-  useEffect(() => { fetchUserData(); }, [fetchUserData]);
+  useEffect(() => {
+    fetchUserData();
+  }, [fetchUserData]);
 
   const handlePaymentUpdate = async (serialNo, field, value) => {
     if (updateInProgress[serialNo]) return;
@@ -76,12 +78,10 @@ const UserPaymentDetails = () => {
     new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount), 
   []);
 
-  // Calculate dynamic balances
-  const totalPaidPrincipal = paymentSchedule.reduce((acc, payment) => 
-    payment.status === 'PAID' ? acc + payment.principal : acc, 0);
-  
-  const currentBalance = userData?.amountBorrowed ? 
-    userData.amountBorrowed - totalPaidPrincipal : 0;
+  // Calculate total balance to be paid (sum of all pending/overdue EMIs)
+  const totalBalanceToPay = paymentSchedule
+    .filter(payment => payment.status !== 'PAID')
+    .reduce((acc, payment) => acc + payment.emiAmount, 0);
 
   if (loading) return (
     <div className="loading-container">
@@ -91,6 +91,35 @@ const UserPaymentDetails = () => {
       </div>
     </div>
   );
+
+  const renderEmiAmount = (payment) => {
+    if (payment.status === 'PAID') {
+      // For paid payments, just show the amount without edit functionality
+      return <span>{formatCurrency(payment.emiAmount)}</span>;
+    }
+
+    return editingEmi.serialNo === payment.serialNo ? (
+      <input
+        type="number"
+        value={editingEmi.value}
+        onChange={e => setEditingEmi({ ...editingEmi, value: e.target.value })}
+        onBlur={() => handlePaymentUpdate(payment.serialNo, 'emiAmount', editingEmi.value)}
+        onKeyPress={e => e.key === 'Enter' && 
+          handlePaymentUpdate(payment.serialNo, 'emiAmount', editingEmi.value)}
+        autoFocus
+      />
+    ) : (
+      <span 
+        onClick={() => setEditingEmi({ 
+          serialNo: payment.serialNo, 
+          value: payment.emiAmount 
+        })}
+        className="editable-amount"
+      >
+        {formatCurrency(payment.emiAmount)}
+      </span>
+    );
+  };
 
   return (
     <div className="user-payment-details">
@@ -104,7 +133,7 @@ const UserPaymentDetails = () => {
         {userData && (
           <div className="payment-details-content">
             <div className="total-balance">
-              <h3>Total Remaining Balance: {formatCurrency(currentBalance)}</h3>
+              <h3>Total Balance to Pay: {formatCurrency(totalBalanceToPay)}</h3>
             </div>
 
             <div className="payment-schedule-table">
@@ -124,24 +153,7 @@ const UserPaymentDetails = () => {
                       <td>{payment.serialNo}</td>
                       <td>{formatDate(payment.paymentDate)}</td>
                       <td className="emi-amount-cell">
-                        {editingEmi.serialNo === payment.serialNo ? (
-                          <input
-                            type="number"
-                            value={editingEmi.value}
-                            onChange={e => setEditingEmi({ ...editingEmi, value: e.target.value })}
-                            onBlur={() => handlePaymentUpdate(payment.serialNo, 'emiAmount', editingEmi.value)}
-                            onKeyPress={e => e.key === 'Enter' && 
-                              handlePaymentUpdate(payment.serialNo, 'emiAmount', editingEmi.value)}
-                            autoFocus
-                          />
-                        ) : (
-                          <span onClick={() => setEditingEmi({ 
-                            serialNo: payment.serialNo, 
-                            value: payment.emiAmount 
-                          })}>
-                            {formatCurrency(payment.emiAmount)}
-                          </span>
-                        )}
+                        {renderEmiAmount(payment)}
                         {updateInProgress[payment.serialNo] && <Loader2 className="emi-update-loader" />}
                       </td>
                       <td>

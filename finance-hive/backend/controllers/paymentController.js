@@ -38,6 +38,7 @@ exports.createPaymentSchedule = async (req, res) => {
 };
 
 // Update Payment Details (EMI and Status)
+// Update Payment Details (EMI and Status)
 exports.updatePaymentDetails = async (req, res) => {
   try {
     const { userId, serialNo } = req.params;
@@ -75,6 +76,21 @@ exports.updatePaymentDetails = async (req, res) => {
         
         // Auto-lock paid payments
         if (p.status === 'PAID') p.locked = true;
+
+        // Check if balance is zero or negative after this payment
+        if (currentBalance <= 0) {
+          // Set remaining payments to zero and PAID
+          for (let j = i + 1; j < userPayment.paymentSchedule.length; j++) {
+            const remainingP = userPayment.paymentSchedule[j];
+            remainingP.emiAmount = 0;
+            remainingP.principal = 0;
+            remainingP.interest = 0;
+            remainingP.balance = 0;
+            remainingP.status = 'PAID';
+            remainingP.locked = true;
+          }
+          break; // Exit the loop as no more payments needed
+        }
       }
     }
 
