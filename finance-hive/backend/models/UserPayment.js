@@ -280,12 +280,27 @@ const paymentScheduleSchema = new mongoose.Schema({
   balance: Number,
   status: {
     type: String,
-    enum: ['PENDING', 'PAID', 'OVERDUE'],
+    enum: ['PENDING', 'PAID', 'OVERDUE', 'PAYMENT','NO DUE'],
     default: 'PENDING'
   },
   locked: {
     type: Boolean,
     default: false
+  }
+});
+
+const receiptSchema = new mongoose.Schema({
+  receiptNumber: String,
+  paymentDate: Date,
+  amount: Number,
+  serialNo: Number,
+  paymentMethod: {
+    type: String,
+    default: 'Cash'
+  },
+  generatedAt: {
+    type: Date,
+    default: Date.now
   }
 });
 
@@ -307,7 +322,9 @@ const userPaymentSchema = new mongoose.Schema({
   loginCredentials: {
     username: String,
     password: String
-  }
+  },
+  receipts: [receiptSchema]
+
 }, { timestamps: true });
 
 module.exports = mongoose.model('UserPayment', userPaymentSchema);

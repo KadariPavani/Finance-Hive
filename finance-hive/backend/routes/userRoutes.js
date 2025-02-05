@@ -2,7 +2,7 @@
 const express = require('express');
 const { getUserById } = require('../controllers/userController'); // Import the user controller
 const router = express.Router();
-
+const authController = require('../controllers/authController');  // Import the auth controller
 // Make sure the route is correct
 router.get('/user/:userId', getUserById);
 const UserPayment = require('../models/UserPayment');  // Import your UserPayment model
@@ -34,6 +34,19 @@ router.patch('/api/payment/:userId/:serialNo', async (req, res) => {
   } catch (error) {
     console.error("Error updating payment:", error);
     res.status(500).json({ message: "Failed to update payment" });  // Error response
+  }
+});
+
+// Add this to userRoutes.js
+router.get('/receipts', authController.protect, async (req, res) => {
+  try {
+    const userPayment = await UserPayment.findById(req.user.id);
+    if (!userPayment) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json({ receipts: userPayment.receipts });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching receipts" });
   }
 });
 

@@ -2,7 +2,18 @@ const mongoose = require('mongoose');
 // controllers/paymentController.js
 const { calculateEMI, generatePaymentSchedule } = require('../utils/calculatePayments');
 const UserPayment = require('../models/UserPayment');
+const { createNotification } = require('./notificationController');
+const twilio = require('twilio');
+const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+const nodemailer = require('nodemailer');
 
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
 // Create or Fetch the Payment Schedule for a User
 exports.createPaymentSchedule = async (req, res) => {
   try {
@@ -56,12 +67,39 @@ exports.updatePaymentDetails = async (req, res) => {
       payment.status = status;
       // Automatically set paid date when status is PAID
       if (status === 'PAID') {
-        payment.paidDate = new Date(); // Set current date and time
+        payment.paidDate = new Date();
+        
+        // Generate receipt
+        const receipt = {
+          receiptNumber: `RCPT-${Date.now()}-${payment.serialNo}`,
+          paymentDate: new Date(),
+          amount: payment.emiAmount,
+          serialNo: payment.serialNo
+        };
+  
+        // Add receipt to user's receipts
+        userPayment.receipts.push(receipt);
+        
+        // Send notifications
+        await Promise.all([
+          createNotification(
+            userPayment._id,
+            'Payment Receipt Generated',
+            `Payment of ${formatCurrency(payment.emiAmount)} for EMI ${payment.serialNo} is completed.`,
+            'PAYMENT',
+            { receipt }
+          ),
+          sendPaymentEmail(userPayment, payment, receipt),
+          sendPaymentSMS(userPayment, payment, receipt)
+        ]);
+      // Set current date and time
       } else if (status !== 'PAID') {
         // Clear paid date if status changes from PAID
         payment.paidDate = null;
       }
     }
+
+
 
 
     // Recalculate balances starting from previous payment
@@ -105,14 +143,57 @@ exports.updatePaymentDetails = async (req, res) => {
     }
 
     await userPayment.save();
+    
     res.json({ 
       schedule: userPayment.paymentSchedule,
-      amountBorrowed: userPayment.amountBorrowed 
+      amountBorrowed: userPayment.amountBorrowed,
+      receipt: status === 'PAID' ? receipt : null
     });
   } catch (error) {
     res.status(500).json({ message: 'Error updating payment' });
   }
 };
+
+
+// Helper functions
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('en-IN', { 
+    style: 'currency', 
+    currency: 'INR' 
+  }).format(amount);
+};
+
+const sendPaymentEmail = async (user, payment, receipt) => {
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: user.email,
+    subject: `Payment Receipt - ${receipt.receiptNumber}`,
+    html: `
+      <h2>Payment Receipt</h2>
+      <p>Hello ${user.name},</p>
+      <p>Your payment details:</p>
+      <ul>
+        <li>Receipt Number: ${receipt.receiptNumber}</li>
+        <li>Amount: ${formatCurrency(receipt.amount)}</li>
+        <li>EMI Number: ${receipt.serialNo}</li>
+        <li>Payment Date: ${receipt.paymentDate.toLocaleDateString()}</li>
+      </ul>
+      <p>Thank you for your payment!</p>
+    `
+  };
+  await transporter.sendMail(mailOptions);
+};
+
+const sendPaymentSMS = async (user, payment, receipt) => {
+  const message = `Payment of ${formatCurrency(receipt.amount)} received. Receipt No: ${receipt.receiptNumber}. EMI: ${receipt.serialNo}. Date: ${receipt.paymentDate.toLocaleDateString()}`;
+  
+  await twilioClient.messages.create({
+    body: message,
+    from: process.env.TWILIO_PHONE_NUMBER,
+    to: user.mobileNumber
+  });
+};
+
 
 
 // const updatePaymentDetails = async (req, res) => {

@@ -263,3 +263,46 @@ th {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+/* Add to UserPaymentDetails.css */
+.receipts-section {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.receipts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.receipt-card {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.receipt-header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.receipt-number {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.receipt-date {
+  color: #7f8c8d;
+}
+
+.receipt-body p {
+  margin: 0.3rem 0;
+  color: #34495e;
+}

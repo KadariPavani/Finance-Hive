@@ -189,6 +189,26 @@ const UserPaymentDetails = () => {
           </div>
         )}
       </div>
+      <div className="receipts-section">
+  <h3>Payment Receipts</h3>
+  <div className="receipts-grid">
+    {userData.receipts?.map(receipt => (
+      <div key={receipt.receiptNumber} className="receipt-card">
+        <div className="receipt-header">
+          <span className="receipt-number">{receipt.receiptNumber}</span>
+          <span className="receipt-date">
+            {formatDate(receipt.paymentDate)}
+          </span>
+        </div>
+        <div className="receipt-body">
+          <p>EMI Number: {receipt.serialNo}</p>
+          <p>Amount: {formatCurrency(receipt.amount)}</p>
+          <p>Payment Method: {receipt.paymentMethod}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
     </div>
   );
 };
