@@ -98,6 +98,8 @@ router.get('/user/:userId', authMiddleware, async (req, res) => {
   }
 });
 
+router.patch('/:userId/:serialNo', paymentController.updatePaymentDetails);
+
 // Route to get all users with payments
 router.get('/users/:organizerId', paymentController.getAllUsersWithPayments);
 

@@ -54,32 +54,47 @@ exports.updatePaymentDetails = async (req, res) => {
   try {
     const { userId, serialNo } = req.params;
     const { emiAmount, status } = req.body;
+    
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: 'Invalid user ID' });
+    }
 
     const userPayment = await UserPayment.findById(userId);
+    if (!userPayment) {
+      return res.status(404).json({ message: "User payment details not found" });
+    }
+
     const paymentIndex = userPayment.paymentSchedule.findIndex(
       p => p.serialNo === Number(serialNo)
     );
+    
+    if (paymentIndex === -1) {
+      return res.status(404).json({ message: "Payment schedule entry not found" });
+    }
 
-    // Update payment details
     const payment = userPayment.paymentSchedule[paymentIndex];
+
     if (emiAmount) payment.emiAmount = emiAmount;
+    
+    let receipt = null; // ✅ Declare receipt before using it
+
     if (status) {
       payment.status = status;
-      // Automatically set paid date when status is PAID
+
       if (status === 'PAID') {
         payment.paidDate = new Date();
-        
+
         // Generate receipt
-        const receipt = {
+        receipt = {
           receiptNumber: `RCPT-${Date.now()}-${payment.serialNo}`,
           paymentDate: new Date(),
           amount: payment.emiAmount,
           serialNo: payment.serialNo
         };
-  
+
         // Add receipt to user's receipts
         userPayment.receipts.push(receipt);
-        
+
         // Send notifications
         await Promise.all([
           createNotification(
@@ -92,67 +107,63 @@ exports.updatePaymentDetails = async (req, res) => {
           sendPaymentEmail(userPayment, payment, receipt),
           sendPaymentSMS(userPayment, payment, receipt)
         ]);
-      // Set current date and time
-      } else if (status !== 'PAID') {
-        // Clear paid date if status changes from PAID
+      } else {
         payment.paidDate = null;
       }
     }
 
-
-
-
-    // Recalculate balances starting from previous payment
+    // Recalculate balances
     let currentBalance = paymentIndex > 0 
       ? userPayment.paymentSchedule[paymentIndex - 1].balance
       : userPayment.amountBorrowed;
 
     for (let i = paymentIndex; i < userPayment.paymentSchedule.length; i++) {
       const p = userPayment.paymentSchedule[i];
-      
+
       if (!p.locked) {
         const monthlyInterest = currentBalance * (userPayment.interest / 100) / 12;
         const principal = p.emiAmount - monthlyInterest;
-        
-        // Ensure principal doesn't exceed remaining balance
+
         p.principal = Math.min(principal, currentBalance);
         p.interest = p.emiAmount - p.principal;
         p.balance = currentBalance - p.principal;
 
-        // Update for next iteration
         currentBalance = p.balance;
-        
-        // Auto-lock paid payments
+
         if (p.status === 'PAID') p.locked = true;
 
-        // Check if balance is zero or negative after this payment
         if (currentBalance <= 0) {
-          // Set remaining payments to zero and PAID
           for (let j = i + 1; j < userPayment.paymentSchedule.length; j++) {
             const remainingP = userPayment.paymentSchedule[j];
             remainingP.emiAmount = 0;
             remainingP.principal = 0;
             remainingP.interest = 0;
             remainingP.balance = 0;
-            remainingP.status = 'PAID';
+            remainingP.status = 'NO DUE';
             remainingP.locked = true;
           }
-          break; // Exit the loop as no more payments needed
+          break;
         }
       }
     }
 
     await userPayment.save();
-    
+
     res.json({ 
       schedule: userPayment.paymentSchedule,
       amountBorrowed: userPayment.amountBorrowed,
-      receipt: status === 'PAID' ? receipt : null
+      receipt // ✅ No longer undefined
     });
+
   } catch (error) {
-    res.status(500).json({ message: 'Error updating payment' });
+    console.error('Update error:', error);
+    res.status(500).json({ 
+      message: 'Error updating payment',
+      error: error.message
+    });
   }
 };
+
 
 
 // Helper functions

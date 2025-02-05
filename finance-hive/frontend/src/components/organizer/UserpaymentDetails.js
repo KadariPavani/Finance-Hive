@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { X, Loader2 } from 'lucide-react';
 import './UserPaymentDetails.css';
-
+import { generateReceiptPDF } from './pdfService';
 const api = axios.create({
   baseURL: 'http://localhost:5000/api',
   timeout: 10000,
@@ -69,6 +69,13 @@ const UserPaymentDetails = () => {
       setEditingEmi({ serialNo: null, value: '' });
     }
   };
+  const handleDownloadReceipt = (receipt) => {
+    generateReceiptPDF({
+      ...receipt,
+      user: userData // Pass the user data
+    });
+  };
+  
 
   const formatDate = useCallback(date => 
     new Date(date).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' }), 
@@ -205,6 +212,12 @@ const UserPaymentDetails = () => {
           <p>Amount: {formatCurrency(receipt.amount)}</p>
           <p>Payment Method: {receipt.paymentMethod}</p>
         </div>
+        <button 
+      onClick={() => handleDownloadReceipt(receipt)}
+      className="download-btn"
+    >
+      Download PDF
+    </button>
       </div>
     ))}
   </div>

@@ -95,6 +95,8 @@
   "status": {
     "pending": "Pending",
     "paid": "Paid",
+    "paid date": "Paid date",
+    "no due" : "No Due",
     "overdue": "Overdue",
     "processing": "Processing",
     "completed": "Completed",
