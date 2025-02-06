@@ -43,32 +43,35 @@ const UserPaymentDetails = () => {
   useEffect(() => {
     fetchUserData();
   }, [fetchUserData]);
-
   const handlePaymentUpdate = async (serialNo, field, value) => {
     if (updateInProgress[serialNo]) return;
-    
-    try {
-      setUpdateInProgress(prev => ({ ...prev, [serialNo]: true }));
-      
-      // Optimistic update for immediate UI response
-      setPaymentSchedule(prev => prev.map(p => 
-        p.serialNo === serialNo ? { ...p, [field]: value } : p
-      ));
 
-      await api.patch(`/payment/${userId}/${serialNo}`, { 
-        [field]: field === 'emiAmount' ? Number(value) : value 
-      });
-      
-      // Refresh data to get recalculated balances
-      await fetchUserData();
+    try {
+        setUpdateInProgress(prev => ({ ...prev, [serialNo]: true }));
+
+        // Optimistic update
+        setPaymentSchedule(prev => prev.map(p =>
+            p.serialNo === serialNo ? { ...p, [field]: value } : p
+        ));
+
+        const response = await api.patch(`/payment/${userId}/${serialNo}`, {
+            [field]: field === 'emiAmount' ? Number(value) : value
+        });
+
+        if (response.status === 200 || response.data.success) {
+            await fetchUserData(); // Refresh only if API confirms success
+        } else {
+            throw new Error('Backend update failed');
+        }
     } catch (error) {
-      setError('Update failed. Reverting changes...');
-      fetchUserData(); // Revert on error
+        setError('Update failed. Reverting changes...');
+        fetchUserData(); // Revert on error
     } finally {
-      setUpdateInProgress(prev => ({ ...prev, [serialNo]: false }));
-      setEditingEmi({ serialNo: null, value: '' });
+        setUpdateInProgress(prev => ({ ...prev, [serialNo]: false }));
+        setEditingEmi({ serialNo: null, value: '' });
     }
-  };
+};
+
   const handleDownloadReceipt = (receipt) => {
     generateReceiptPDF({
       ...receipt,

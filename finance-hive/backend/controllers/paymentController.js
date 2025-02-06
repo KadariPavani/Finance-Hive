@@ -139,7 +139,7 @@ exports.updatePaymentDetails = async (req, res) => {
             remainingP.principal = 0;
             remainingP.interest = 0;
             remainingP.balance = 0;
-            remainingP.status = 'NO DUE';
+            remainingP.status = 'PAID';
             remainingP.locked = true;
           }
           break;

@@ -1,0 +1,50 @@
+.receipt-container {
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+  background: #fff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.receipt-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #ddd;
+}
+
+.logo {
+  width: 60px;
+  height: auto;
+}
+
+.language-selector {
+  padding: 5px;
+  font-size: 14px;
+}
+
+.receipts-grid {
+  margin-top: 20px;
+}
+
+.receipt-card {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 10px;
+  background: #f9f9f9;
+}
+
+.receipt-card .receipt-header {
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+}
+
+.receipt-body p {
+  margin: 5px 0;
+  font-size: 14px;
+}
