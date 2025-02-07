@@ -94,7 +94,7 @@ app.use("/api", contactRoutes);
 app.use("/api", authRoutes);
 app.use('/api', paymentRoutes);
 app.use('/api', userRoutes);
-app.use('/api/tracking', trackingRoutes);
+app.use('/api/tracking', require('./routes/tracking'));
 app.use('/api/notifications', require('./routes/notifications'));
 autoUpdateOverdueStatus();
 app.use(express.json()); // Make sure this middleware is included
