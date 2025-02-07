@@ -18,7 +18,7 @@ import IncomeForm from './components/user/IncomeForm';
 import ExpenseForm from './components/user/ExpenseForm';
 import SavingsForm from './components/user/SavingsForm';
 import Navigation from './components/Navigation/Navigation';
-
+import PaymentSchedulePage from './components/user/PaymentSchedulePage';
 const App = () => (
   <I18nextProvider i18n={i18n}>
     <Router>
@@ -40,6 +40,8 @@ const App = () => (
   <Route path="/tracking/income-form" element={<IncomeForm />} />
   <Route path="/tracking/expense-form" element={<ExpenseForm />} />
   <Route path="/tracking/savings-form" element={<SavingsForm />} />
+  <Route path="/payment-schedule" element={<PaymentSchedulePage />} />
+
       </Routes>
     </Router>
   </I18nextProvider>

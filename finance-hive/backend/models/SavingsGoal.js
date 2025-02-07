@@ -1,11 +1,10 @@
-// models/SavingsGoal.js
 const mongoose = require('mongoose');
 
 const savingsGoalSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+    required: true,
+    ref: 'User'
   },
   goalName: {
     type: String,
@@ -17,17 +16,14 @@ const savingsGoalSchema = new mongoose.Schema({
   },
   currentAmount: {
     type: Number,
+    required: true,
     default: 0
   },
   targetDate: {
     type: Date,
     required: true
   },
-  description: {
-    type: String
-  }
-}, {
-  timestamps: true
-});
+  description: String
+}, { timestamps: true });
 
 module.exports = mongoose.model('SavingsGoal', savingsGoalSchema);

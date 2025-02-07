@@ -68,6 +68,7 @@
 // export default Tracking;
 
 
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -81,7 +82,13 @@ import './Tracking.css';
 const Tracking = () => {
   const navigate = useNavigate();
   const [period, setPeriod] = useState('month');
-  const [statistics, setStatistics] = useState(null);
+  const [statistics, setStatistics] = useState({
+    totalIncome: 0,
+    totalExpenses: 0,
+    totalSavings: 0,
+    trend: [],
+    expensesByCategory: []
+  });
   const [savingsGoals, setSavingsGoals] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -89,55 +96,85 @@ const Tracking = () => {
     fetchData();
   }, [period]);
 
-// Tracking.js - Update the API paths
-// Tracking.js - Add logging to fetchData
-const fetchData = async () => {
-  try {
-    setLoading(true);
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate('/login');
-      return;
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+  
+      const headers = { Authorization: `Bearer ${token}` };
+      
+      // Fetch all data in parallel
+      const [statsRes, savingsRes] = await Promise.all([
+        axios.get(`http://localhost:5000/api/tracking/statistics?period=${period}`, { headers }),
+        axios.get('http://localhost:5000/api/tracking/savings', { headers })
+      ]);
+  
+      const statsData = statsRes.data;
+      
+      // Ensure all numbers are properly parsed
+      setStatistics({
+        totalIncome: Number(statsData.totalIncome) || 0,
+        totalExpenses: Number(statsData.totalExpenses) || 0,
+        totalSavings: Number(statsData.totalSavings) || 0,
+        trend: statsData.trend.map(item => ({
+          date: item.date,
+          income: Number(item.income) || 0,
+          expenses: Number(item.expenses) || 0
+        })),
+        expensesByCategory: statsData.expensesByCategory.map(cat => ({
+          category: cat.category || 'Other',
+          amount: Number(cat.amount) || 0
+        }))
+      });
+  
+      // Format savings goals data
+      const formattedSavings = savingsRes.data.map(goal => ({
+        goalName: goal.goalName,
+        targetAmount: Number(goal.targetAmount),
+        currentAmount: Number(goal.currentAmount)
+      }));
+  
+      setSavingsGoals(formattedSavings);
+  
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      if (error.response?.status === 401) {
+        navigate('/login');
+      }
+    } finally {
+      setLoading(false);
     }
+  };
 
-    const headers = { Authorization: `Bearer ${token}` };
-    
-    const [statsRes, savingsRes] = await Promise.all([
-      axios.get(`http://localhost:5000/api/tracking/statistics?period=${period}`, { headers }),
-      axios.get('http://localhost:5000/api/tracking/savings', { headers })
-    ]);
+  const formatChartData = (data) => {
+    if (!data || !Array.isArray(data)) return [];
+    return data.map(item => ({
+      date: item.date,
+      income: Number(item.income) || 0,
+      expenses: Number(item.expenses) || 0
+    }));
+  };
 
-    console.log('Statistics:', statsRes.data);
-    console.log('Savings:', savingsRes.data);
+  const formatExpenseCategories = (categories) => {
+    if (!categories || !Array.isArray(categories)) return [];
+    return categories.map(cat => ({
+      category: cat.category || 'Other',
+      amount: Number(cat.amount) || 0
+    }));
+  };
 
-    setStatistics(statsRes.data);
-    setSavingsGoals(savingsRes.data);
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    if (error.response?.status === 401) {
-      navigate('/login');
-    }
-  } finally {
-    setLoading(false);
-  }
-};
-// Tracking.js - Add data validation before rendering
-const formatChartData = (data) => {
-  if (!data) return [];
-  return data.map(item => ({
-    ...item,
-    income: Number(item.income) || 0,
-    expenses: Number(item.expenses) || 0
-  }));
-};
-
-const formatExpenseCategories = (categories) => {
-  if (!categories) return [];
-  return categories.map(cat => ({
-    category: cat.category || 'Other',
-    amount: Number(cat.amount) || 0
-  }));
-};
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
 
   const COLORS = ['#2563eb', '#16a34a', '#dc2626', '#f59e0b'];
 
@@ -172,7 +209,7 @@ const formatExpenseCategories = (categories) => {
           </div>
 
           {loading ? (
-            <div className="loading-spinner" />
+            <div className="loading-spinner">Loading...</div>
           ) : (
             <>
               {/* Summary Cards */}
@@ -181,8 +218,7 @@ const formatExpenseCategories = (categories) => {
                   <TrendingUp className="card-icon" />
                   <div className="card-content">
                     <h3>Total Income</h3>
-                    <p className="amount">₹{statistics?.totalIncome || 0}</p>
-                    <p className="change positive">+{statistics?.incomeChange || 0}%</p>
+                    <p className="amount">{formatCurrency(statistics.totalIncome)}</p>
                   </div>
                 </div>
                 
@@ -190,8 +226,7 @@ const formatExpenseCategories = (categories) => {
                   <TrendingDown className="card-icon" />
                   <div className="card-content">
                     <h3>Total Expenses</h3>
-                    <p className="amount">₹{statistics?.totalExpenses || 0}</p>
-                    <p className="change negative">+{statistics?.expenseChange || 0}%</p>
+                    <p className="amount">{formatCurrency(statistics.totalExpenses)}</p>
                   </div>
                 </div>
 
@@ -199,8 +234,7 @@ const formatExpenseCategories = (categories) => {
                   <PiggyBank className="card-icon" />
                   <div className="card-content">
                     <h3>Total Savings</h3>
-                    <p className="amount">₹{statistics?.totalSavings || 0}</p>
-                    <p className="change positive">+{statistics?.savingsChange || 0}%</p>
+                    <p className="amount">{formatCurrency(statistics.totalSavings)}</p>
                   </div>
                 </div>
               </div>
@@ -211,13 +245,13 @@ const formatExpenseCategories = (categories) => {
                 <div className="chart-card">
                   <h3>Income vs Expenses Trend</h3>
                   <ResponsiveContainer width="100%" height={300}>
-                    <RechartsLineChart data={statistics?.trend || []}>
+                    <RechartsLineChart data={statistics.trend}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="date" />
                       <YAxis />
-                      <Tooltip />
-                      <Line type="monotone" dataKey="income" stroke="#2563eb" name="Income" />
-                      <Line type="monotone" dataKey="expenses" stroke="#dc2626" name="Expenses" />
+                      <Tooltip formatter={(value) => formatCurrency(value)} />
+                      <Line type="monotone" dataKey="income" stroke="#2563eb" name="Income" strokeWidth={2} />
+                      <Line type="monotone" dataKey="expenses" stroke="#dc2626" name="Expenses" strokeWidth={2} />
                     </RechartsLineChart>
                   </ResponsiveContainer>
                 </div>
@@ -228,19 +262,19 @@ const formatExpenseCategories = (categories) => {
                   <ResponsiveContainer width="100%" height={300}>
                     <RechartsPieChart>
                       <Pie
-                        data={statistics?.expensesByCategory || []}
+                        data={statistics.expensesByCategory}
                         dataKey="amount"
                         nameKey="category"
                         cx="50%"
                         cy="50%"
                         outerRadius={100}
-                        label
+                        label={({ name, value }) => `${name}: ${formatCurrency(value)}`}
                       >
-                        {statistics?.expensesByCategory?.map((entry, index) => (
+                        {statistics.expensesByCategory.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
-                      <Tooltip />
+                      <Tooltip formatter={(value) => formatCurrency(value)} />
                     </RechartsPieChart>
                   </ResponsiveContainer>
                 </div>
@@ -253,7 +287,7 @@ const formatExpenseCategories = (categories) => {
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="goalName" />
                       <YAxis />
-                      <Tooltip />
+                      <Tooltip formatter={(value) => formatCurrency(value)} />
                       <Bar dataKey="currentAmount" name="Current" fill="#2563eb" />
                       <Bar dataKey="targetAmount" name="Target" fill="#16a34a" />
                     </RechartsBarChart>
