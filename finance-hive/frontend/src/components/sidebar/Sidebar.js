@@ -18,18 +18,17 @@ const Sidebar = ({ userDetails, onLogout }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div 
-      className={`dashboard-sidebar ${isExpanded ? 'expanded' : 'collapsed'}`}
+    <div
+      className={`dashboard-sidebar ${isExpanded ? "expanded" : "collapsed"}`}
       onMouseEnter={() => setIsExpanded(true)}
       onMouseLeave={() => setIsExpanded(false)}
     >
+      {/* Sidebar Toggle Button */}
       <div className="sidebar-toggle">
-        <ChevronRight className={`toggle-icon ${isExpanded ? 'rotated' : ''}`} />
+        <ChevronRight className={`toggle-icon ${isExpanded ? "rotated" : ""}`} />
       </div>
 
       <div className="sidebar-content">
-
-
         <nav className="sidebar-nav">
           <Link to="/user" className="sidebar-btn">
             <Home className="sidebar-icon" />
@@ -71,6 +70,8 @@ const Sidebar = ({ userDetails, onLogout }) => {
             {isExpanded && <span>Logout</span>}
           </button>
         </nav>
+
+        {/* User Profile (Visible only when expanded) */}
         {isExpanded && (
           <div className="user-profile">
             <div className="user-avatar">
