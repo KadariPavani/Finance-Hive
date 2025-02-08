@@ -18,6 +18,7 @@ import IncomeForm from './components/user/IncomeForm';
 import ExpenseForm from './components/user/ExpenseForm';
 import SavingsForm from './components/user/SavingsForm';
 import Navigation from './components/Navigation/Navigation';
+import Sidebar from './components/sidebar/Sidebar';
 import PaymentSchedulePage from './components/user/PaymentSchedulePage';
 const App = () => (
   <I18nextProvider i18n={i18n}>

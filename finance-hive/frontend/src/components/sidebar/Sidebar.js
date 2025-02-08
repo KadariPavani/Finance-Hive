@@ -1,91 +1,221 @@
-import React, { useState } from 'react';
-import { 
-  User, 
-  Lock, 
-  LogOut, 
-  ChevronRight, 
-  Home,
-  FileText,
-  CreditCard,
-  BarChart,  // Added for 'Analytica'
-  Bell,  // Added for 'Notifications'
-  DollarSign  // Added for 'Track Savings'
+import React, { useState, useEffect } from 'react';
+import {
+    User,
+    Lock,
+    LogOut,
+    Home,
+    FileText,
+    CreditCard,
+    BarChart,
+    Bell,
+    DollarSign,
 } from 'lucide-react';
-import { Link } from 'react-router-dom'; // For routing
+import { Link } from 'react-router-dom';
 import './Sidebar.css';
 
-const Sidebar = ({ userDetails, onLogout }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+const Sidebar = ({ userDetails, onLogout, isSidebarOpen, toggleSidebar }) => {
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const [isExpanded, setIsExpanded] = useState(false); // Default to collapsed on desktop
 
-  return (
-    <div
-      className={`dashboard-sidebar ${isExpanded ? "expanded" : "collapsed"}`}
-      onMouseEnter={() => setIsExpanded(true)}
-      onMouseLeave={() => setIsExpanded(false)}
-    >
-      {/* Sidebar Toggle Button */}
-      <div className="sidebar-toggle">
-        <ChevronRight className={`toggle-icon ${isExpanded ? "rotated" : ""}`} />
-      </div>
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
-      <div className="sidebar-content">
-        <nav className="sidebar-nav">
-          <Link to="/user" className="sidebar-btn">
-            <Home className="sidebar-icon" />
-            {isExpanded && <span>Dashboard</span>}
-          </Link>
+    useEffect(() => {
+        // On mobile, the sidebar should be collapsed by default
+        if (isMobile) {
+            setIsExpanded(false);
+        }
+    }, [isMobile]);
 
-          <Link to="/analytica" className="sidebar-btn">
-            <BarChart className="sidebar-icon" />
-            {isExpanded && <span>Analytica</span>}
-          </Link>
+    const handleMouseEnter = () => {
+        if (!isMobile) {
+            setIsExpanded(true); // Expand on hover for desktop
+        }
+    };
 
-          <Link to="/payments" className="sidebar-btn">
-            <CreditCard className="sidebar-icon" />
-            {isExpanded && <span>Payments</span>}
-          </Link>
+    const handleMouseLeave = () => {
+        if (!isMobile) {
+            setIsExpanded(false); // Collapse on mouse leave for desktop
+        }
+    };
 
-          <Link to="/receipts" className="sidebar-btn">
-            <FileText className="sidebar-icon" />
-            {isExpanded && <span>Receipts</span>}
-          </Link>
+    return (
+        <div
+            className={`dashboard-sidebar ${isMobile ? (isSidebarOpen ? "mobile-open" : "mobile-closed") : (isExpanded ? "desktop-expanded" : "desktop-collapsed")}`}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+        >
+            <div className="sidebar-content">
+                <nav className="sidebar-nav">
+                    <Link to="/user" className="sidebar-btn">
+                        <Home className="sidebar-icon" />
+                        <span>Dashboard</span>
+                    </Link>
 
-          <Link to="/notifications" className="sidebar-btn">
-            <Bell className="sidebar-icon" />
-            {isExpanded && <span>Notifications</span>}
-          </Link>
+                    <Link to="/analytica" className="sidebar-btn">
+                        <BarChart className="sidebar-icon" />
+                        <span>Analytica</span>
+                    </Link>
 
-          <Link to="/tracking" className="sidebar-btn">
-            <DollarSign className="sidebar-icon" />
-            {isExpanded && <span>Track Savings</span>}
-          </Link>
+                    <Link to="/payments" className="sidebar-btn">
+                        <CreditCard className="sidebar-icon" />
+                        <span>Payments</span>
+                    </Link>
 
-          <Link to="/change-password" className="sidebar-btn">
-            <Lock className="sidebar-icon" />
-            {isExpanded && <span>Change Password</span>}
-          </Link>
+                    <Link to="/receipts" className="sidebar-btn">
+                        <FileText className="sidebar-icon" />
+                        <span>Receipts</span>
+                    </Link>
 
-          <button className="sidebar-btn logout" onClick={onLogout}>
-            <LogOut className="sidebar-icon" />
-            {isExpanded && <span>Logout</span>}
-          </button>
-        </nav>
+                    <Link to="/notifications" className="sidebar-btn">
+                        <Bell className="sidebar-icon" />
+                        <span>Notifications</span>
+                    </Link>
 
-        {/* User Profile (Visible only when expanded) */}
-        {isExpanded && (
-          <div className="user-profile">
-            <div className="user-avatar">
-              <User size={40} />
+                    <Link to="/tracking" className="sidebar-btn">
+                        <DollarSign className="sidebar-icon" />
+                        <span>Track Savings</span>
+                    </Link>
+
+                    <Link to="/change-password" className="sidebar-btn">
+                        <Lock className="sidebar-icon" />
+                        <span>Change Password</span>
+                    </Link>
+
+                    <button className="sidebar-btn logout" onClick={onLogout}>
+                        <LogOut className="sidebar-icon" />
+                        <span>Logout</span>
+                    </button>
+                </nav>
+
+                {/* User Profile */}
+                {userDetails && (
+                    <div className={`user-profile ${isMobile ? "mobile" : (isExpanded ? "expanded" : "collapsed")}`}>
+                        <div className="user-avatar">
+                            <User size={40} />
+                        </div>
+                        <div className="user-info">
+                            <h3 className="user-name">{userDetails.name ? userDetails.name : 'Name not Provided'}</h3>
+                            <p className="user-email">{userDetails.email ? userDetails.email : 'Email not Provided'}</p>
+                        </div>
+                    </div>
+                )}
             </div>
-            <div className="user-info">
-              <h3 className="user-name">{userDetails?.name}</h3>
-              <p className="user-email">{userDetails?.email}</p>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+        </div>
+    );
 };
 
 export default Sidebar;
+
+
+// import React, { useState, useEffect } from 'react';
+// import {
+//     User,
+//     Lock,
+//     LogOut,
+//     Home,
+//     FileText,
+//     CreditCard,
+//     BarChart,
+//     Bell,
+//     DollarSign,
+// } from 'lucide-react';
+// import { Link } from 'react-router-dom';
+// import './Sidebar.css';
+
+// const Sidebar = ({ userDetails, onLogout, isSidebarOpen, toggleSidebar }) => {
+//     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+//     const [isExpanded, setIsExpanded] = useState(!isMobile); // Default to expanded on desktop
+
+//     useEffect(() => {
+//         const handleResize = () => setIsMobile(window.innerWidth < 768);
+//         window.addEventListener('resize', handleResize);
+//         return () => window.removeEventListener('resize', handleResize);
+//     }, []);
+
+//     useEffect(() => {
+//         setIsExpanded(!isMobile);
+//     }, [isMobile]);
+
+//     const handleMouseEnter = () => {
+//         if (!isMobile) {
+//             setIsExpanded(true);
+//         }
+//     };
+
+//     const handleMouseLeave = () => {
+//         if (!isMobile) {
+//             setIsExpanded(false);
+//         }
+//     };
+
+//     return (
+//         <div
+//             className={`dashboard-sidebar ${isMobile ? (isSidebarOpen ? "mobile-open" : "mobile-closed") : (isExpanded ? "desktop-expanded" : "desktop-collapsed")}`}
+//             onMouseEnter={handleMouseEnter}
+//             onMouseLeave={handleMouseLeave}
+//         >
+//             <div className="sidebar-content">
+//                 <nav className="sidebar-nav">
+//                     <Link to="/user" className="sidebar-btn">
+//                         <Home className="sidebar-icon" />
+//                         <span>Dashboard</span>
+//                     </Link>
+
+//                     <Link to="/analytica" className="sidebar-btn">
+//                         <BarChart className="sidebar-icon" />
+//                         <span>Analytica</span>
+//                     </Link>
+
+//                     <Link to="/payments" className="sidebar-btn">
+//                         <CreditCard className="sidebar-icon" />
+//                         <span>Payments</span>
+//                     </Link>
+
+//                     <Link to="/receipts" className="sidebar-btn">
+//                         <FileText className="sidebar-icon" />
+//                         <span>Receipts</span>
+//                     </Link>
+
+//                     <Link to="/notifications" className="sidebar-btn">
+//                         <Bell className="sidebar-icon" />
+//                         <span>Notifications</span>
+//                     </Link>
+
+//                     <Link to="/tracking" className="sidebar-btn">
+//                         <DollarSign className="sidebar-icon" />
+//                         <span>Track Savings</span>
+//                     </Link>
+
+//                     <Link to="/change-password" className="sidebar-btn">
+//                         <Lock className="sidebar-icon" />
+//                         <span>Change Password</span>
+//                     </Link>
+
+//                     <button className="sidebar-btn logout" onClick={onLogout}>
+//                         <LogOut className="sidebar-icon" />
+//                         <span>Logout</span>
+//                     </button>
+//                 </nav>
+
+//                 {/* User Profile */}
+//                 {userDetails && (
+//                     <div className={`user-profile ${isMobile ? "mobile" : (isExpanded ? "expanded" : "collapsed")}`}>
+//                         <div className="user-avatar">
+//                             <User size={40} />
+//                         </div>
+//                         <div className="user-info">
+//                             <h3 className="user-name">{userDetails.name ? userDetails.name : 'Name not Provided'}</h3>
+//                             <p className="user-email">{userDetails.email ? userDetails.email : 'Email not Provided'}</p>
+//                         </div>
+//                     </div>
+//                 )}
+//             </div>
+//         </div>
+//     );
+// };
+
+// export default Sidebar;
