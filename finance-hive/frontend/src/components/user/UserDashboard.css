@@ -5,13 +5,15 @@
   display: flex;
   min-height: 100vh;
   background-color: #f5f7fa;
+  overflow-x: hidden; /* Prevent horizontal overflow */
 }
 
 .dashboard-main {
   flex: 1;
   padding: 20px;
   margin-top: 64px; /* Push content below the fixed navbar */
-  transition: margin-left 0.3s ease, width 0.3s ease; /* Added width transition */
+  transition: margin-left 0.3s ease, width 0.3s ease;
+  overflow-x: hidden; /* Prevent horizontal overflow */
 }
 
 /* Adjust margin and width for desktop screens when sidebar is expanded */
@@ -29,6 +31,7 @@
 @media (max-width: 768px) {
   .dashboard-main {
     margin-left: 0; /* No margin on mobile */
+    padding: 15px; /* Reduce padding for smaller screens */
   }
 
   .dashboard-main.collapsed {
@@ -45,7 +48,7 @@
   width: 70px;
   background-color: white;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  transition: width 0.3s ease, transform 0.3s ease; /* Added width transition */
+  transition: width 0.3s ease, transform 0.3s ease;
   z-index: 1001;
   overflow-x: hidden; /* Hide horizontal overflow */
 }
@@ -139,7 +142,7 @@
   align-items: center;
   padding: 16px;
   border-top: 1px solid #eee;
-  transition: opacity 0.3s ease, height 0.3s ease; /* Added transitions */
+  transition: opacity 0.3s ease, height 0.3s ease;
   overflow: hidden;
 }
 
@@ -272,6 +275,7 @@
 .user-dashboard-container {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0 15px; /* Add padding to prevent content from touching edges */
 }
 
 .user-dashboard-header {
@@ -299,6 +303,7 @@
   border-radius: 12px;
   padding: 20px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden; /* Prevent content overflow */
 }
 
 .user-info-header,
@@ -383,6 +388,7 @@
 .user-payment-table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 600px; /* Ensure table doesn't get too narrow */
 }
 
 .user-payment-table th,
