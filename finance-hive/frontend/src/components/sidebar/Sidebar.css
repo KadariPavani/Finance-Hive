@@ -12,18 +12,22 @@
   overflow-x: hidden; /* Hide horizontal overflow */
 }
 
+/* Collapsed sidebar style for desktop/tablet */
 .dashboard-sidebar.desktop-collapsed {
   width: 70px;
 }
 
+/* Expanded sidebar style for desktop/tablet */
 .dashboard-sidebar.desktop-expanded {
   width: 250px;
 }
 
+/* Mobile sidebar: hidden by default */
 .dashboard-sidebar.mobile-closed {
   transform: translateX(-100%);
 }
 
+/* Mobile sidebar: visible when open */
 .dashboard-sidebar.mobile-open {
   transform: translateX(0);
 }
@@ -159,6 +163,8 @@
     height: calc(100vh - 64px); /* Full height minus navbar */
     overflow-y: auto;
     transform: translateX(-100%); /* Hide sidebar by default on mobile */
+    position: fixed;
+    z-index: 1002; /* Ensure it's above other content */
   }
 
   .dashboard-sidebar.mobile-open {

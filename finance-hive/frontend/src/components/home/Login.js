@@ -2,11 +2,14 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
+import image1 from '../assets/project[1].jpg';
+import logo from '../assets/logo.jpg';
 
 const Login = () => {
   const [mobileNumber, setMobileNumber] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [agreeTerms, setAgreeTerms] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -38,10 +41,19 @@ const Login = () => {
   
 
   return (
-    <div className="login-container">
-      <form onSubmit={handleLogin}>
-        <h2>Finance Hive Login</h2>
-        {error && <p style={{color: 'red'}}>{error}</p>}
+    <div className="login-login-container">
+    <div className="login-form-container">
+      <form onSubmit={handleLogin} className="login-form-input">
+      <div className="login-logo-container">
+  <img src={logo} alt="Finance Hive Logo" className="login-logo" />
+  <h3 className="login-get-started">Finance Hive</h3>
+</div>
+
+      
+        <h2 className="login-heading">Get started with Finance Hive 
+        </h2>
+        <p className="login-paragraph">Welcome to Finance Hive</p>
+        {error && <p className="login-error-message">{error}</p>}
         <input 
           type="text" 
           placeholder="Mobile Number" 
@@ -56,9 +68,21 @@ const Login = () => {
           onChange={(e) => setPassword(e.target.value)}
           required 
         />
-        <button type="submit">Login</button>
+        <div className="login-terms">
+          <input 
+            type="checkbox" 
+            id="terms" 
+            checked={agreeTerms} 
+            onChange={() => setAgreeTerms(!agreeTerms)}
+          />
+          <label htmlFor="terms">I agree to the <a href="#">Terms and Conditions</a></label>
+        </div>
+        <button type="submit" className="login-btn-login">Login</button>
       </form>
     </div>
+  </div>
+
+    
   );
 };
 

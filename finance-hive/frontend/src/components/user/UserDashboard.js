@@ -418,6 +418,7 @@
 //-----------------MULTI LANG PAGE------------------
 
 
+// Updated UserDashboard.js (React Component)
 import React, { useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
 import axios from "axios";
@@ -576,7 +577,6 @@ const UserDashboard = () => {
                 isSidebarOpen={isSidebarOpen}   // Pass the state
                 toggleSidebar={toggleSidebar} // Pass toggle function
             />
-
             <main className="dashboard-main">
                 <div className="user-dashboard-container">
                     <div className="user-dashboard-header">
@@ -664,7 +664,6 @@ const UserDashboard = () => {
                                         </PieChart>
                                     </ResponsiveContainer>
                                 </div>
-
                                 {/* Line Chart for EMI Amounts Over Time */}
                                 <div className="chart-card">
                                     <h3>{t('dashboard.emi_trend')}</h3>
@@ -728,11 +727,7 @@ const UserDashboard = () => {
                                                         <td>{formatCurrency(payment.principal)}</td>
                                                         <td>{formatCurrency(payment.interest)}</td>
                                                         <td>{formatCurrency(payment.balance)}</td>
-                                                        <td>
-                                                            <span className={`user-payment-status user-status-${payment.status.toLowerCase()}`}>
-                                                                {t(`status.${payment.status.toLowerCase()}`)}
-                                                            </span>
-                                                        </td>
+                                                        <td>{payment.status}</td>
                                                     </tr>
                                                 ))}
                                             </tbody>
