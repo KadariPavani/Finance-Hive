@@ -3,28 +3,75 @@
   justify-content: center;
   align-items: center;
   height: 40vh;
-  /* background-color: #faf8f6; Light beige background */
+  background: linear-gradient(135deg, #4b6cb7, #182848); /* Deep blue-purple gradient */
+  background-size: cover;
+  background-position: center;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .card {
   text-align: center;
+  background: rgba(255, 255, 255, 0.15); /* Subtle glassmorphism effect */
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px); /* Adds a smooth blur effect */
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .card h2 {
-  font-size: 64px; /* Large font size for "Welcome" style */
-  font-family: "Dancing Script", cursive; /* Script font */
-  color: #333; /* Darker color for contrast */
+  font-size: 64px;
+  font-family: "Dancing Script", cursive;
+  color: #ffffff; /* Pure white for contrast */
   margin: 0;
   letter-spacing: 1px;
 }
 
 .card p {
-  font-size: 20px; /* Slightly larger for secondary text */
-  font-family: "Georgia", serif; /* Classic serif font */
-  color: #666;
+  font-size: 20px;
+  font-family: "Georgia", serif;
+  color: #e0e0e0; /* Light gray text for readability */
   margin-top: 10px;
 }
 
 .card p:first-of-type {
-  margin-top: 20px; /* Add spacing for first paragraph */
+  margin-top: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .landing-page {
+    height: auto;
+    padding: 40px 20px;
+  }
+  .card h2 {
+    font-size: 50px;
+  }
+  .card p {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 768px) {
+  .landing-page {
+    height: auto;
+    padding: 30px 15px;
+  }
+  .card h2 {
+    font-size: 40px;
+  }
+  .card p {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .card h2 {
+    font-size: 32px;
+  }
+  .card p {
+    font-size: 14px;
+  }
 }
