@@ -671,7 +671,25 @@ exports.getUserDetails = async (req, res) => {
     }
   };
   
+  exports.getOrganizerDetails = async (req, res) => {
+    try {
+        // Ensure the logged-in user is an organizer
+        if (req.user.role !== "organizer") {
+            return res.status(403).json({ message: "Access denied. Not an organizer" });
+        }
 
+        // Find the organizer details using the authenticated user ID
+        const organizer = await User.findById(req.user.id);
+
+        if (!organizer) {
+            return res.status(404).json({ message: "Organizer not found" });
+        }
+
+        res.status(200).json({ success: true, data: organizer });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
 // // Login User
 
 // exports.userLogin = async (req, res) => {
