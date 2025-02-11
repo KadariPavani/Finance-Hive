@@ -27,6 +27,17 @@ const OrganizerDashboard = () => {
   const [error, setError] = useState(null);
   const [organizerDetails, setOrganizerDetails] = useState(null);
   const [paymentDetails, setPaymentDetails] = useState([]);
+  const [filter, setFilter] = useState({
+    sno: "",
+    userName: "",
+    dueDate: "",
+    emiAmount: "",
+    paymentDate: "",
+    balance: "",
+    status: ""
+  });
+  const [search, setSearch] = useState("");
+  const [userSearch, setUserSearch] = useState("");
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -167,6 +178,45 @@ const OrganizerDashboard = () => {
     i18n.changeLanguage(lng);
   };
 
+  const handleFilterChange = (e) => {
+    setFilter({
+      ...filter,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value.toLowerCase());
+  };
+
+  const handleUserSearchChange = (e) => {
+    setUserSearch(e.target.value.toLowerCase());
+  };
+
+  const filteredUsers = users.filter(user => {
+    const searchLower = userSearch.toLowerCase();
+    return (
+      user.name.toLowerCase().includes(searchLower) ||
+      user.mobileNumber.toLowerCase().includes(searchLower) ||
+      user.email.toLowerCase().includes(searchLower)
+    );
+  });
+
+  const filteredPaymentDetails = paymentDetails
+    .filter(payment => {
+      const searchLower = search.toLowerCase();
+      return (
+        payment.sno.toString().includes(searchLower) ||
+        payment.userName.toLowerCase().includes(searchLower) ||
+        new Date(payment.dueDate).toLocaleDateString().includes(searchLower) ||
+        payment.emiAmount.toString().includes(searchLower) ||
+        (payment.paymentDate ? new Date(payment.paymentDate).toLocaleDateString().includes(searchLower) : true) ||
+        payment.balance.toString().includes(searchLower) ||
+        payment.status.toLowerCase().includes(searchLower)
+      );
+    })
+    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+
   return (
     <div className="organizer-dashboard">
       <LandingPage />
@@ -253,13 +303,21 @@ const OrganizerDashboard = () => {
 
       <div className="users-section">
         <h2>{t("dashboard.your_users")}</h2>
+        <div className="search-bar">
+          <input
+            type="text"
+            placeholder={t("dashboard.search_users")}
+            value={userSearch}
+            onChange={handleUserSearchChange}
+          />
+        </div>
         {loading ? (
           <div className="loading">{t("dashboard.loading_users")}</div>
         ) : error ? (
           <div className="error">{error}</div>
         ) : (
           <div className="users-grid">
-            {users.map((user) => (
+            {filteredUsers.map((user) => (
               <div key={user._id} className="user-card" onClick={() => handleUserClick(user)}>
                 <div className="user-card-header">
                   <User className="user-icon" />
@@ -287,32 +345,46 @@ const OrganizerDashboard = () => {
         ) : error ? (
           <div className="error">{error}</div>
         ) : (
-          <table className="payment-details-table">
-            <thead>
-              <tr>
-                <th>{t("dashboard.sno")}</th>
-                <th>{t("dashboard.user_name")}</th>
-                <th>{t("dashboard.due_date")}</th>
-                <th>{t("dashboard.emi_amount")}</th>
-                <th>{t("dashboard.payment_date")}</th>
-                <th>{t("dashboard.balance")}</th>
-                <th>{t("dashboard.status")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paymentDetails.map((payment, index) => (
-                <tr key={index}>
-                  <td>{payment.sno}</td>
-                  <td>{payment.userName}</td>
-                  <td>{new Date(payment.dueDate).toLocaleDateString()}</td>
-                  <td>{formatCurrency(payment.emiAmount)}</td>
-                  <td>{payment.paymentDate ? new Date(payment.paymentDate).toLocaleDateString() : t("dashboard.not_paid")}</td>
-                  <td>{formatCurrency(payment.balance)}</td>
-                  <td>{payment.status}</td>
+          <>
+            <div className="search-bar">
+              <input
+                type="text"
+                placeholder={t("dashboard.search")}
+                value={search}
+                onChange={handleSearchChange}
+              />
+            </div>
+            <table className="payment-details-table">
+              <thead>
+                <tr>
+                  <th>{t("dashboard.sno")}</th>
+                  <th>{t("dashboard.user_name")}</th>
+                  <th>{t("dashboard.due_date")}</th>
+                  <th>{t("dashboard.emi_amount")}</th>
+                  <th>{t("dashboard.payment_date")}</th>
+                  <th>{t("dashboard.balance")}</th>
+                  <th>{t("dashboard.status")}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredPaymentDetails.map((payment, index) => (
+                  <tr key={index}>
+                    <td>{index + 1}</td>
+                    <td>{payment.userName}</td>
+                    <td>{new Date(payment.dueDate).toLocaleDateString()}</td>
+                    <td>{formatCurrency(payment.emiAmount)}</td>
+                    <td>{payment.paymentDate ? new Date(payment.paymentDate).toLocaleDateString() : t("dashboard.not_paid")}</td>
+                    <td>{formatCurrency(payment.balance)}</td>
+                    <td>
+                      <span className={`status-badge ${payment.status.toLowerCase()}`}>
+                        {payment.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
         )}
       </div>
     </div>

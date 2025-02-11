@@ -2,6 +2,7 @@
   padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
+  background-color: #f5f7fa;
 }
 
 /* Add User Form Styles */
@@ -116,11 +117,11 @@
   margin: 0;
 }
 
-/* Add these styles to OrganizerDashboard.css */
-
-.payment-schedule-section {
-  margin-top: 2rem;
-  width: 100%;
+.user-card-body p {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .schedule-table {
@@ -201,7 +202,6 @@
   overflow-x: auto;
   margin-top: 1rem;
 }
-
 
 /* Add these new styles to your existing OrganizerDashboard.css */
 
@@ -500,4 +500,84 @@
 .error {
   color: #ff0000;
   text-align: center;
+}
+
+/* Payment Details Styles */
+.payment-details-section {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 2rem;
+}
+
+.payment-details-section h2 {
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+}
+
+.search-bar {
+  margin-bottom: 1.5rem;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.payment-details-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.payment-details-table th,
+.payment-details-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.payment-details-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.payment-details-table tr:hover {
+  background-color: #f8f9fa;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.status-badge.pending {
+  background-color: #ffd700;
+  color: #000;
+}
+
+.status-badge.paid {
+  background-color: #28a745;
+  color: white;
+}
+
+.status-badge.overdue {
+  background-color: #dc3545;
+  color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .payment-details-table th,
+  .payment-details-table td {
+    padding: 8px;
+  }
 }
