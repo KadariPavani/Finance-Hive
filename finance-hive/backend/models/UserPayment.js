@@ -46,6 +46,7 @@ const userPaymentSchema = new mongoose.Schema({
   amountBorrowed: Number,
   tenure: Number,
   interest: Number,
+  surityGiven: String, // New field for Surity Given
   organizerId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'

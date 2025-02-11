@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import "./OrganizerDashboard.css";
-import { User, Phone, Mail, DollarSign, Calendar, Percent } from 'lucide-react';
+import { User, Phone, Mail, DollarSign, Calendar, Percent, Shield } from 'lucide-react';
 import LandingPage from '../home/LandingPage/LandingPage';
 import NavigationOrganizer from "../Navigation/NavigationOrganizer";
 import { useTranslation } from 'react-i18next';
@@ -20,6 +20,7 @@ const OrganizerDashboard = () => {
     amountBorrowed: "",
     tenure: "",
     interest: "",
+    surityGiven: "" // New field for Surity Given
   });
 
   const [users, setUsers] = useState([]);
@@ -149,6 +150,7 @@ const OrganizerDashboard = () => {
         amountBorrowed: "",
         tenure: "",
         interest: "",
+        surityGiven: "" // Reset the new field
       });
       fetchUsers();
     } catch (error) {
@@ -296,6 +298,16 @@ const OrganizerDashboard = () => {
                 required
               />
             </div>
+            <div className="form-group">
+              <label>{t("dashboard.surity_given")}</label>
+              <input
+                type="text"
+                name="surityGiven"
+                value={formData.surityGiven}
+                onChange={handleChange}
+                required
+              />
+            </div>
           </div>
           <button type="submit" className="submit-btn">{t("dashboard.add_user")}</button>
         </form>
@@ -330,6 +342,7 @@ const OrganizerDashboard = () => {
                   <div className="user-card-footer">
                     <span><Calendar size={14} /> {user.tenure} {t("dashboard.months")}</span>
                     <span><Percent size={14} /> {user.interest}%</span>
+                    <span><Shield size={14} /> {user.surityGiven}</span> {/* Display Surity Given */}
                   </div>
                 </div>
               </div>

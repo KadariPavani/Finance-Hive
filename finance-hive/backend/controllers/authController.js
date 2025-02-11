@@ -541,7 +541,7 @@ exports.getUserById = async (req, res) => {
 
 exports.addUserAndSendEmail = async (req, res) => {
   try {
-    const { name, email, mobileNumber, password, amountBorrowed, tenure, interest, role } = req.body;
+    const { name, email, mobileNumber, password, amountBorrowed, tenure, interest, surityGiven, role } = req.body;
 
     // Ensure role is provided and default to "user" if not
     const userRole = role === 'organizer' || role === 'admin' ? role : 'user';
@@ -578,6 +578,7 @@ exports.addUserAndSendEmail = async (req, res) => {
       amountBorrowed,
       tenure,
       interest,
+      surityGiven, // Include the new field
       organizerId: req.user.id,
       monthlyEMI,
       paymentSchedule,
@@ -616,18 +617,18 @@ exports.addUserAndSendEmail = async (req, res) => {
     });
 
     // Create profile notification
-// Inside addUserAndSendEmail controller
-await createNotification(
-  user._id, // User ID
-  `Welcome to User Portal`, // Title
-  `You have been successfully added as a user. Your login credentials are:\n\nMobile Number: ${mobileNumber}\nPassword: ${password}\n\nMonthly EMI: ₹${monthlyEMI}`, // Message
-  'CREDENTIALS', // Notification type
-  {
-    username: mobileNumber,
-    password: password,
-    monthlyEMI: monthlyEMI
-  }
-);
+    await createNotification(
+      user._id, // User ID
+      `Welcome to User Portal`, // Title
+      `You have been successfully added as a user. Your login credentials are:\n\nMobile Number: ${mobileNumber}\nPassword: ${password}\n\nMonthly EMI: ₹${monthlyEMI}`, // Message
+      'CREDENTIALS', // Notification type
+      {
+        username: mobileNumber,
+        password: password,
+        monthlyEMI: monthlyEMI
+      }
+    );
+
     res.status(201).json({ 
       message: "User added successfully, email and SMS sent!",
       user: userPayment
@@ -641,7 +642,7 @@ await createNotification(
 exports.getUsersByOrganizer = async (req, res) => {
   try {
     const organizerId = req.user.id;  // Get the organizer's ID from the authenticated user
-    const users = await UserPayment.find({ organizerId }).select("name email mobileNumber amountBorrowed tenure interest");
+    const users = await UserPayment.find({ organizerId }).select("name email mobileNumber amountBorrowed tenure interest surityGiven");
 
     if (users.length === 0) {
       return res.status(404).json({ message: "No users found." });

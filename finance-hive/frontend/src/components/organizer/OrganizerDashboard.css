@@ -489,6 +489,12 @@
   margin-top: 1rem;
 }
 
+.user-card-footer span {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .loading {
   display: flex;
   flex-direction: column;
