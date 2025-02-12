@@ -126,126 +126,6 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// Admin controller for adding admin/organizer users
-// exports.addUser = async (req, res) => {
-//   try {
-//     const { name, email, mobileNumber, password, role } = req.body;
-
-//     console.log("\n=== Creating New User ===");
-//     console.log("Role:", role);
-//     console.log("Mobile Number:", mobileNumber);
-
-//     // Create new user without hashing the password
-//     const newUser = new User({
-//       name,
-//       email,
-//       mobileNumber,
-//       password, // Directly storing the plain text password
-//       role,
-//       isActive: true
-//     });
-
-//     // Save the user
-//     await newUser.save();
-
-//     // Send email notification
-//     const mailOptions = {
-//       from: process.env.EMAIL_USER,
-//       to: email,
-//       subject: 'Your Finance Hive Account Credentials',
-//       html: `
-//         <h2>Welcome to Finance Hive</h2>
-//         <p>Your account has been created with the following credentials:</p>
-//         <p>UserID (Mobile Number): ${mobileNumber}</p>
-//         <p>Password: ${password}</p>
-//         <p>Please login and change your password.</p>
-//       `
-//     };
-
-//     await transporter.sendMail(mailOptions);
-
-//     res.status(201).json({ 
-//       message: `${role.charAt(0).toUpperCase() + role.slice(1)} added successfully`,
-//       user: {
-//         name: newUser.name,
-//         email: newUser.email,
-//         role: newUser.role
-//       }
-//     });
-//   } catch (error) {
-//     console.error('\nUser creation error:', error);
-//     res.status(500).json({ 
-//       message: 'Error adding user', 
-//       error: error.message 
-//     });
-//   }
-// };
-
-
-// exports.addUser = async (req, res) => {
-//   try {
-//     const { name, email, mobileNumber, password, role } = req.body;
-
-//     console.log("\n=== Creating New User ===");
-//     console.log("Role:", role);
-//     console.log("Mobile Number:", mobileNumber);
-
-//     // Create new user without hashing the password
-//     const newUser = new User({
-//       name,
-//       email,
-//       mobileNumber,
-//       password,
-//       role,
-//       isActive: true
-//     });
-
-//     // Save the user
-//     await newUser.save();
-
-//     // Send email notification
-//     const mailOptions = {
-//       from: process.env.EMAIL_USER,
-//       to: email,
-//       subject: 'Your Finance Hive Account Credentials',
-//       html: `
-//         <h2>Welcome to Finance Hive</h2>
-//         <p>Your account has been created with the following credentials:</p>
-//         <p>UserID (Mobile Number): ${mobileNumber}</p>
-//         <p>Password: ${password}</p>
-//         <p>Please login and change your password.</p>
-//       `
-//     };
-
-//     await transporter.sendMail(mailOptions);
-
-//     // Create notification for the new user
-//     await createNotification(
-//       newUser._id,
-//       'Welcome to Finance Hive',
-//       'Your account has been created successfully. Please check your email for login credentials.',
-//       'CREDENTIALS',
-//       {
-//         username: mobileNumber,
-//         password: password
-//       }
-//     );
-//     res.status(201).json({ 
-//       message: `${role.charAt(0).toUpperCase() + role.slice(1)} added successfully`,
-//       user: {
-//         name: newUser.name,
-//         email: newUser.email,
-//         role: newUser.role
-//       }
-//     });
-//   } catch (error) {
-//     console.error('\nUser creation error:', error);
-//     res.status(500).json({ 
-//       message: 'Error adding user', 
-//       error: error.message 
-//     });
-//   }
-// };
 
 const twilio = require('twilio');
 
@@ -412,133 +292,6 @@ exports.getUserById = async (req, res) => {
   }
 };
 
-
-
-
-
-// exports.addUserAndSendEmail = async (req, res) => {
-//   try {
-//     const { name, email, mobileNumber, password, amountBorrowed, tenure, interest, role } = req.body;
-
-//     // Ensure role is provided and default to "user" if not
-//     const userRole = role === 'organizer' || role === 'admin' ? role : 'user';
-
-//     // Create User in User collection
-//     const user = new User({
-//       name,
-//       email,
-//       mobileNumber,
-//       password,
-//       role: userRole,
-//     });
-//     await user.save();
-
-//     // Generate payment schedule
-//     const startDate = new Date();
-//     const paymentSchedule = generatePaymentSchedule(
-//       amountBorrowed,
-//       tenure,
-//       interest,
-//       startDate
-//     );
-
-//     // Calculate monthly EMI
-//     const monthlyEMI = calculateEMI(amountBorrowed, tenure, interest);
-
-//     // Create UserPayment record with payment schedule
-//     const userPayment = new UserPayment({
-//       _id: user._id,
-//       name,
-//       email,
-//       mobileNumber,
-//       password,
-//       amountBorrowed,
-//       tenure,
-//       interest,
-//       organizerId: req.user.id,
-//       monthlyEMI,
-//       paymentSchedule,
-//       loginCredentials: {
-//         username: mobileNumber,
-//         password,
-//       },
-//     });
-//     await userPayment.save();
-
-//     // Email configuration
-//     const transporter = nodemailer.createTransport({
-//       service: "gmail",
-//       auth: {
-//         user: process.env.EMAIL_USER,
-//         pass: process.env.EMAIL_PASS,
-//       },
-//     });
-
-//     const mailOptions = {
-//       from: process.env.EMAIL_USER,
-//       to: email,
-//       subject: `Welcome to ${userRole === 'organizer' ? 'Organizer' : 'User'} Portal`,
-//       text: `Hello ${name},\n\nWelcome to our platform! You have been successfully added as a ${userRole}.\n\nYour login credentials are:\n\nMobile Number: ${mobileNumber}\nPassword: ${password}\n\nMonthly EMI: ₹${monthlyEMI}\n\nThank you for joining us!`,
-//     };
-
-//     await transporter.sendMail(mailOptions);
-    
-//     res.status(201).json({ 
-//       message: "User added successfully and email sent!",
-//       user: userPayment
-//     });
-//   } catch (error) {
-//     console.error("Error adding user:", error);
-//     res.status(500).json({ message: "Error adding user.", error: error.message });
-//   }
-// };
-
-
-
-
-
-// exports.createUserAndPayment = async (req, res) => {
-//    try {
-//     const { name, email, mobileNumber, password, amountBorrowed, tenure, interest } = req.body;
-
-//     // Hash the password once
-//     const hashedPassword = await hashPassword(password);
-
-//     // Create user
-//     const user = await User.create({
-//       name,
-//       email,
-//       mobileNumber,
-//       password: hashedPassword, // Store hashed password
-//       role: "organizer", // Example role
-//     });
-
-//     // Create user payment with the same hashed password
-//     const userPayment = await UserPayment.create({
-//       name,
-//       email,
-//       mobileNumber,
-//       password: hashedPassword, // Use the same hashed password
-//       amountBorrowed,
-//       tenure,
-//       interest,
-//       organizerId: user._id,
-//       loginCredentials: {
-//         username: email,
-//         password: hashedPassword, // Use the same hashed password
-//       },
-//     });
-
-//     res.status(201).json({ message: "User and payment created successfully.", user, userPayment });
-//   } catch (error) {
-//     console.error("Error creating user and payment:", error);
-//     res.status(500).json({ message: "Error creating user and payment.", error: error.message });
-//   }
-// };
-
-
-// In controllers/authController.js
-
 exports.addUserAndSendEmail = async (req, res) => {
   try {
     const { name, email, mobileNumber, password, amountBorrowed, tenure, interest, surityGiven, role } = req.body;
@@ -546,93 +299,127 @@ exports.addUserAndSendEmail = async (req, res) => {
     // Ensure role is provided and default to "user" if not
     const userRole = role === 'organizer' || role === 'admin' ? role : 'user';
 
-    // Create User in User collection
-    const user = new User({
-      name,
-      email,
-      mobileNumber,
-      password,
-      role: userRole,
-    });
-    await user.save();
+    // Check if user already exists
+    const existingUser = await User.findOne({ mobileNumber });
 
-    // Generate payment schedule
-    const startDate = new Date();
-    const paymentSchedule = generatePaymentSchedule(
-      amountBorrowed,
-      tenure,
-      interest,
-      startDate
-    );
+    if (existingUser) {
+      // Check payment status
+      const userPayment = await UserPayment.findOne({ _id: existingUser._id });
 
-    // Calculate monthly EMI
-    const monthlyEMI = calculateEMI(amountBorrowed, tenure, interest);
+      if (userPayment) {
+        const hasOverdueOrPending = userPayment.paymentSchedule.some(payment => payment.status === 'OVERDUE' || payment.status === 'PENDING');
 
-    // Create UserPayment record with payment schedule
-    const userPayment = new UserPayment({
-      _id: user._id,
-      name,
-      email,
-      mobileNumber,
-      password,
-      amountBorrowed,
-      tenure,
-      interest,
-      surityGiven, // Include the new field
-      organizerId: req.user.id,
-      monthlyEMI,
-      paymentSchedule,
-      loginCredentials: {
-        username: mobileNumber,
-        password,
-      },
-    });
-    await userPayment.save();
+        if (hasOverdueOrPending) {
+          // Return a response indicating the user has overdue or pending payments
+          return res.status(400).json({
+            message: `User already exists with overdue or pending payments. Number of EMIs: ${userPayment.paymentSchedule.length}`,
+            actionRequired: true
+          });
+        } else {
+          // Update the existing payment schedule
+          const startDate = new Date();
+          const newPaymentSchedule = generatePaymentSchedule(amountBorrowed, tenure, interest, startDate);
+          const newMonthlyEMI = calculateEMI(amountBorrowed, tenure, interest);
 
-    // Email configuration
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
+          userPayment.paymentSchedule.push(...newPaymentSchedule);
+          userPayment.monthlyEMI = newMonthlyEMI;
+          userPayment.amountBorrowed += amountBorrowed;
+          userPayment.tenure += tenure;
+          userPayment.interest = interest;
+          userPayment.surityGiven = surityGiven;
 
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: `Welcome to ${userRole === 'organizer' ? 'Organizer' : 'User'} Portal`,
-      text: `Hello ${name},\n\nWelcome to our platform! You have been successfully added as a ${userRole}.\n\nYour login credentials are:\n\nMobile Number: ${mobileNumber}\nPassword: ${password}\n\nMonthly EMI: ₹${monthlyEMI}\n\nThank you for joining us!`,
-    };
+          await userPayment.save();
 
-    await transporter.sendMail(mailOptions);
-
-    // Send SMS notification
-    const smsMessage = `Welcome to our platform! You have been added as a ${userRole}. Your login credentials are:\n\nMobile Number: ${mobileNumber}\nPassword: ${password}\n\nMonthly EMI: ₹${monthlyEMI}`;
-    
-    await twilioClient.messages.create({
-      body: smsMessage,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      to: mobileNumber // Ensure mobileNumber includes the country code (e.g., +1234567890)
-    });
-
-    // Create profile notification
-    await createNotification(
-      user._id, // User ID
-      `Welcome to User Portal`, // Title
-      `You have been successfully added as a user. Your login credentials are:\n\nMobile Number: ${mobileNumber}\nPassword: ${password}\n\nMonthly EMI: ₹${monthlyEMI}`, // Message
-      'CREDENTIALS', // Notification type
-      {
-        username: mobileNumber,
-        password: password,
-        monthlyEMI: monthlyEMI
+          return res.status(200).json({
+            message: "User payment schedule updated successfully",
+            user: userPayment
+          });
+        }
       }
-    );
+    } else {
+      // Create new user
+      const user = new User({
+        name,
+        email,
+        mobileNumber,
+        password,
+        role: userRole,
+      });
+      await user.save();
 
-    res.status(201).json({ 
-      message: "User added successfully, email and SMS sent!",
-      user: userPayment
-    });
+      // Generate payment schedule
+      const startDate = new Date();
+      const paymentSchedule = generatePaymentSchedule(amountBorrowed, tenure, interest, startDate);
+
+      // Calculate monthly EMI
+      const monthlyEMI = calculateEMI(amountBorrowed, tenure, interest);
+
+      // Create UserPayment record with payment schedule
+      const userPayment = new UserPayment({
+        _id: user._id,
+        name,
+        email,
+        mobileNumber,
+        password,
+        amountBorrowed,
+        tenure,
+        interest,
+        surityGiven,
+        organizerId: req.user.id,
+        monthlyEMI,
+        paymentSchedule,
+        loginCredentials: {
+          username: mobileNumber,
+          password,
+        },
+      });
+      await userPayment.save();
+
+      // Email configuration
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      });
+
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: `Welcome to ${userRole === 'organizer' ? 'Organizer' : 'User'} Portal`,
+        text: `Hello ${name},\n\nWelcome to our platform! You have been successfully added as a ${userRole}.\n\nYour login credentials are:\n\nMobile Number: ${mobileNumber}\nPassword: ${password}\n\nMonthly EMI: ₹${monthlyEMI}\n\nThank you for joining us!`,
+      };
+
+      await transporter.sendMail(mailOptions);
+
+      // Send SMS notification
+      const smsMessage = `Welcome to our platform! You have been added as a ${userRole}. Your login credentials are:\n\nMobile Number: ${mobileNumber}\nPassword: ${password}\n\nMonthly EMI: ₹${monthlyEMI}`;
+      
+      await twilioClient.messages.create({
+        body: smsMessage,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        to: mobileNumber // Ensure mobileNumber includes the country code (e.g., +1234567890)
+      });
+
+      // Create profile notification
+      await createNotification(
+        user._id, // User ID
+        `Welcome to User Portal`, // Title
+        `You have been successfully added as a user. Your login credentials are:\n\nMobile Number: ${mobileNumber}\nPassword: ${password}\n\nMonthly EMI: ₹${monthlyEMI}`, // Message
+        'CREDENTIALS', // Notification type
+        {
+          username: mobileNumber,
+          password: password,
+          monthlyEMI: monthlyEMI
+        }
+      );
+
+      res.status(201).json({ 
+        message: "User added successfully, email and SMS sent!",
+        user: userPayment
+      });
+    }
   } catch (error) {
     console.error("Error adding user:", error);
     res.status(500).json({ message: "Error adding user.", error: error.message });
