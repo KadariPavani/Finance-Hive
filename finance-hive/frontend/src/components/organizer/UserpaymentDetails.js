@@ -4,6 +4,7 @@ import axios from 'axios';
 import { X, Loader2 } from 'lucide-react';
 import './UserPaymentDetails.css';
 import { generateReceiptPDF } from './pdfService';
+
 const api = axios.create({
   baseURL: 'http://localhost:5000/api',
   timeout: 10000,
@@ -30,7 +31,7 @@ const UserPaymentDetails = () => {
       setLoading(true);
       const response = await api.get(`/user/${userId}`);
       if (!response.data) throw new Error('Invalid server response');
-      
+
       setUserData(response.data);
       setPaymentSchedule(response.data.paymentSchedule || []);
     } catch (error) {
@@ -43,64 +44,78 @@ const UserPaymentDetails = () => {
   useEffect(() => {
     fetchUserData();
   }, [fetchUserData]);
+
   const handlePaymentUpdate = async (serialNo, field, value) => {
     if (updateInProgress[serialNo]) return;
-
+  
     try {
-        setUpdateInProgress(prev => ({ ...prev, [serialNo]: true }));
-
-        // Optimistic update
-        setPaymentSchedule(prev => prev.map(p =>
-            p.serialNo === serialNo ? { ...p, [field]: value } : p
-        ));
-
-        const response = await api.patch(`/payment/${userId}/${serialNo}`, {
-            [field]: field === 'emiAmount' ? Number(value) : value
-        });
-
-        if (response.status === 200 || response.data.success) {
-            await fetchUserData(); // Refresh only if API confirms success
-        } else {
-            throw new Error('Backend update failed');
-        }
+      setUpdateInProgress(prev => ({ ...prev, [serialNo]: true }));
+  
+      // Optimistic update
+      const updatedPaymentSchedule = paymentSchedule.map(p =>
+        p.serialNo === serialNo ? { ...p, [field]: value } : p
+      );
+      setPaymentSchedule(updatedPaymentSchedule);
+  
+      // Send the update to the backend
+      const response = await api.patch(`/payment/${userId}/${serialNo}`, {
+        [field]: field === 'emiAmount' ? Number(value) : value,
+      });
+  
+      if (response.status === 200 || response.data.success) {
+        // If the backend update is successful, fetch the latest data
+        await fetchUserData();
+      } else {
+        throw new Error('Backend update failed');
+      }
     } catch (error) {
-        setError('Update failed. Reverting changes...');
-        fetchUserData(); // Revert on error
+      setError('Update failed. Reverting changes...');
+  
+      // Revert to the previous state if the update fails
+      fetchUserData(); // Fetch the latest data from the backend
     } finally {
-        setUpdateInProgress(prev => ({ ...prev, [serialNo]: false }));
-        setEditingEmi({ serialNo: null, value: '' });
+      setUpdateInProgress(prev => ({ ...prev, [serialNo]: false }));
+      setEditingEmi({ serialNo: null, value: '' });
     }
-};
+  };
 
   const handleDownloadReceipt = (receipt) => {
     generateReceiptPDF({
       ...receipt,
-      user: userData // Pass the user data
+      user: userData, // Pass the user data
     });
   };
-  
 
-  const formatDate = useCallback(date => 
-    new Date(date).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' }), 
-  []);
+  const formatDate = useCallback(
+    (date) =>
+      new Date(date).toLocaleDateString('en-IN', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      }),
+    []
+  );
 
-  const formatCurrency = useCallback(amount => 
-    new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount), 
-  []);
+  const formatCurrency = useCallback(
+    (amount) =>
+      new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount),
+    []
+  );
 
   // Calculate total balance to be paid (sum of all pending/overdue EMIs)
   const totalBalanceToPay = paymentSchedule
-    .filter(payment => payment.status !== 'PAID')
+    .filter((payment) => payment.status !== 'PAID')
     .reduce((acc, payment) => acc + payment.emiAmount, 0);
 
-  if (loading) return (
-    <div className="loading-container">
-      <div className="loading-content">
-        <Loader2 className="loading-spinner" />
-        <p className="loading-text">Loading payment details...</p>
+  if (loading)
+    return (
+      <div className="loading-container">
+        <div className="loading-content">
+          <Loader2 className="loading-spinner" />
+          <p className="loading-text">Loading payment details...</p>
+        </div>
       </div>
-    </div>
-  );
+    );
 
   const renderEmiAmount = (payment) => {
     if (payment.status === 'PAID') {
@@ -112,18 +127,22 @@ const UserPaymentDetails = () => {
       <input
         type="number"
         value={editingEmi.value}
-        onChange={e => setEditingEmi({ ...editingEmi, value: e.target.value })}
+        onChange={(e) => setEditingEmi({ ...editingEmi, value: e.target.value })}
         onBlur={() => handlePaymentUpdate(payment.serialNo, 'emiAmount', editingEmi.value)}
-        onKeyPress={e => e.key === 'Enter' && 
-          handlePaymentUpdate(payment.serialNo, 'emiAmount', editingEmi.value)}
+        onKeyPress={(e) =>
+          e.key === 'Enter' &&
+          handlePaymentUpdate(payment.serialNo, 'emiAmount', editingEmi.value)
+        }
         autoFocus
       />
     ) : (
-      <span 
-        onClick={() => setEditingEmi({ 
-          serialNo: payment.serialNo, 
-          value: payment.emiAmount 
-        })}
+      <span
+        onClick={() =>
+          setEditingEmi({
+            serialNo: payment.serialNo,
+            value: payment.emiAmount,
+          })
+        }
         className="editable-amount"
       >
         {formatCurrency(payment.emiAmount)}
@@ -147,84 +166,92 @@ const UserPaymentDetails = () => {
             </div>
 
             <div className="payment-schedule-table">
-{/* In the UserPaymentDetails component, update the payment schedule table */}
-<table>
-  <thead>
-    <tr>
-      <th>Serial No.</th>
-      <th>Due Date</th>
-      <th>Paid Date</th>
-      <th>Payable Amount</th>
-      <th>Remaining Balance</th>
-      <th>Status</th>
-    </tr>
-  </thead>
-  <tbody>
-    {paymentSchedule.map(payment => (
-      <tr key={payment.serialNo} className={`payment-row ${payment.status.toLowerCase()}`}>
-        <td>{payment.serialNo}</td>
-        <td>{formatDate(payment.paymentDate)}</td>
-        <td>{payment.paidDate ? formatDate(payment.paidDate) : '-'}</td>
-        <td className="emi-amount-cell">
-          {renderEmiAmount(payment)}
-          {updateInProgress[payment.serialNo] && <Loader2 className="emi-update-loader" />}
-        </td>
-        <td>
-          {updateInProgress[payment.serialNo] ? (
-            <div className="balance-updating-indicator" />
-          ) : (
-            formatCurrency(payment.balance)
-          )}
-        </td>
-        <td>
-          <div className="payment-status-container">
-            <select
-              value={payment.status}
-              onChange={e => handlePaymentUpdate(payment.serialNo, 'status', e.target.value)}
-              className={`payment-status-select ${payment.status.toLowerCase()}`}
-              disabled={updateInProgress[payment.serialNo]}
-            >
-              <option value="PENDING">Pending</option>
-              <option value="PAID">Paid</option>
-              <option value="OVERDUE">Overdue</option>
-            </select>
-            {updateInProgress[payment.serialNo] && <Loader2 className="payment-status-loader" />}
-          </div>
-        </td>
-      </tr>
-    ))}
-  </tbody>
-</table>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Serial No.</th>
+                    <th>Due Date</th>
+                    <th>Paid Date</th>
+                    <th>Payable Amount</th>
+                    <th>Remaining Balance</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paymentSchedule.map((payment) => (
+                    <tr
+                      key={payment.serialNo}
+                      className={`payment-row ${payment.status.toLowerCase()}`}
+                    >
+                      <td>{payment.serialNo}</td>
+                      <td>{formatDate(payment.paymentDate)}</td>
+                      <td>{payment.paidDate ? formatDate(payment.paidDate) : '-'}</td>
+                      <td className="emi-amount-cell">
+                        {renderEmiAmount(payment)}
+                        {updateInProgress[payment.serialNo] && (
+                          <Loader2 className="emi-update-loader" />
+                        )}
+                      </td>
+                      <td>
+                        {updateInProgress[payment.serialNo] ? (
+                          <div className="balance-updating-indicator" />
+                        ) : (
+                          formatCurrency(payment.balance)
+                        )}
+                      </td>
+                      <td>
+                        <div className="payment-status-container">
+                          <select
+                            value={payment.status}
+                            onChange={(e) =>
+                              handlePaymentUpdate(payment.serialNo, 'status', e.target.value)
+                            }
+                            className={`payment-status-select ${payment.status.toLowerCase()}`}
+                            disabled={updateInProgress[payment.serialNo]}
+                          >
+                            <option value="PENDING">Pending</option>
+                            <option value="PAID">Paid</option>
+                            <option value="OVERDUE">Overdue</option>
+                          </select>
+                          {updateInProgress[payment.serialNo] && (
+                            <Loader2 className="payment-status-loader" />
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
       </div>
       <div className="receipts-section">
-  <h3>Payment Receipts</h3>
-  <div className="receipts-grid">
-    {userData.receipts?.map(receipt => (
-      <div key={receipt.receiptNumber} className="receipt-card">
-        <div className="receipt-header">
-          <span className="receipt-number">{receipt.receiptNumber}</span>
-          <span className="receipt-date">
-            {formatDate(receipt.paymentDate)}
-          </span>
+        <h3>Payment Receipts</h3>
+        <div className="receipts-grid">
+          {userData.receipts?.map((receipt) => (
+            <div key={receipt.receiptNumber} className="receipt-card">
+              <div className="receipt-header">
+                <span className="receipt-number">{receipt.receiptNumber}</span>
+                <span className="receipt-date">
+                  {formatDate(receipt.paymentDate)}
+                </span>
+              </div>
+              <div className="receipt-body">
+                <p>EMI Number: {receipt.serialNo}</p>
+                <p>Amount: {formatCurrency(receipt.amount)}</p>
+                <p>Payment Method: {receipt.paymentMethod}</p>
+              </div>
+              <button
+                onClick={() => handleDownloadReceipt(receipt)}
+                className="download-btn"
+              >
+                Download PDF
+              </button>
+            </div>
+          ))}
         </div>
-        <div className="receipt-body">
-          <p>EMI Number: {receipt.serialNo}</p>
-          <p>Amount: {formatCurrency(receipt.amount)}</p>
-          <p>Payment Method: {receipt.paymentMethod}</p>
-        </div>
-        <button 
-      onClick={() => handleDownloadReceipt(receipt)}
-      className="download-btn"
-    >
-      Download PDF
-    </button>
       </div>
-    ))}
-  </div>
-</div>
     </div>
   );
 };

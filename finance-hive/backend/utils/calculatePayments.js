@@ -7,31 +7,34 @@ const calculateEMI = (principal, tenure, interestRate) => {
   return Math.round(emi * 100) / 100;
 };
 
-const generatePaymentSchedule = (principal, tenure, interestRate, startDate) => {
-  const emi = calculateEMI(principal, tenure, interestRate);
-  const schedule = [];
-  let balance = principal;
-  let paymentDate = new Date(startDate);
+const generatePaymentSchedule = (amountBorrowed, tenure, interest, startDate, startSerialNo = 1) => {
+  const paymentSchedule = [];
+  const monthlyInterestRate = interest / 100 / 12;
+  const monthlyEMI = calculateEMI(amountBorrowed, tenure, interest);
+  let balance = amountBorrowed;
 
-  for (let i = 1; i <= tenure; i++) {
-    const monthlyInterest = (balance * interestRate) / (100 * 12);
-    const monthlyPrincipal = emi - monthlyInterest;
-    balance -= monthlyPrincipal;
+  for (let i = 0; i < tenure; i++) {
+    const paymentDate = new Date(startDate);
+    paymentDate.setMonth(paymentDate.getMonth() + i);
 
-    schedule.push({
-      serialNo: i,
-      paymentDate: new Date(paymentDate),
-      emiAmount: emi,
-      principal: monthlyPrincipal,
+    const monthlyInterest = balance * monthlyInterestRate;
+    const principal = monthlyEMI - monthlyInterest;
+
+    paymentSchedule.push({
+      serialNo: startSerialNo + i,
+      paymentDate,
+      emiAmount: monthlyEMI,
+      principal,
       interest: monthlyInterest,
-      balance: Math.max(0, balance),
-      status: 'PENDING'
+      balance: balance - principal,
+      status: 'PENDING',
+      locked: false,
     });
 
-    paymentDate.setMonth(paymentDate.getMonth() + 1);
+    balance -= principal;
   }
 
-  return schedule;
+  return paymentSchedule;
 };
 
 module.exports = { calculateEMI, generatePaymentSchedule };

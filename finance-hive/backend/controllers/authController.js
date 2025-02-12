@@ -307,7 +307,9 @@ exports.addUserAndSendEmail = async (req, res) => {
       const userPayment = await UserPayment.findOne({ _id: existingUser._id });
 
       if (userPayment) {
-        const hasOverdueOrPending = userPayment.paymentSchedule.some(payment => payment.status === 'OVERDUE' || payment.status === 'PENDING');
+        const hasOverdueOrPending = userPayment.paymentSchedule.some(
+          payment => payment.status === 'OVERDUE' || payment.status === 'PENDING'
+        );
 
         if (hasOverdueOrPending) {
           // Return a response indicating the user has overdue or pending payments
@@ -316,17 +318,33 @@ exports.addUserAndSendEmail = async (req, res) => {
             actionRequired: true
           });
         } else {
-          // Update the existing payment schedule
-          const startDate = new Date();
-          const newPaymentSchedule = generatePaymentSchedule(amountBorrowed, tenure, interest, startDate);
-          const newMonthlyEMI = calculateEMI(amountBorrowed, tenure, interest);
+          // Calculate the next serialNo
+          const lastSerialNo = userPayment.paymentSchedule.length > 0
+            ? Math.max(...userPayment.paymentSchedule.map(p => p.serialNo))
+            : 0;
 
+          // Generate new payment schedule with correct serialNo
+          const startDate = new Date();
+          const newPaymentSchedule = generatePaymentSchedule(
+            amountBorrowed,
+            tenure,
+            interest,
+            startDate,
+            lastSerialNo + 1 // Start serialNo from the next number
+          );
+
+          // Recalculate the total amount borrowed, tenure, and monthly EMI
+          const updatedAmountBorrowed = userPayment.amountBorrowed + Number(amountBorrowed);
+          const updatedTenure = userPayment.tenure + Number(tenure);
+          const updatedMonthlyEMI = calculateEMI(updatedAmountBorrowed, updatedTenure, interest);
+
+          // Append the new payment schedule to the existing one
           userPayment.paymentSchedule.push(...newPaymentSchedule);
-          userPayment.monthlyEMI = newMonthlyEMI;
-          userPayment.amountBorrowed += amountBorrowed;
-          userPayment.tenure += tenure;
+          userPayment.amountBorrowed = updatedAmountBorrowed;
+          userPayment.tenure = updatedTenure;
           userPayment.interest = interest;
           userPayment.surityGiven = surityGiven;
+          userPayment.monthlyEMI = updatedMonthlyEMI;
 
           await userPayment.save();
 
@@ -349,7 +367,13 @@ exports.addUserAndSendEmail = async (req, res) => {
 
       // Generate payment schedule
       const startDate = new Date();
-      const paymentSchedule = generatePaymentSchedule(amountBorrowed, tenure, interest, startDate);
+      const paymentSchedule = generatePaymentSchedule(
+        amountBorrowed,
+        tenure,
+        interest,
+        startDate,
+        1 // Start serialNo from 1 for new users
+      );
 
       // Calculate monthly EMI
       const monthlyEMI = calculateEMI(amountBorrowed, tenure, interest);
@@ -361,9 +385,9 @@ exports.addUserAndSendEmail = async (req, res) => {
         email,
         mobileNumber,
         password,
-        amountBorrowed,
-        tenure,
-        interest,
+        amountBorrowed: Number(amountBorrowed),
+        tenure: Number(tenure),
+        interest: Number(interest),
         surityGiven,
         organizerId: req.user.id,
         monthlyEMI,

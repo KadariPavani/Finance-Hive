@@ -54,7 +54,7 @@ exports.updatePaymentDetails = async (req, res) => {
   try {
     const { userId, serialNo } = req.params;
     const { emiAmount, status } = req.body;
-    
+
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ message: 'Invalid user ID' });
     }
@@ -64,20 +64,23 @@ exports.updatePaymentDetails = async (req, res) => {
       return res.status(404).json({ message: "User payment details not found" });
     }
 
-    const paymentIndex = userPayment.paymentSchedule.findIndex(
+    // Find the payment by serialNo
+    const payment = userPayment.paymentSchedule.find(
       p => p.serialNo === Number(serialNo)
     );
-    
-    if (paymentIndex === -1) {
+
+    if (!payment) {
       return res.status(404).json({ message: "Payment schedule entry not found" });
     }
 
-    const payment = userPayment.paymentSchedule[paymentIndex];
+    // Update the EMI amount if provided
+    if (emiAmount) {
+      payment.emiAmount = Number(emiAmount);
+    }
 
-    if (emiAmount) payment.emiAmount = emiAmount;
-    
-    let receipt = null; // ✅ Declare receipt before using it
+    let receipt = null;
 
+    // Update the status if provided
     if (status) {
       payment.status = status;
 
@@ -107,17 +110,19 @@ exports.updatePaymentDetails = async (req, res) => {
           sendPaymentEmail(userPayment, payment, receipt),
           sendPaymentSMS(userPayment, payment, receipt)
         ]);
+
+        // Lock the payment to prevent further edits
+        payment.locked = true;
       } else {
         payment.paidDate = null;
+        payment.locked = false; // Unlock the payment if status is changed from PAID
       }
     }
 
-    // Recalculate balances
-    let currentBalance = paymentIndex > 0 
-      ? userPayment.paymentSchedule[paymentIndex - 1].balance
-      : userPayment.amountBorrowed;
+    // Recalculate balances for all payments starting from the updated one
+    let currentBalance = userPayment.amountBorrowed;
 
-    for (let i = paymentIndex; i < userPayment.paymentSchedule.length; i++) {
+    for (let i = 0; i < userPayment.paymentSchedule.length; i++) {
       const p = userPayment.paymentSchedule[i];
 
       if (!p.locked) {
@@ -130,9 +135,12 @@ exports.updatePaymentDetails = async (req, res) => {
 
         currentBalance = p.balance;
 
-        if (p.status === 'PAID') p.locked = true;
+        if (p.status === 'PAID') {
+          p.locked = true; // Lock the payment if it's marked as PAID
+        }
 
         if (currentBalance <= 0) {
+          // Mark all remaining payments as PAID and locked
           for (let j = i + 1; j < userPayment.paymentSchedule.length; j++) {
             const remainingP = userPayment.paymentSchedule[j];
             remainingP.emiAmount = 0;
@@ -149,15 +157,15 @@ exports.updatePaymentDetails = async (req, res) => {
 
     await userPayment.save();
 
-    res.json({ 
+    res.json({
       schedule: userPayment.paymentSchedule,
       amountBorrowed: userPayment.amountBorrowed,
-      receipt // ✅ No longer undefined
+      receipt
     });
 
   } catch (error) {
     console.error('Update error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: 'Error updating payment',
       error: error.message
     });
@@ -261,3 +269,5 @@ exports.getAllUsersWithPayments = async (req, res) => {
     res.status(500).json({ message: "Error fetching users" });
   }
 };
+
+
