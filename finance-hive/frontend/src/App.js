@@ -6,6 +6,7 @@ import i18n from './i18n'; // Import your i18n configuration
 import HomePage from './components/HomePage';
 import ContactForm from './components/home/GetInTouch';
 import Login from './components/home/Login';
+import PrivacyPolicy from './components/home/PrivacyPolicy';
 import AdminDashboard from './components/admin/AdminDashboard';
 import UserDashboard from './components/user/UserDashboard';
 import OrganizerDashboard from './components/organizer/OrganizerDashboard';
@@ -20,6 +21,7 @@ import SavingsForm from './components/user/SavingsForm';
 import Navigation from './components/Navigation/Navigation';
 import Sidebar from './components/sidebar/Sidebar';
 import PaymentSchedulePage from './components/user/PaymentSchedulePage';
+
 const App = () => (
   <I18nextProvider i18n={i18n}>
     <Router>
@@ -30,6 +32,7 @@ const App = () => (
         
         {/* New routes for login and dashboards */}
         <Route path="/login" element={<Login />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/organizer" element={<OrganizerDashboard />} />
         <Route path="/user" element={<UserDashboard />} />
@@ -38,10 +41,10 @@ const App = () => (
         <Route path="/add-organizer" element={<AddUser role="organizer" />} />
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/tracking" element={<Tracking />} />
-  <Route path="/tracking/income-form" element={<IncomeForm />} />
-  <Route path="/tracking/expense-form" element={<ExpenseForm />} />
-  <Route path="/tracking/savings-form" element={<SavingsForm />} />
-  <Route path="/payment-schedule" element={<PaymentSchedulePage />} />
+        <Route path="/tracking/income-form" element={<IncomeForm />} />
+        <Route path="/tracking/expense-form" element={<ExpenseForm />} />
+        <Route path="/tracking/savings-form" element={<SavingsForm />} />
+        <Route path="/payment-schedule" element={<PaymentSchedulePage />} />
 
       </Routes>
     </Router>

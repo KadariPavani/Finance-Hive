@@ -33,6 +33,7 @@
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin-right: 0%; /* Keep the form on the right side for large screens */
 }
 
 .login-form-input {
@@ -180,7 +181,7 @@ form {
 /* Responsive Design */
 @media (max-width: 768px) {
   .login-login-container {
-    flex-direction: column;
+    justify-content: center; /* Center the form on smaller screens */
     align-items: center;
     padding: 20px;
   }
@@ -188,35 +189,89 @@ form {
   .login-form-container {
     width: 100%;
     max-width: 450px;
-    margin: 20px auto;
+    height: auto; /* Reduce height */
+    padding: 20px;
+    margin: 0; /* Remove margin for centering */
+  }
+
+  .login-form-input {
+    height: auto; /* Reduce height */
+    gap: 10px; /* Reduce gap between elements */
+  }
+
+  .login-heading {
+    font-size: 28px; /* Adjust heading size */
+    margin-bottom: 10px;
+  }
+
+  .login-paragraph {
+    font-size: 16px; /* Adjust paragraph size */
+    margin-bottom: 10px;
+  }
+
+  .login-btn-login {
+    padding: 10px 20px; /* Adjust button padding */
+    font-size: 14px;
+  }
+
+  .login-terms {
+    font-size: 12px; /* Adjust terms text size */
+    margin: 5px 0 10px;
   }
 }
 
 @media (max-width: 576px) {
   .login-form-container {
-    padding: 20px;
+    padding: 15px;
   }
 
   .login-heading {
-    font-size: 20px;
+    font-size: 24px; /* Further reduce heading size */
+  }
+
+  .login-paragraph {
+    font-size: 14px; /* Further reduce paragraph size */
   }
 
   .login-form-input input {
-    padding: 10px 14px;
+    padding: 10px 14px; /* Adjust input padding */
     font-size: 14px;
   }
 
-  .login-terms-container {
-    font-size: 12px;
+  .login-btn-login {
+    padding: 8px 16px; /* Further adjust button padding */
+    font-size: 14px;
+  }
+
+  .login-terms {
+    font-size: 12px; /* Further adjust terms text size */
   }
 }
 
 @media (max-width: 375px) {
   .login-form-container {
-    padding: 15px;
+    padding: 10px;
   }
 
   .login-heading {
-    font-size: 18px;
+    font-size: 20px; /* Further reduce heading size */
+  }
+
+  .login-paragraph {
+    font-size: 12px; /* Further reduce paragraph size */
+  }
+
+  .login-form-input input {
+    padding: 8px 12px; /* Further adjust input padding */
+    font-size: 12px;
+  }
+
+  .login-btn-login {
+    padding: 6px 12px; /* Further adjust button padding */
+    font-size: 12px;
+  }
+
+  .login-terms {
+    font-size: 10px; /* Further adjust terms text size */
   }
 }

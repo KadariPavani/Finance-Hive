@@ -1,0 +1,63 @@
+.privacy-policy-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  position: relative; /* Required for positioning the close button */
+}
+
+.privacy-policy-close-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #000;
+  cursor: pointer;
+}
+
+.privacy-policy-close-button:hover {
+  color: #ff0000; /* Change color on hover */
+}
+
+.privacy-policy-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.privacy-policy-logo {
+  width: 100px;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+.privacy-policy-content h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.privacy-policy-content h2 {
+  font-size: 1.5rem;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.privacy-policy-content p {
+  margin-bottom: 15px;
+}
+
+.privacy-policy-content ul {
+  margin-bottom: 15px;
+  padding-left: 20px;
+}
+
+.privacy-policy-content a {
+  color: #007BFF;
+  text-decoration: none;
+}
+
+.privacy-policy-content a:hover {
+  text-decoration: underline;
+}
