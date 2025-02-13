@@ -170,13 +170,13 @@ exports.addUser = async (req, res) => {
     await transporter.sendMail(mailOptions);
 
     // Send SMS notification
-    const smsMessage = `Welcome to Finance Hive! Your account has been created. UserID: ${mobileNumber}, Password: ${password}. Please login and change your password.`;
+    // const smsMessage = `Welcome to Finance Hive! Your account has been created. UserID: ${mobileNumber}, Password: ${password}. Please login and change your password.`;
     
-    await twilioClient.messages.create({
-      body: smsMessage,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      to: mobileNumber // Ensure mobileNumber includes the country code (e.g., +1234567890)
-    });
+    // await twilioClient.messages.create({
+    //   body: smsMessage,
+    //   from: process.env.TWILIO_PHONE_NUMBER,
+    //   to: mobileNumber // Ensure mobileNumber includes the country code (e.g., +1234567890)
+    // });
 
     // Create notification for the new user
     await createNotification(
@@ -418,13 +418,13 @@ exports.addUserAndSendEmail = async (req, res) => {
       await transporter.sendMail(mailOptions);
 
       // Send SMS notification
-      const smsMessage = `Welcome to our platform! You have been added as a ${userRole}. Your login credentials are:\n\nMobile Number: ${mobileNumber}\nPassword: ${password}\n\nMonthly EMI: ₹${monthlyEMI}`;
+      // const smsMessage = `Welcome to our platform! You have been added as a ${userRole}. Your login credentials are:\n\nMobile Number: ${mobileNumber}\nPassword: ${password}\n\nMonthly EMI: ₹${monthlyEMI}`;
       
-      await twilioClient.messages.create({
-        body: smsMessage,
-        from: process.env.TWILIO_PHONE_NUMBER,
-        to: mobileNumber // Ensure mobileNumber includes the country code (e.g., +1234567890)
-      });
+      // await twilioClient.messages.create({
+      //   body: smsMessage,
+      //   from: process.env.TWILIO_PHONE_NUMBER,
+      //   to: mobileNumber // Ensure mobileNumber includes the country code (e.g., +1234567890)
+      // });
 
       // Create profile notification
       await createNotification(

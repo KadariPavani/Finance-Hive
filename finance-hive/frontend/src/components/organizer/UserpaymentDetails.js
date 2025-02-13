@@ -104,9 +104,8 @@ const UserPaymentDetails = () => {
 
   // Calculate total balance to be paid (sum of all pending/overdue EMIs)
   const totalBalanceToPay = paymentSchedule
-    .filter((payment) => payment.status !== 'PAID')
-    .reduce((acc, payment) => acc + payment.emiAmount, 0);
-
+  .filter((payment) => payment.status !== 'PAID')
+  .reduce((acc, payment) => acc + payment.emiAmount, 0);
   if (loading)
     return (
       <div className="loading-container">
