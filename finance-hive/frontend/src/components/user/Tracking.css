@@ -281,8 +281,8 @@
 
 @media (min-width: 768px) {
   .dashboard-layout {
-    grid-template-columns: auto 1fr; /* Sidebar and content */
-  }
+    grid-template-columns: 1fr; /* Sidebar and content */
+  } 
 
   .dashboard-main {
     padding: var(--spacing-xl);

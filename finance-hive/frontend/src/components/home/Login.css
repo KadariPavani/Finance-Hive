@@ -33,7 +33,7 @@
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  margin-right: 0%; /* Keep the form on the right side for large screens */
+  margin-right: 1%; /* Keep the form on the right side for large screens */
 }
 
 .login-form-input {

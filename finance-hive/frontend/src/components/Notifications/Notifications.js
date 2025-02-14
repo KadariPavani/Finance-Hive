@@ -200,6 +200,7 @@ const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const fetchNotifications = async () => {
     try {
@@ -208,6 +209,7 @@ const Notifications = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setNotifications(response.data.notifications);
+      setUnreadCount(response.data.notifications.filter(n => !n.read).length);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching notifications:", error);
@@ -221,10 +223,13 @@ const Notifications = () => {
   const markAsRead = async (notificationId) => {
     try {
       const token = localStorage.getItem("token");
-      // API call to mark as read
+      await axios.patch(`http://localhost:5000/api/notifications/${notificationId}/read`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setNotifications(prev => prev.map(n => 
         n._id === notificationId ? { ...n, read: true } : n
       ));
+      setUnreadCount(prev => prev - 1);
     } catch (error) {
       console.error("Error marking notification as read:", error);
     }
@@ -260,6 +265,7 @@ const Notifications = () => {
       <div className="notifications-header">
         <h1>{t('notifications.title')}</h1>
         <Bell className="header-icon" />
+        <span className="unread-count">{unreadCount}</span>
       </div>
 
       {loading ? (

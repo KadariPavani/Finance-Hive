@@ -5,9 +5,10 @@ import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import "./OrganizerDashboard.css";
 import { User, Phone, Mail, DollarSign, Calendar, Percent, Shield } from 'lucide-react';
-import LandingPage from '../home/LandingPage/LandingPage';
-import NavigationOrganizer from "../Navigation/NavigationOrganizer";
+// import LandingPage from '../home/LandingPage/LandingPage';
+import Navigation from "../Navigation/Navigation";
 import { useTranslation } from 'react-i18next';
+import OrganizerSidebar from '../sidebar/OrganizerSidebar';
 
 const OrganizerDashboard = () => {
   const { t, i18n } = useTranslation();
@@ -39,6 +40,11 @@ const OrganizerDashboard = () => {
   });
   const [search, setSearch] = useState("");
   const [userSearch, setUserSearch] = useState("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State for sidebar visibility
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -221,184 +227,188 @@ const OrganizerDashboard = () => {
 
   return (
     <div className="organizer-dashboard">
-      <LandingPage />
-      <NavigationOrganizer organizerDetails={organizerDetails} onLogout={handleLogout} />
-
-      <div className="add-user-section">
-        <h2>{t("dashboard.add_new_user")}</h2>
-        <form onSubmit={handleSubmit} className="add-user-form">
-          <div className="form-grid">
-            <div className="form-group">
-              <label>{t("dashboard.name")}</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>{t("dashboard.email")}</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>{t("dashboard.mobile")}</label>
-              <input
-                type="text"
-                name="mobileNumber"
-                value={formData.mobileNumber}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>{t("dashboard.password")}</label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>{t("dashboard.amount_borrowed")}</label>
-              <input
-                type="number"
-                name="amountBorrowed"
-                value={formData.amountBorrowed}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>{t("dashboard.tenure")}</label>
-              <input
-                type="number"
-                name="tenure"
-                value={formData.tenure}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>{t("dashboard.interest")}</label>
-              <input
-                type="number"
-                name="interest"
-                value={formData.interest}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>{t("dashboard.surity_given")}</label>
-              <input
-                type="text"
-                name="surityGiven"
-                value={formData.surityGiven}
-                onChange={handleChange}
-                required
-              />
-            </div>
-          </div>
-          <button type="submit" className="submit-btn">{t("dashboard.add_user")}</button>
-        </form>
-      </div>
-
-      <div className="users-section">
-        <h2>{t("dashboard.your_users")}</h2>
-        <div className="search-bar">
-          <input
-            type="text"
-            placeholder={t("dashboard.search_users")}
-            value={userSearch}
-            onChange={handleUserSearchChange}
-          />
-        </div>
-        {loading ? (
-          <div className="loading">{t("dashboard.loading_users")}</div>
-        ) : error ? (
-          <div className="error">{error}</div>
-        ) : (
-          <div className="users-grid">
-            {filteredUsers.map((user) => (
-              <div key={user._id} className="user-card" onClick={() => handleUserClick(user)}>
-                <div className="user-card-header">
-                  <User className="user-icon" />
-                  <h3>{user.name}</h3>
+      {/* <LandingPage /> */}
+      <Navigation organizerDetails={organizerDetails} onLogout={handleLogout} toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
+      <div className="dashboard-layout">
+        <OrganizerSidebar organizerDetails={organizerDetails} onLogout={handleLogout} isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+        <main className="dashboard-main">
+          <div className="add-user-section">
+            <h2>{t("dashboard.add_new_user")}</h2>
+            <form onSubmit={handleSubmit} className="add-user-form">
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>{t("dashboard.name")}</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
-                <div className="user-card-body">
-                  <p><Phone size={16} /> {user.mobileNumber}</p>
-                  <p><Mail size={16} /> {user.email}</p>
-                  <p><DollarSign size={16} /> {formatCurrency(user.amountBorrowed)}</p>
-                  <div className="user-card-footer">
-                    <span><Calendar size={14} /> {user.tenure} {t("dashboard.months")}</span>
-                    <span><Percent size={14} /> {user.interest}%</span>
-                    <span><Shield size={14} /> {user.surityGiven}</span> {/* Display Surity Given */}
-                  </div>
+                <div className="form-group">
+                  <label>{t("dashboard.email")}</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>{t("dashboard.mobile")}</label>
+                  <input
+                    type="text"
+                    name="mobileNumber"
+                    value={formData.mobileNumber}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>{t("dashboard.password")}</label>
+                  <input
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>{t("dashboard.amount_borrowed")}</label>
+                  <input
+                    type="number"
+                    name="amountBorrowed"
+                    value={formData.amountBorrowed}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>{t("dashboard.tenure")}</label>
+                  <input
+                    type="number"
+                    name="tenure"
+                    value={formData.tenure}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>{t("dashboard.interest")}</label>
+                  <input
+                    type="number"
+                    name="interest"
+                    value={formData.interest}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>{t("dashboard.surity_given")}</label>
+                  <input
+                    type="text"
+                    name="surityGiven"
+                    value={formData.surityGiven}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
               </div>
-            ))}
+              <button type="submit" className="submit-btn">{t("dashboard.add_user")}</button>
+            </form>
           </div>
-        )}
-      </div>
 
-      <div className="payment-details-section">
-        <h2>{t("dashboard.payment_details")}</h2>
-        {loading ? (
-          <div className="loading">{t("dashboard.loading_payments")}</div>
-        ) : error ? (
-          <div className="error">{error}</div>
-        ) : (
-          <>
+          <div className="users-section">
+            <h2>{t("dashboard.your_users")}</h2>
             <div className="search-bar">
               <input
                 type="text"
-                placeholder={t("dashboard.search")}
-                value={search}
-                onChange={handleSearchChange}
+                placeholder={t("dashboard.search_users")}
+                value={userSearch}
+                onChange={handleUserSearchChange}
               />
             </div>
-            <table className="payment-details-table">
-              <thead>
-                <tr>
-                  <th>{t("dashboard.sno")}</th>
-                  <th>{t("dashboard.user_name")}</th>
-                  <th>{t("dashboard.due_date")}</th>
-                  <th>{t("dashboard.emi_amount")}</th>
-                  <th>{t("dashboard.payment_date")}</th>
-                  <th>{t("dashboard.balance")}</th>
-                  <th>{t("dashboard.status")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredPaymentDetails.map((payment, index) => (
-                  <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td>{payment.userName}</td>
-                    <td>{new Date(payment.dueDate).toLocaleDateString()}</td>
-                    <td>{formatCurrency(payment.emiAmount)}</td>
-                    <td>{payment.paymentDate ? new Date(payment.paymentDate).toLocaleDateString() : t("dashboard.not_paid")}</td>
-                    <td>{formatCurrency(payment.balance)}</td>
-                    <td>
-                      <span className={`status-badge ${payment.status.toLowerCase()}`}>
-                        {payment.status}
-                      </span>
-                    </td>
-                  </tr>
+            {loading ? (
+              <div className="loading">{t("dashboard.loading_users")}</div>
+            ) : error ? (
+              <div className="error">{error}</div>
+            ) : (
+              <div className="users-grid">
+                {filteredUsers.map((user) => (
+                  <div key={user._id} className="user-card" onClick={() => handleUserClick(user)}>
+                    <div className="user-card-header">
+                      <User className="user-icon" />
+                      <h3>{user.name}</h3>
+                    </div>
+                    <div className="user-card-body">
+                      <p><Phone size={16} /> {user.mobileNumber}</p>
+                      <p><Mail size={16} /> {user.email}</p>
+                      <p><DollarSign size={16} /> {formatCurrency(user.amountBorrowed)}</p>
+                      <div className="user-card-footer">
+                        <span><Calendar size={14} /> {user.tenure} {t("dashboard.months")}</span>
+                        <span><Percent size={14} /> {user.interest}%</span>
+                        <span><Shield size={14} /> {user.surityGiven}</span> {/* Display Surity Given */}
+                      </div>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </>
-        )}
+              </div>
+            )}
+          </div>
+
+          <div className="payment-details-section">
+            <h2>{t("dashboard.payment_details")}</h2>
+            {loading ? (
+              <div className="loading">{t("dashboard.loading_payments")}</div>
+            ) : error ? (
+              <div className="error">{error}</div>
+            ) : (
+              <>
+                <div className="search-bar">
+                  <input
+                    type="text"
+                    placeholder={t("dashboard.search")}
+                    value={search}
+                    onChange={handleSearchChange}
+                  />
+                </div>
+                <table className="payment-details-table">
+                  <thead>
+                    <tr>
+                      <th>{t("dashboard.sno")}</th>
+                      <th>{t("dashboard.user_name")}</th>
+                      <th>{t("dashboard.due_date")}</th>
+                      <th>{t("dashboard.emi_amount")}</th>
+                      <th>{t("dashboard.payment_date")}</th>
+                      <th>{t("dashboard.balance")}</th>
+                      <th>{t("dashboard.status")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredPaymentDetails.map((payment, index) => (
+                      <tr key={index}>
+                        <td>{index + 1}</td>
+                        <td>{payment.userName}</td>
+                        <td>{new Date(payment.dueDate).toLocaleDateString()}</td>
+                        <td>{formatCurrency(payment.emiAmount)}</td>
+                        <td>{payment.paymentDate ? new Date(payment.paymentDate).toLocaleDateString() : t("dashboard.not_paid")}</td>
+                        <td>{formatCurrency(payment.balance)}</td>
+                        <td>
+                          <span className={`status-badge ${payment.status.toLowerCase()}`}>
+                            {payment.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </>
+            )}
+          </div>
+        </main>
       </div>
     </div>
   );
