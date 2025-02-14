@@ -2,9 +2,10 @@
   max-width: 800px;
   margin: 2rem auto;
   padding: 1rem;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.8);
   border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
 }
 
 .notifications-header {
@@ -12,7 +13,7 @@
   justify-content: space-between;
   align-items: center;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .header-controls {
@@ -44,15 +45,15 @@
   gap: 1rem;
   padding: 1rem;
   margin-bottom: 1rem;
-  background: #f8f9fa;
+  background: rgba(248, 249, 250, 0.8);
   border-radius: 8px;
   transition: transform 0.2s;
   position: relative;
 }
 
 .notification-item.unread {
-  background: #fff;
-  border: 1px solid #e9ecef;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(233, 236, 239, 0.8);
 }
 
 .notification-icon-wrapper {
@@ -61,7 +62,7 @@
 
 .notification-icon {
   padding: 0.5rem;
-  background: #e9ecef;
+  background: rgba(233, 236, 239, 0.8);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -89,10 +90,10 @@
 
 .notification-credentials {
   margin-top: 0.5rem;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.9);
   padding: 0.75rem;
   border-radius: 6px;
-  border: 1px solid #dee2e6;
+  border: 1px solid rgba(222, 226, 230, 0.8);
 }
 
 .mark-read-button {
@@ -112,10 +113,10 @@
 
 .metadata {
   margin-top: 0.5rem;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.9);
   padding: 0.75rem;
   border-radius: 6px;
-  border: 1px solid #dee2e6;
+  border: 1px solid rgba(222, 226, 230, 0.8);
 }
 
 .metadata-item {
