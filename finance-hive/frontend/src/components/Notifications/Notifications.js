@@ -264,8 +264,10 @@ const Notifications = () => {
     <div className="notifications-container">
       <div className="notifications-header">
         <h1>{t('notifications.title')}</h1>
-        <Bell className="header-icon" />
-        <span className="unread-count">{unreadCount}</span>
+        <div className="header-icon-wrapper">
+          <Bell className="header-icon" />
+          <span className="unread-count">{unreadCount}</span>
+        </div>
       </div>
 
       {loading ? (
