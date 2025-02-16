@@ -1,14 +1,17 @@
-//============================MULTI LANG =======================================
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import "./OrganizerDashboard.css";
 import { User, Phone, Mail, DollarSign, Calendar, Percent, Shield } from 'lucide-react';
-// import LandingPage from '../home/LandingPage/LandingPage';
 import Navigation from "../Navigation/Navigation";
 import { useTranslation } from 'react-i18next';
 import OrganizerSidebar from '../sidebar/OrganizerSidebar';
+import { Bar, Line, Scatter, Radar, PolarArea } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement, ArcElement, RadialLinearScale } from 'chart.js';
+import CustomButton from '../CustomButton';
+import Modal from "../Modal/Modal";
+import ProcessingAnimation from '../LoadingAnimation/ProcessingAnimation';
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement, ArcElement, RadialLinearScale);
 
 const OrganizerDashboard = () => {
   const { t, i18n } = useTranslation();
@@ -21,7 +24,7 @@ const OrganizerDashboard = () => {
     amountBorrowed: "",
     tenure: "",
     interest: "",
-    surityGiven: "" // New field for Surity Given
+    surityGiven: ""
   });
 
   const [users, setUsers] = useState([]);
@@ -40,7 +43,14 @@ const OrganizerDashboard = () => {
   });
   const [search, setSearch] = useState("");
   const [userSearch, setUserSearch] = useState("");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State for sidebar visibility
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 4;
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -72,7 +82,7 @@ const OrganizerDashboard = () => {
 
       setOrganizerDetails({
         ...response.data.data,
-        role: 'organizer' // Ensure role is set explicitly
+        role: 'organizer'
       });
     } catch (error) {
       console.error("Error fetching organizer details:", error);
@@ -133,11 +143,24 @@ const OrganizerDashboard = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.name || !formData.email || !formData.mobileNumber || !formData.password || !formData.amountBorrowed || !formData.tenure || !formData.interest || !formData.surityGiven) {
+      setModalMessage(t("dashboard.failed_to_add_user"));
+      setShowModal(true);
+      setTimeout(() => setShowModal(false), 3000); // Hide modal after 3 seconds
+      return;
+    }
     try {
+      setIsProcessing(true); // Show processing animation
+      setModalMessage("Processing..."); // Set processing message
+      setShowModal(true); // Show modal
       const token = localStorage.getItem("token");
 
       if (!token) {
         setError("No authentication token found");
+        setModalMessage("No authentication token found");
+        setShowModal(true);
+        setTimeout(() => setShowModal(false), 3000); // Hide after 3 seconds
+        setIsProcessing(false);
         return;
       }
 
@@ -147,8 +170,10 @@ const OrganizerDashboard = () => {
         },
       });
 
-      alert(t("dashboard.user_added_successfully"));
-      setFormData({
+      setModalMessage(t("dashboard.user_added_successfully")); // Set success message
+      setShowModal(true); // Show modal
+      fetchUsers(); // Refresh user list
+      setFormData({ // Reset the form
         name: "",
         email: "",
         mobileNumber: "",
@@ -156,12 +181,17 @@ const OrganizerDashboard = () => {
         amountBorrowed: "",
         tenure: "",
         interest: "",
-        surityGiven: "" // Reset the new field
+        surityGiven: ""
       });
-      fetchUsers();
+
     } catch (error) {
       console.error("Error adding user:", error);
-      alert(error.response?.data?.message || t("dashboard.failed_to_add_user"));
+      setModalMessage(error.response?.data?.message || t("dashboard.failed_to_add_user")); // Set error message
+      setShowModal(true); // Show modal
+      setError(error.response?.data?.message || t("dashboard.failed_to_add_user"));
+    } finally {
+      setIsProcessing(false); // Hide processing animation
+      setTimeout(() => setShowModal(false), 3000); // Hide modal after 3 seconds
     }
   };
 
@@ -218,20 +248,141 @@ const OrganizerDashboard = () => {
         payment.userName.toLowerCase().includes(searchLower) ||
         new Date(payment.dueDate).toLocaleDateString().includes(searchLower) ||
         payment.emiAmount.toString().includes(searchLower) ||
-        (payment.paymentDate ? new Date(payment.paymentDate).toLocaleDateString().includes(searchLower) : true) ||
+        (payment.paymentDate ? new Date(payment.paymentDate).toLocaleDateString() : true) ||
         payment.balance.toString().includes(searchLower) ||
         payment.status.toLowerCase().includes(searchLower)
       );
     })
     .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
 
+  const totalAmountBorrowed = users.reduce((total, user) => total + parseFloat(user.amountBorrowed || 0), 0);
+  const totalInterest = users.reduce((total, user) => total + parseFloat(user.interest || 0), 0);
+  const totalUsers = users.length;
+
+  const totalAmountPaid = paymentDetails.reduce((total, payment) => total + parseFloat(payment.emiAmount || 0), 0);
+  const totalInterestMoney = users.reduce((total, user) => total + (parseFloat(user.amountBorrowed || 0) * parseFloat(user.interest || 0) / 100), 0);
+  const totalPaymentsCollected = paymentDetails
+    .filter(payment => payment.status.toLowerCase() === 'paid')
+    .reduce((total, payment) => total + parseFloat(payment.emiAmount || 0), 0);
+
+  const lineData = {
+    labels: paymentDetails.map(payment => new Date(payment.dueDate).toLocaleDateString()),
+    datasets: [
+      {
+        label: 'Total Amount Borrowed Over Time',
+        data: paymentDetails.map(payment => payment.emiAmount),
+        fill: false,
+        borderColor: 'rgba(75, 192, 192, 1)',
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        tension: 0.1
+      }
+    ]
+  };
+
+  const scatterData = {
+    datasets: [
+      {
+        label: 'Users',
+        data: users.map(user => ({
+          x: user.amountBorrowed,
+          y: user.interest,
+        })),
+        backgroundColor: 'rgba(255, 99, 132, 0.6)',
+      },
+    ],
+  };
+
+  const radarData = {
+    labels: ['Amount Borrowed', 'Interest', 'Tenure', 'Surity Given'],
+    datasets: users.map(user => ({
+      label: user.name,
+      data: [user.amountBorrowed, user.interest, user.tenure, user.surityGiven],
+      backgroundColor: 'rgba(54, 162, 235, 0.2)',
+      borderColor: 'rgba(54, 162, 235, 1)',
+      pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+    }))
+  };
+
+  const polarAreaData = {
+    labels: users.map(user => user.name),
+    datasets: [
+      {
+        label: 'Amount Borrowed',
+        data: users.map(user => user.amountBorrowed),
+        backgroundColor: users.map(() => `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.6)`),
+      }
+    ]
+  };
+
+  // Pagination logic
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < Math.ceil(filteredUsers.length / usersPerPage)) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
   return (
     <div className="organizer-dashboard">
-      {/* <LandingPage /> */}
       <Navigation organizerDetails={organizerDetails} onLogout={handleLogout} toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
       <div className="dashboard-layout">
         <OrganizerSidebar organizerDetails={organizerDetails} onLogout={handleLogout} isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
         <main className="dashboard-main">
+          <div className="analytics-section">
+            <h2>{t("dashboard.analytics")}</h2>
+            <div className="analytics-grid">
+              <div className="analytics-card">
+                <h3>{t("dashboard.total_amount_borrowed")}</h3>
+                <p>{formatCurrency(totalAmountBorrowed)}</p>
+              </div>
+              <div className="analytics-card">
+                <h3>{t("dashboard.total_interest")}</h3>
+                <p>{totalInterest}%</p>
+              </div>
+              <div className="analytics-card">
+                <h3>{t("dashboard.total_users")}</h3>
+                <p>{totalUsers}</p>
+              </div>
+              <div className="analytics-card">
+                <h3>{t("dashboard.total_amount_paid")}</h3>
+                <p>{formatCurrency(totalAmountPaid)}</p>
+              </div>
+              <div className="analytics-card">
+                <h3>{t("dashboard.total_interest_money")}</h3>
+                <p>{formatCurrency(totalInterestMoney)}</p>
+              </div>
+              <div className="analytics-card">
+                <h3>{t("dashboard.total_payments_collected")}</h3>
+                <p>{formatCurrency(totalPaymentsCollected)}</p>
+              </div>
+            </div>
+            <div className="chart-section">
+              <div className="chart-card">
+                <h3>{t("dashboard.amount_borrowed_over_time")}</h3>
+                <Line data={lineData} />
+              </div>
+              <div className="chart-card">
+                <h3>{t("dashboard.scatter_plot")}</h3>
+                <Scatter data={scatterData} />
+              </div>
+              <div className="chart-card">
+                <h3>{t("dashboard.polar_area_chart")}</h3>
+                <PolarArea data={polarAreaData} />
+              </div>
+            </div>
+          </div>
+
           <div className="add-user-section">
             <h2>{t("dashboard.add_new_user")}</h2>
             <form onSubmit={handleSubmit} className="add-user-form">
@@ -317,7 +468,13 @@ const OrganizerDashboard = () => {
                   />
                 </div>
               </div>
-              <button type="submit" className="submit-btn">{t("dashboard.add_user")}</button>
+              <button
+                type="submit"
+                className="submit-btn"
+                disabled={isProcessing}
+              >
+                {isProcessing ? "Adding User..." : t("dashboard.add_user")}
+              </button>
             </form>
           </div>
 
@@ -336,30 +493,49 @@ const OrganizerDashboard = () => {
             ) : error ? (
               <div className="error">{error}</div>
             ) : (
-              <div className="users-grid">
-                {filteredUsers.map((user) => (
-                  <div key={user._id} className="user-card" onClick={() => handleUserClick(user)}>
-                    <div className="user-card-header">
-                      <User className="user-icon" />
-                      <h3>{user.name}</h3>
-                    </div>
-                    <div className="user-card-body">
-                      <p><Phone size={16} /> {user.mobileNumber}</p>
-                      <p><Mail size={16} /> {user.email}</p>
-                      <p><DollarSign size={16} /> {formatCurrency(user.amountBorrowed)}</p>
-                      <div className="user-card-footer">
-                        <span><Calendar size={14} /> {user.tenure} {t("dashboard.months")}</span>
-                        <span><Percent size={14} /> {user.interest}%</span>
-                        <span><Shield size={14} /> {user.surityGiven}</span> {/* Display Surity Given */}
+              <>
+                <div className="users-grid">
+                  {currentUsers.map((user) => (
+                    <div key={user._id} className="user-card" onClick={() => handleUserClick(user)}>
+                      <div className="user-card-header">
+                        <User className="user-icon" />
+                        <h3>{user.name}</h3>
+                      </div>
+                      <div className="user-card-body">
+                        <p><Phone size={16} /> {user.mobileNumber}</p>
+                        <p><Mail size={16} /> {user.email}</p>
+                        <p><DollarSign size={16} /> {formatCurrency(user.amountBorrowed)}</p>
+                        <div className="user-card-footer">
+                          <span><Calendar size={14} /> {user.tenure} {t("dashboard.months")}</span>
+                          <span><Percent size={14} /> {user.interest}%</span>
+                          <span><Shield size={14} /> {user.surityGiven}</span> {/* Display Surity Given */}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+                <div className="pagination">
+                  <button onClick={handlePreviousPage} disabled={currentPage === 1} className="page-btn">
+                    Previous
+                  </button>
+                  {Array.from({ length: Math.ceil(filteredUsers.length / usersPerPage) }, (_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => paginate(index + 1)}
+                      className={`page-btn ${currentPage === index + 1 ? 'active' : ''}`}
+                    >
+                      {index + 1}
+                    </button>
+                  ))}
+                  <button onClick={handleNextPage} disabled={currentPage === Math.ceil(filteredUsers.length / usersPerPage)} className="page-btn">
+                    Next
+                  </button>
+                </div>
+              </>
             )}
           </div>
 
-          <div className="payment-details-section">
+<div className="payment-details-section">
             <h2>{t("dashboard.payment_details")}</h2>
             {loading ? (
               <div className="loading">{t("dashboard.loading_payments")}</div>
@@ -375,41 +551,48 @@ const OrganizerDashboard = () => {
                     onChange={handleSearchChange}
                   />
                 </div>
-                <table className="payment-details-table">
-                  <thead>
-                    <tr>
-                      <th>{t("dashboard.sno")}</th>
-                      <th>{t("dashboard.user_name")}</th>
-                      <th>{t("dashboard.due_date")}</th>
-                      <th>{t("dashboard.emi_amount")}</th>
-                      <th>{t("dashboard.payment_date")}</th>
-                      <th>{t("dashboard.balance")}</th>
-                      <th>{t("dashboard.status")}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredPaymentDetails.map((payment, index) => (
-                      <tr key={index}>
-                        <td>{index + 1}</td>
-                        <td>{payment.userName}</td>
-                        <td>{new Date(payment.dueDate).toLocaleDateString()}</td>
-                        <td>{formatCurrency(payment.emiAmount)}</td>
-                        <td>{payment.paymentDate ? new Date(payment.paymentDate).toLocaleDateString() : t("dashboard.not_paid")}</td>
-                        <td>{formatCurrency(payment.balance)}</td>
-                        <td>
-                          <span className={`status-badge ${payment.status.toLowerCase()}`}>
-                            {payment.status}
-                          </span>
-                        </td>
+                <div className="scrollable-table">
+                  <table className="payment-details-table">
+                    <thead>
+                      <tr>
+                        <th>{t("dashboard.sno")}</th>
+                        <th>{t("dashboard.user_name")}</th>
+                        <th>{t("dashboard.due_date")}</th>
+                        <th>{t("dashboard.emi_amount")}</th>
+                        <th>{t("dashboard.payment_date")}</th>
+                        <th>{t("dashboard.balance")}</th>
+                        <th>{t("dashboard.status")}</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {filteredPaymentDetails.map((payment, index) => (
+                        <tr key={index}>
+                          <td>{index + 1}</td>
+                          <td>{payment.userName}</td>
+                          <td>{new Date(payment.dueDate).toLocaleDateString()}</td>
+                          <td>{formatCurrency(payment.emiAmount)}</td>
+                          <td>{payment.paymentDate ? new Date(payment.paymentDate).toLocaleDateString() : t("dashboard.not_paid")}</td>
+                          <td>{formatCurrency(payment.balance)}</td>
+                          <td>
+                            <span className={`status-badge ${payment.status.toLowerCase()}`}>
+                              {payment.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="total-count">
+                  {t("dashboard.total_payments")}: {filteredPaymentDetails.length}
+                </div>
               </>
             )}
           </div>
         </main>
       </div>
+      <Modal show={showModal} message={modalMessage} onClose={() => setShowModal(false)} />
+      {isProcessing && <ProcessingAnimation />}
     </div>
   );
 };
