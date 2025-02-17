@@ -10,7 +10,7 @@ import { Bar, Line, Scatter, Radar, PolarArea } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement, ArcElement, RadialLinearScale } from 'chart.js';
 import CustomButton from '../CustomButton';
 import Modal from "../Modal/Modal";
-import ProcessingAnimation from '../LoadingAnimation/ProcessingAnimation';
+
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement, ArcElement, RadialLinearScale);
 
 const OrganizerDashboard = () => {
@@ -28,7 +28,6 @@ const OrganizerDashboard = () => {
   });
 
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [organizerDetails, setOrganizerDetails] = useState(null);
   const [paymentDetails, setPaymentDetails] = useState([]);
@@ -46,7 +45,8 @@ const OrganizerDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -108,8 +108,6 @@ const OrganizerDashboard = () => {
     } catch (error) {
       console.error("Error fetching users:", error);
       setError(error.response?.data?.message || "Error fetching users");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -143,37 +141,36 @@ const OrganizerDashboard = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.email || !formData.mobileNumber || !formData.password || !formData.amountBorrowed || !formData.tenure || !formData.interest || !formData.surityGiven) {
+    
+    if (!formData.name || !formData.email || !formData.mobileNumber || !formData.password || 
+        !formData.amountBorrowed || !formData.tenure || !formData.interest || !formData.surityGiven) {
+      setIsSuccess(false);
       setModalMessage(t("dashboard.failed_to_add_user"));
       setShowModal(true);
-      setTimeout(() => setShowModal(false), 3000); // Hide modal after 3 seconds
+      setTimeout(() => setShowModal(false), 3000);
       return;
     }
+  
+    setIsSubmitting(true); // Start loading
+  
     try {
-      setIsProcessing(true); // Show processing animation
-      setModalMessage("Processing..."); // Set processing message
-      setShowModal(true); // Show modal
       const token = localStorage.getItem("token");
-
       if (!token) {
-        setError("No authentication token found");
-        setModalMessage("No authentication token found");
-        setShowModal(true);
-        setTimeout(() => setShowModal(false), 3000); // Hide after 3 seconds
-        setIsProcessing(false);
-        return;
+        throw new Error("No authentication token found");
       }
-
+  
       await axios.post("http://localhost:5000/api/add-user-payment", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
-      setModalMessage(t("dashboard.user_added_successfully")); // Set success message
-      setShowModal(true); // Show modal
-      fetchUsers(); // Refresh user list
-      setFormData({ // Reset the form
+  
+      setIsSuccess(true);
+      setModalMessage("User added successfully!");
+      await fetchUsers();
+      
+      // Reset form
+      setFormData({
         name: "",
         email: "",
         mobileNumber: "",
@@ -183,17 +180,68 @@ const OrganizerDashboard = () => {
         interest: "",
         surityGiven: ""
       });
-
+  
     } catch (error) {
-      console.error("Error adding user:", error);
-      setModalMessage(error.response?.data?.message || t("dashboard.failed_to_add_user")); // Set error message
-      setShowModal(true); // Show modal
-      setError(error.response?.data?.message || t("dashboard.failed_to_add_user"));
+      setIsSuccess(false);
+      setModalMessage(error.response?.data?.message || "Failed to add user");
+      setError(error.response?.data?.message || "Failed to add user");
     } finally {
-      setIsProcessing(false); // Hide processing animation
-      setTimeout(() => setShowModal(false), 3000); // Hide modal after 3 seconds
+      setIsSubmitting(false); // Stop loading
+      setShowModal(true);
+      setTimeout(() => {
+        setShowModal(false);
+      }, 3000);
     }
   };
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   if (!formData.name || !formData.email || !formData.mobileNumber || !formData.password || !formData.amountBorrowed || !formData.tenure || !formData.interest || !formData.surityGiven) {
+  //     setIsSuccess(false);
+  //     setModalMessage(t("dashboard.failed_to_add_user"));
+  //     setShowModal(true);
+  //     setTimeout(() => setShowModal(false), 3000);
+  //     return;
+  //   }
+  //   try {
+  //     const token = localStorage.getItem("token");
+
+  //     if (!token) {
+  //       throw new Error("No authentication token found");
+  //     }
+
+  //     await axios.post("http://localhost:5000/api/add-user-payment", formData, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+
+  //     setIsSuccess(true);
+  //     setModalMessage("User added successfully!");
+  //     await fetchUsers();
+      
+  //     setFormData({
+  //       name: "",
+  //       email: "",
+  //       mobileNumber: "",
+  //       password: "",
+  //       amountBorrowed: "",
+  //       tenure: "",
+  //       interest: "",
+  //       surityGiven: ""
+  //     });
+
+  //   } catch (error) {
+  //     setIsSuccess(false);
+  //     setModalMessage(error.response?.data?.message || "Failed to add user");
+  //     setError(error.response?.data?.message || "Failed to add user");
+  //   } finally {
+  //     setShowModal(true);
+  //     setTimeout(() => {
+  //       setShowModal(false);
+  //     }, 3000);
+  //   }
+  // };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -382,7 +430,6 @@ const OrganizerDashboard = () => {
               </div>
             </div>
           </div>
-
           <div className="add-user-section">
             <h2>{t("dashboard.add_new_user")}</h2>
             <form onSubmit={handleSubmit} className="add-user-form">
@@ -468,78 +515,94 @@ const OrganizerDashboard = () => {
                   />
                 </div>
               </div>
-              <button
-                type="submit"
-                className="submit-btn"
-                disabled={isProcessing}
-              >
-                {isProcessing ? "Adding User..." : t("dashboard.add_user")}
-              </button>
+<button 
+  type="submit" 
+  className={`submit-btn ${isSubmitting ? 'loading' : ''}`}
+  disabled={isSubmitting}
+>
+  {isSubmitting ? (
+    <span className="button-content">
+      <span className="spinner"></span>
+      {t("dashboard.adding_user")}
+    </span>
+  ) : (
+    t("dashboard.add_user")
+  )}
+</button>
             </form>
           </div>
 
           <div className="users-section">
-            <h2>{t("dashboard.your_users")}</h2>
-            <div className="search-bar">
-              <input
-                type="text"
-                placeholder={t("dashboard.search_users")}
-                value={userSearch}
-                onChange={handleUserSearchChange}
-              />
+  <h2>{t("dashboard.your_users")}</h2>
+  <div className="search-bar">
+    <input
+      type="text"
+      placeholder={t("dashboard.search_users")}
+      value={userSearch}
+      onChange={handleUserSearchChange}
+    />
+  </div>
+  {error ? (
+    <div className="error">{error}</div>
+  ) : (
+    <>
+      <div className="users-grid">
+        {currentUsers.map((user) => (
+          <div key={user._id} className="user-card" onClick={() => handleUserClick(user)}>
+            <div className="user-card-header">
+              <User className="user-icon" />
+              <h3>{user.name}</h3>
             </div>
-            {loading ? (
-              <div className="loading">{t("dashboard.loading_users")}</div>
-            ) : error ? (
-              <div className="error">{error}</div>
-            ) : (
-              <>
-                <div className="users-grid">
-                  {currentUsers.map((user) => (
-                    <div key={user._id} className="user-card" onClick={() => handleUserClick(user)}>
-                      <div className="user-card-header">
-                        <User className="user-icon" />
-                        <h3>{user.name}</h3>
-                      </div>
-                      <div className="user-card-body">
-                        <p><Phone size={16} /> {user.mobileNumber}</p>
-                        <p><Mail size={16} /> {user.email}</p>
-                        <p><DollarSign size={16} /> {formatCurrency(user.amountBorrowed)}</p>
-                        <div className="user-card-footer">
-                          <span><Calendar size={14} /> {user.tenure} {t("dashboard.months")}</span>
-                          <span><Percent size={14} /> {user.interest}%</span>
-                          <span><Shield size={14} /> {user.surityGiven}</span> {/* Display Surity Given */}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="pagination">
-                  <button onClick={handlePreviousPage} disabled={currentPage === 1} className="page-btn">
-                    Previous
-                  </button>
-                  {Array.from({ length: Math.ceil(filteredUsers.length / usersPerPage) }, (_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => paginate(index + 1)}
-                      className={`page-btn ${currentPage === index + 1 ? 'active' : ''}`}
-                    >
-                      {index + 1}
-                    </button>
-                  ))}
-                  <button onClick={handleNextPage} disabled={currentPage === Math.ceil(filteredUsers.length / usersPerPage)} className="page-btn">
-                    Next
-                  </button>
-                </div>
-              </>
-            )}
+            <div className="user-card-body">
+              <p><Phone size={16} /> {user.mobileNumber}</p>
+              <p><Mail size={16} /> {user.email}</p>
+              <p><DollarSign size={16} /> {formatCurrency(user.amountBorrowed)}</p>
+              <div className="user-card-footer">
+                <span><Calendar size={14} /> {user.tenure} {t("dashboard.months")}</span>
+                <span><Percent size={14} /> {user.interest}%</span>
+                <span><Shield size={14} /> {user.surityGiven}</span>
+              </div>
+              <button 
+                className="view-details-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleUserClick(user);
+                }}
+              >
+                View Details
+              </button>
+            </div>
           </div>
+        ))}
+      </div>
+      <div className="pagination">
+        <button onClick={handlePreviousPage} disabled={currentPage === 1} className="page-btn">
+          Previous
+        </button>
+        {Array.from({ length: Math.ceil(filteredUsers.length / usersPerPage) }, (_, index) => (
+          <button
+            key={index}
+            onClick={() => paginate(index + 1)}
+            className={`page-btn ${currentPage === index + 1 ? 'active' : ''}`}
+          >
+            {index + 1}
+          </button>
+        ))}
+        <button 
+          onClick={handleNextPage} 
+          disabled={currentPage === Math.ceil(filteredUsers.length / usersPerPage)} 
+          className="page-btn"
+        >
+          Next
+        </button>
+      </div>
+    </>
+  )}
+</div>
 
-<div className="payment-details-section">
+          <div className="payment-details-section">
             <h2>{t("dashboard.payment_details")}</h2>
-            {loading ? (
-              <div className="loading">{t("dashboard.loading_payments")}</div>
-            ) : error ? (
+            {error ? (
               <div className="error">{error}</div>
             ) : (
               <>
@@ -591,8 +654,14 @@ const OrganizerDashboard = () => {
           </div>
         </main>
       </div>
-      <Modal show={showModal} message={modalMessage} onClose={() => setShowModal(false)} />
-      {isProcessing && <ProcessingAnimation />}
+      {showModal && (
+        <Modal
+          show={showModal}
+          message={modalMessage}
+          onClose={() => setShowModal(false)}
+          isError={!isSuccess}
+        />
+      )}
     </div>
   );
 };

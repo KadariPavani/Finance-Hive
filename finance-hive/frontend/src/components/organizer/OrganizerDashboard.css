@@ -153,7 +153,7 @@ body {
   color: #007bff;
 }
 
-.user-card::after {
+/* .user-card::after {
   content: "View Details";
   position: absolute;
   bottom: 10px;
@@ -167,7 +167,7 @@ body {
   display: flex;
   align-items: center;
   gap: 5px;
-}
+} */
 
 .user-card::after::before {
   content: "\f105"; /* FontAwesome icon for arrow-right */
@@ -427,3 +427,22 @@ body {
 }
 
 
+.view-details-btn {
+  width: 100%;
+  padding: 8px 16px;
+  margin-top: 12px;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.view-details-btn:hover {
+  background-color: #357abd;
+}
+
+.user-card {
+  cursor: default;
+}

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FiTrash2 } from 'react-icons/fi';
 import LandingPage from '../home/LandingPage/LandingPage';
-import './AdminDasboard.css'; // Ensure this file exists
+import './AdminDasboard.css';
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState([]);

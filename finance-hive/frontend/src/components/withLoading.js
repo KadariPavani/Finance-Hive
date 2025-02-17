@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import LoadingAnimation from './LoadingAnimation/LoadingAnimation';
-import './withLoading.css'; // Import the CSS file for modal styling
+import './withLoading.css';
 
 const withLoading = (WrappedComponent, successMessage, errorMessage) => {
   return (props) => {
