@@ -89,6 +89,7 @@ import '../home/Carousel.css';
 
 const Carousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [typingText, setTypingText] = useState('');
 
   const slides = [
     {
@@ -115,22 +116,39 @@ const Carousel = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prevSlide) => (prevSlide + 1) % slides.length);
-    }, 3000); // Automatically slide every 3 seconds
+    }, 7000); // Automatically slide every 7 seconds
     return () => clearInterval(interval); // Cleanup interval on unmount
   }, []);
+
+  useEffect(() => {
+    let currentText = '';
+    let currentIndex = 0;
+    const text = slides[currentSlide].description;
+    const typingInterval = setInterval(() => {
+      if (currentIndex < text.length) {
+        currentText += text[currentIndex];
+        setTypingText(currentText);
+        currentIndex++;
+      } else {
+        clearInterval(typingInterval);
+      }
+    }, 50); // Typing speed (50ms per character)
+
+    return () => clearInterval(typingInterval);
+  }, [currentSlide]);
 
   return (
     <div className="carousel-container">
       {/* Static Background Image */}
       <div
         className="carousel-background"
-        style={{ backgroundImage: `url('/Images/MainBg.jpg')` }}
+        style={{ backgroundImage: `url('/Images/MainBgNOTxt.jpg')` }}
       ></div>
 
       {/* Text Box with Sliding Text */}
       <div className="carousel-text-box">
         <h1>{slides[currentSlide].title}</h1>
-        <p>{slides[currentSlide].description}</p>
+        <p>{typingText}</p>
       </div>
 
       {/* Indicators */}

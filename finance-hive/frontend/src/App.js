@@ -22,6 +22,7 @@ import Navigation from './components/Navigation/Navigation';
 import Sidebar from './components/sidebar/Sidebar';
 import PaymentSchedulePage from './components/user/PaymentSchedulePage';
 
+
 const App = () => (
   <I18nextProvider i18n={i18n}>
     <Router>

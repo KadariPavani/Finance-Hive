@@ -11,6 +11,8 @@ import TitleSection4 from './home/TitleSection4';
 import LoginRegisterForm from './home/LoginRegisterForm';
 import Footer from './home/Footer/Footer';
 import ContactForm from './home/GetInTouch';
+import WorkflowSteps from './home/WorkflowSteps';
+import RoleSelector from './home/RoleSelector';
 const HomePage = () => {
   return (
     <>
@@ -20,6 +22,8 @@ const HomePage = () => {
       <FinancialWizardsSlider />
       <TitleSection3 />
       <InvestmentTimeline />
+      <WorkflowSteps />
+      <RoleSelector />
       <TitleSection4 />
       <TeamGrid />
       <ContactForm /> 
