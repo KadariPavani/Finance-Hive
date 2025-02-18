@@ -10,12 +10,13 @@ import {
     Bell,
     DollarSign,
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './Sidebar.css';
 
 const Sidebar = ({ userDetails, onLogout, isSidebarOpen, toggleSidebar }) => {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const [isExpanded, setIsExpanded] = useState(false); // Default to collapsed on desktop
+    const navigate = useNavigate();
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -42,6 +43,26 @@ const Sidebar = ({ userDetails, onLogout, isSidebarOpen, toggleSidebar }) => {
         }
     };
 
+    const handlePaymentsClick = () => {
+        navigate('/dashboard'); // Navigate to the dashboard route
+        setTimeout(() => {
+            const paymentsTable = document.getElementById('payments-table');
+            if (paymentsTable) {
+                paymentsTable.scrollIntoView({ behavior: 'smooth' });
+            }
+        }, 100); // Small delay to ensure the page has loaded
+    };
+
+    const handleAnalyticsClick = () => {
+        navigate('/dashboard'); // Navigate to the dashboard route
+        setTimeout(() => {
+            const analyticsSection = document.getElementById('analytics-section');
+            if (analyticsSection) {
+                analyticsSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        }, 100); // Small delay to ensure the page has loaded
+    };
+
     return (
         <div
             className={`dashboard-sidebar ${isMobile ? (isSidebarOpen ? "mobile-open" : "mobile-closed") : (isExpanded ? "desktop-expanded" : "desktop-collapsed")}`}
@@ -55,15 +76,15 @@ const Sidebar = ({ userDetails, onLogout, isSidebarOpen, toggleSidebar }) => {
                         <span>Dashboard</span>
                     </Link>
 
-                    <Link to="/analytica" className="sidebar-btn">
+                    <div onClick={handleAnalyticsClick} className="sidebar-btn">
                         <BarChart className="sidebar-icon" />
-                        <span>Analytica</span>
-                    </Link>
+                        <span>Analytics</span>
+                    </div>
 
-                    <Link to="/payments" className="sidebar-btn">
+                    <div onClick={handlePaymentsClick} className="sidebar-btn">
                         <CreditCard className="sidebar-icon" />
                         <span>Payments</span>
-                    </Link>
+                    </div>
 
                     <Link to="/receipts" className="sidebar-btn">
                         <FileText className="sidebar-icon" />
@@ -109,7 +130,6 @@ const Sidebar = ({ userDetails, onLogout, isSidebarOpen, toggleSidebar }) => {
 };
 
 export default Sidebar;
-
 
 // import React, { useState, useEffect } from 'react';
 // import {

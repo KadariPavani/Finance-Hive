@@ -387,8 +387,8 @@ const OrganizerDashboard = () => {
       <div className="dashboard-layout">
         <OrganizerSidebar organizerDetails={organizerDetails} onLogout={handleLogout} isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
         <main className="dashboard-main">
-          <div className="analytics-section">
-            <h2>{t("dashboard.analytics")}</h2>
+        <div className="analytics-section" id="analytics-section">
+        <h2>{t("dashboard.analytics")}</h2>
             <div className="analytics-grid">
               <div className="analytics-card">
                 <h3>{t("dashboard.total_amount_borrowed")}</h3>
@@ -430,7 +430,7 @@ const OrganizerDashboard = () => {
               </div>
             </div>
           </div>
-          <div className="add-user-section">
+          {/* <div className="add-user-section"">
             <h2>{t("dashboard.add_new_user")}</h2>
             <form onSubmit={handleSubmit} className="add-user-form">
               <div className="form-grid">
@@ -530,10 +530,10 @@ const OrganizerDashboard = () => {
   )}
 </button>
             </form>
-          </div>
+          </div> */}
 
-          <div className="users-section">
-  <h2>{t("dashboard.your_users")}</h2>
+          <div className="users-section" id="users-section">
+          <h2>{t("dashboard.your_users")}</h2>
   <div className="search-bar">
     <input
       type="text"
@@ -600,8 +600,8 @@ const OrganizerDashboard = () => {
   )}
 </div>
 
-          <div className="payment-details-section">
-            <h2>{t("dashboard.payment_details")}</h2>
+<div className="payment-details-section" id="payment-details-section">
+              <h2>{t("dashboard.payment_details")}</h2>
             {error ? (
               <div className="error">{error}</div>
             ) : (

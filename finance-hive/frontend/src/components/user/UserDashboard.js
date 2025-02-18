@@ -639,69 +639,70 @@ const UserDashboard = () => {
                                 </div>
                             </div>
 
-                            {/* Charts Section */}
-                            <div className="user-charts-section">
-                                {/* Pie Chart for Paid vs Pending */}
-                                <div className="chart-card">
-                                    <h3>{t('dashboard.paid_vs_pending')}</h3>
-                                    <ResponsiveContainer width="100%" height={300}>
-                                        <PieChart>
-                                            <Pie
-                                                data={preparePieChartData()}
-                                                dataKey="value"
-                                                nameKey="name"
-                                                cx="50%"
-                                                cy="50%"
-                                                outerRadius={100}
-                                                label
-                                            >
-                                                {preparePieChartData().map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                                ))}
-                                            </Pie>
-                                            <Tooltip />
-                                            <Legend />
-                                        </PieChart>
-                                    </ResponsiveContainer>
-                                </div>
-                                {/* Line Chart for EMI Amounts Over Time */}
-                                <div className="chart-card">
-                                    <h3>{t('dashboard.emi_trend')}</h3>
-                                    <ResponsiveContainer width="100%" height={300}>
-                                        <LineChart data={prepareChartData()}>
-                                            <CartesianGrid strokeDasharray="3 3" />
-                                            <XAxis dataKey="name" />
-                                            <YAxis />
-                                            <Tooltip />
-                                            <Legend />
-                                            <Line type="monotone" dataKey="emiAmount" stroke="#2563eb" name="EMI Amount" />
-                                            <Line type="monotone" dataKey="principal" stroke="#16a34a" name="Principal" />
-                                            <Line type="monotone" dataKey="interest" stroke="#dc2626" name="Interest" />
-                                        </LineChart>
-                                    </ResponsiveContainer>
-                                </div>
+{/* Charts Section */}
+<div className="user-charts-section" id="analytics-section">
+    {/* Pie Chart for Paid vs Pending */}
+    <div className="chart-card">
+        <h3>{t('dashboard.paid_vs_pending')}</h3>
+        <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+                <Pie
+                    data={preparePieChartData()}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    label
+                >
+                    {preparePieChartData().map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+            </PieChart>
+        </ResponsiveContainer>
+    </div>
 
-                                {/* Bar Chart for Due Dates and Paid Dates */}
-                                <div className="chart-card">
-                                    <h3>{t('dashboard.due_vs_paid')}</h3>
-                                    <ResponsiveContainer width="100%" height={300}>
-                                        <BarChart data={prepareChartData()}>
-                                            <CartesianGrid strokeDasharray="3 3" />
-                                            <XAxis dataKey="name" />
-                                            <YAxis />
-                                            <Tooltip />
-                                            <Legend />
-                                            <Bar dataKey="emiAmount" fill="#2563eb" name="EMI Amount" />
-                                            <Bar dataKey="principal" fill="#16a34a" name="Principal" />
-                                            <Bar dataKey="interest" fill="#dc2626" name="Interest" />
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                </div>
-                            </div>
+    {/* Line Chart for EMI Amounts Over Time */}
+    <div className="chart-card">
+        <h3>{t('dashboard.emi_trend')}</h3>
+        <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={prepareChartData()}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="emiAmount" stroke="#2563eb" name="EMI Amount" />
+                <Line type="monotone" dataKey="principal" stroke="#16a34a" name="Principal" />
+                <Line type="monotone" dataKey="interest" stroke="#dc2626" name="Interest" />
+            </LineChart>
+        </ResponsiveContainer>
+    </div>
+
+    {/* Bar Chart for Due Dates and Paid Dates */}
+    <div className="chart-card">
+        <h3>{t('dashboard.due_vs_paid')}</h3>
+        <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={prepareChartData()}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="emiAmount" fill="#2563eb" name="EMI Amount" />
+                <Bar dataKey="principal" fill="#16a34a" name="Principal" />
+                <Bar dataKey="interest" fill="#dc2626" name="Interest" />
+            </BarChart>
+        </ResponsiveContainer>
+    </div>
+</div>
 
                             {/* Payment Schedule Table */}
                             {userDetails.paymentSchedule && (
-                                <div className="user-payment-schedule">
+                                <div className="user-payment-schedule" id="payments-table">
                                     <h2>{t('dashboard.payment_schedule')}</h2>
                                     <div className="user-table-wrapper">
                                         <table className="user-payment-table">
@@ -744,7 +745,6 @@ const UserDashboard = () => {
 };
 
 export default UserDashboard;
-
 
 // import React, { useEffect, useState } from "react";
 // import { useTranslation } from 'react-i18next';
