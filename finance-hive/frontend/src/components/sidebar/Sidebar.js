@@ -86,10 +86,10 @@ const Sidebar = ({ userDetails, onLogout, isSidebarOpen, toggleSidebar }) => {
                         <span>Payments</span>
                     </div>
 
-                    <Link to="/receipts" className="sidebar-btn">
+                    {/* <Link to="/receipts" className="sidebar-btn">
                         <FileText className="sidebar-icon" />
                         <span>Receipts</span>
-                    </Link>
+                    </Link> */}
 
                     <Link to="/notifications" className="sidebar-btn">
                         <Bell className="sidebar-icon" />
