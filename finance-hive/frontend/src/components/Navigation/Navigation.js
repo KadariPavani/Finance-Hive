@@ -118,9 +118,9 @@ const Navigation = ({ userDetails, onLogout, toggleSidebar, isSidebarOpen }) => 
                     </button>
                 ) : (
                     <>
-                        <Link to="/tracking" className="nav-icon-btn" title={t('common.tracking')}>
+                        {/* <Link to="/tracking" className="nav-icon-btn" title={t('common.tracking')}>
                             <LineChart className="nav-icon" />
-                        </Link>
+                        </Link> */}
                         <Link to="/notifications" className="nav-icon-btn" title={t('notifications.title')}>
                             <div className="notification-icon-wrapper">
                                 <Bell className="nav-icon" />

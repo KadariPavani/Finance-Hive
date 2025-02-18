@@ -11,7 +11,8 @@ const {
   getUserById,
   getUsersByOrganizer,
   getUserDetails,
-  getOrganizerDetails
+  getOrganizerDetails,
+  changePassword
 } = require('../controllers/authController');
 
 const router = express.Router();
@@ -29,5 +30,7 @@ router.get("/organizer/details", protect, restrictTo("organizer"), getOrganizerD
 router.post('/users/:userId/payment-schedule', paymentController.createPaymentSchedule);
 router.get('/users/:organizerId/payments', paymentController.getAllUsersWithPayments);
 // router.get('/payment-schedule/:userId', paymentController.createPaymentSchedule);
+
+router.put('/change-password', protect, changePassword);
 
 module.exports = router;

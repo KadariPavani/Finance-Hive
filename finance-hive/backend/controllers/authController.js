@@ -65,6 +65,35 @@ exports.login = async (req, res) => {
   }
 };
 
+
+exports.changePassword = async (req, res) => {
+  const { mobileNumber, newPassword } = req.body;
+
+  try {
+    // Find the user by mobile number
+    const user = await User.findOne({ mobileNumber });
+    if (!user) {
+      return res.status(404).json({ success: false, msg: 'Mobile number not found' });
+    }
+
+    // Update password in the User model without hashing
+    user.password = newPassword;
+    await user.save();
+
+    // Update password in the UserPayment model
+    await UserPayment.updateMany(
+      { mobileNumber },
+      { $set: { 'loginCredentials.password': newPassword } }
+    );
+
+    res.status(200).json({ success: true, msg: 'Password updated successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, msg: 'Server error' });
+  }
+};
+
+
 // Seed initial admin user
 exports.seedAdminUser = async () => {
   try {

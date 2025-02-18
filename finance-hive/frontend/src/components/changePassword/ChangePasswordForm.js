@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import axios from 'axios';
 import './ChangePasswordForm.css';
 
 const ChangePasswordForm = ({ onClose }) => {
-  const [email, setEmail] = useState('');
+  const [mobileNumber, setMobileNumber] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -18,7 +17,7 @@ const ChangePasswordForm = ({ onClose }) => {
     setIsLoading(true);
 
     // Validation
-    if (!email || !newPassword || !confirmPassword) {
+    if (!mobileNumber || !newPassword || !confirmPassword) {
       setErrorMessage('All fields are required');
       setIsLoading(false);
       return;
@@ -31,10 +30,9 @@ const ChangePasswordForm = ({ onClose }) => {
     }
 
     try {
-      // Make sure this URL matches your backend server address
       const token = localStorage.getItem('token');
       const response = await axios.put('http://localhost:5000/api/change-password', {
-        email,
+        mobileNumber,
         newPassword
       },
       {
@@ -46,7 +44,7 @@ const ChangePasswordForm = ({ onClose }) => {
       if (response.data.success) {
         setSuccessMessage('Password updated successfully');
         // Clear form
-        setEmail('');
+        setMobileNumber('');
         setNewPassword('');
         setConfirmPassword('');
         setTimeout(() => {
@@ -59,7 +57,7 @@ const ChangePasswordForm = ({ onClose }) => {
       if (error.response?.status === 401) {
         setErrorMessage('Please login again to change your password');
       } else if (error.response?.status === 404) {
-        setErrorMessage('Email not found. Please check your email address.');
+        setErrorMessage('Mobile number not found. Please check your mobile number.');
       } else if (error.response?.status === 400) {
         setErrorMessage(error.response.data.msg);
       } else {
@@ -78,12 +76,12 @@ const ChangePasswordForm = ({ onClose }) => {
         <h2 className="ChangePassword-h2">Change Password</h2>
         <form onSubmit={handleSubmit} className="ChangePassword-form">
           <div className="ChangePassword-input-group">
-            <label htmlFor="email">Email ID:</label>
+            <label htmlFor="mobileNumber">Mobile Number:</label>
             <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              id="mobileNumber"
+              value={mobileNumber}
+              onChange={(e) => setMobileNumber(e.target.value)}
               required
             />
           </div>
