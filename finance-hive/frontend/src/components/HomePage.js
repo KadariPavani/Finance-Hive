@@ -10,6 +10,7 @@ import TeamGrid from './home/TeamGrid';
 import TitleSection4 from './home/TitleSection4';
 import LoginRegisterForm from './home/LoginRegisterForm';
 import Footer from './home/Footer/Footer';
+import AnimatedCounter from './home/AnimatedCounter';
 import ContactForm from './home/GetInTouch';
 import WorkflowSteps from './home/WorkflowSteps';
 import RoleSelector from './home/RoleSelector';
@@ -27,6 +28,7 @@ const HomePage = () => {
       <TitleSection4 />
       <TeamGrid />
       <ContactForm /> 
+      <AnimatedCounter/>
       <LoginRegisterForm />
       <Footer />
     </>
