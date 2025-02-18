@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import "./AnimatedCounter.css";
 
+const API_URL = "http://localhost:5000/api"; // Replace with deployed API URL when hosted
+
 const AnimatedCounter = () => {
   const [currentDigits, setCurrentDigits] = useState([]);
   const counterRef = useRef(null);
@@ -12,10 +14,10 @@ const AnimatedCounter = () => {
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
-          observer.disconnect(); // Stop observing once triggered
+          observer.disconnect();
         }
       },
-      { threshold: 0.5 } // Trigger when 50% of the section is visible
+      { threshold: 0.5 }
     );
 
     if (counterRef.current) {
@@ -27,12 +29,13 @@ const AnimatedCounter = () => {
 
   useEffect(() => {
     if (isVisible) {
-      let count = parseInt(localStorage.getItem("visitorCount")) || 0;
-      count += 1; // Increase count on each visit
-      localStorage.setItem("visitorCount", count);
-
-      setVisitorCount(count);
-      setCurrentDigits(count.toString().padStart(4, "0").split("")); // Now ensures 4 digits
+      fetch(`${API_URL}/increment-visitor`, { method: "POST" })
+        .then((response) => response.json())
+        .then((data) => {
+          setVisitorCount(data.count);
+          setCurrentDigits(data.count.toString().padStart(4, "0").split(""));
+        })
+        .catch((error) => console.error("Error fetching visitor count:", error));
     }
   }, [isVisible]);
 
