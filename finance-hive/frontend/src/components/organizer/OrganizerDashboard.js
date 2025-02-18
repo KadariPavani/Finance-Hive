@@ -31,6 +31,9 @@ const OrganizerDashboard = () => {
   const [error, setError] = useState(null);
   const [organizerDetails, setOrganizerDetails] = useState(null);
   const [paymentDetails, setPaymentDetails] = useState([]);
+  const [particular,setparticular]=useState([]);
+  // console.log("Payment Details:", paymentDetails);
+  console.log(particular)
   const [filter, setFilter] = useState({
     sno: "",
     userName: "",
@@ -69,32 +72,38 @@ const OrganizerDashboard = () => {
 
   const fetchOrganizerDetails = async () => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("No authentication token found");
-      }
+        const token = localStorage.getItem("token");
+        if (!token) {
+            throw new Error("No authentication token found");
+        }
 
-      const response = await axios.get("http://localhost:5000/api/organizer/details", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+        const response = await axios.get("http://localhost:5000/api/organizer/details", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
 
-      setOrganizerDetails({
-        ...response.data.data,
-        role: 'organizer'
-      });
+        setOrganizerDetails({
+            ...response.data.data,
+            role: 'organizer'
+        });
+
+        // Store the organizer ID in localStorage
+        localStorage.setItem("orgtoken", response.data.data._id);
+
     } catch (error) {
-      console.error("Error fetching organizer details:", error);
-      setError(error.response?.data?.message || "Error fetching organizer details");
+        console.error("Error fetching organizer details:", error);
+        setError(error.response?.data?.message || "Error fetching organizer details");
     }
-  };
+};
+
 
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("No authentication token found");
+      
       }
 
       const response = await axios.get("http://localhost:5000/api/organizer/users", {
@@ -104,12 +113,62 @@ const OrganizerDashboard = () => {
       });
 
       setUsers(response.data.users);
+      console.log("Users:", response.data.users);
       setError(null);
     } catch (error) {
       console.error("Error fetching users:", error);
       setError(error.response?.data?.message || "Error fetching users");
     }
   };
+
+  const fetchUserPayments = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const organizerId = localStorage.getItem("orgtoken");
+
+      console.log("Organizer ID:", organizerId);
+      console.log("Token:", token);
+
+      if (!token || !organizerId) {
+        throw new Error("Authentication tokens not found");
+      }
+
+      // Fetch all users associated with the organizer
+      const usersResponse = await axios.get("http://localhost:5000/api/organizer/users", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const userIds = usersResponse.data.users.map(user => user._id);
+      console.log("User IDs:", userIds);
+
+      let allPaymentDetails = [];
+
+      // Fetch payments for each user
+      await Promise.all(userIds.map(async (userId) => {
+        try {
+          const paymentResponse = await axios.get(
+            `http://localhost:5000/api/finance-payments/${organizerId}/${userId}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+
+          console.log(`Payments for User ${userId}:`, paymentResponse.data);
+          allPaymentDetails.push(...paymentResponse.data);
+        } catch (error) {
+          console.error(`Error fetching payments for User ${userId}:`, error.response?.data?.message);
+        }
+      }));
+
+      setPaymentDetails(allPaymentDetails);
+      setError(null);
+    } catch (error) {
+      console.error("Error fetching payment details:", error);
+      setError(error.response?.data?.message || "Error fetching payment details");
+    }
+  };
+
+  useEffect(() => {
+    fetchUserPayments();
+  }, []);
 
   const fetchPaymentDetails = async () => {
     try {
@@ -124,7 +183,7 @@ const OrganizerDashboard = () => {
         },
       });
 
-      setPaymentDetails(response.data);
+      // setPaymentDetails(response.data);
       setError(null);
     } catch (error) {
       console.error("Error fetching payment details:", error);
