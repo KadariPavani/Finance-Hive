@@ -97,7 +97,7 @@ exports.changePassword = async (req, res) => {
 // Seed initial admin user
 exports.seedAdminUser = async () => {
   try {
-    const existingAdmin = await User.findOne({ 
+    const existingAdmin = await User.findOne({
       email: 'admin@financehive.com'
     });
 
@@ -157,6 +157,10 @@ const transporter = nodemailer.createTransport({
 
 
 const twilio = require('twilio');
+const fs = require('fs');
+
+const filePath = './image.png'; // Path to your logo
+const base64String = fs.readFileSync(filePath, { encoding: 'base64' });
 
 // Initialize Twilio client
 const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
@@ -183,29 +187,61 @@ exports.addUser = async (req, res) => {
     await newUser.save();
 
     // Send email notification
+    // const mailOptions = {
+    //   from: process.env.EMAIL_USER,
+    //   to: email,
+    //   subject: 'Your Finance Hive Account Credentials',
+    //   html: `
+    //     <h2>Welcome to Finance Hive</h2>
+    //     <p>Your account has been created with the following credentials:</p>
+    //     <p>UserID (Mobile Number): ${mobileNumber}</p>
+    //     <p>Password: ${password}</p>
+    // <img src="data:image/png;base64,${base64String}" alt="Logo" style="width:100%; max-width:600px;">
+    //     <p>Thank you for joining us!</p>
+    //     <p>Please login and change your password.</p>
+    //   `
+    // };
+    // console.log(mailOptions.html); // Print the HTML content to verify the image is included
+
+    // await transporter.sendMail(mailOptions);
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
       subject: 'Your Finance Hive Account Credentials',
       html: `
-        <h2>Welcome to Finance Hive</h2>
-        <p>Your account has been created with the following credentials:</p>
-        <p>UserID (Mobile Number): ${mobileNumber}</p>
-        <p>Password: ${password}</p>
-        <p>Please login and change your password.</p>
-      `
+      <h2>Welcome to Finance Hive! 🚀</h2>
+      <p>Dear Valued Member,</p>
+      <p>We are thrilled to have you join our community at Finance Hive. Your account has been successfully created with the following credentials:</p>
+      <p><strong>UserID (Mobile Number):</strong> ${mobileNumber}</p> <p><strong>Password:</strong> ${password}</p>
+      <img src="cid:logo" alt="Finance Hive Logo" style="width:100%; max-width:600px;">
+      <p>For your security, please log in and change your password at your earliest convenience. We recommend using a strong, unique password that includes a combination of letters, numbers, and special characters.</p>
+      <p>If you encounter any issues or have any questions, our support team is here to assist you. You can reach us via email at support@financehive.com.</p>
+      <p>We look forward to helping you manage your finances more efficiently and achieve your financial goals. Thank you for choosing Finance Hive! 💼💡</p>
+      <p>Best Regards,</p> <p>The Finance Hive Team</p>
+      `,
+      attachments: [
+        {
+          filename: 'FH_logoFinal.png',
+          path: filePath,
+          cid: 'logo', // Same cid as in the html img src
+        },
+      ],
     };
-
-    await transporter.sendMail(mailOptions);
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return console.log(error);
+      }
+      console.log('Email sent: ' + info.response);
+    });
 
     // Send SMS notification
-    // const smsMessage = `Welcome to Finance Hive! Your account has been created. UserID: ${mobileNumber}, Password: ${password}. Please login and change your password.`;
-    
-    // await twilioClient.messages.create({
-    //   body: smsMessage,
-    //   from: process.env.TWILIO_PHONE_NUMBER,
-    //   to: mobileNumber // Ensure mobileNumber includes the country code (e.g., +1234567890)
-    // });
+    const smsMessage = `Welcome to Finance Hive! Your account has been created. UserID: ${mobileNumber}, Password: ${password}. Please login and change your password.`;
+
+    await twilioClient.messages.create({
+      body: smsMessage,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: mobileNumber // Ensure mobileNumber includes the country code (e.g., +1234567890)
+    });
 
     // Create notification for the new user
     await createNotification(
@@ -219,7 +255,7 @@ exports.addUser = async (req, res) => {
       }
     );
 
-    res.status(201).json({ 
+    res.status(201).json({
       message: `${role.charAt(0).toUpperCase() + role.slice(1)} added successfully`,
       user: {
         name: newUser.name,
@@ -229,9 +265,9 @@ exports.addUser = async (req, res) => {
     });
   } catch (error) {
     console.error('\nUser creation error:', error);
-    res.status(500).json({ 
-      message: 'Error adding user', 
-      error: error.message 
+    res.status(500).json({
+      message: 'Error adding user',
+      error: error.message
     });
   }
 };
@@ -239,16 +275,16 @@ exports.addUser = async (req, res) => {
 // Get all users (admin and organizer)
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({ 
-      role: { $in: ['admin', 'organizer'] } 
+    const users = await User.find({
+      role: { $in: ['admin', 'organizer'] }
     }).select('-password');
 
     res.status(200).json(users);
   } catch (error) {
     console.error('Error fetching users:', error);
-    res.status(500).json({ 
-      message: 'Error retrieving users', 
-      error: error.message 
+    res.status(500).json({
+      message: 'Error retrieving users',
+      error: error.message
     });
   }
 };
@@ -256,11 +292,11 @@ exports.getAllUsers = async (req, res) => {
 exports.deleteUser = async (req, res) => {
   try {
     const deletedUser = await User.findByIdAndDelete(req.params.id);
-    
+
     if (!deletedUser) {
-      return res.status(404).json({ 
-        status: 'fail', 
-        message: 'No user found with that ID' 
+      return res.status(404).json({
+        status: 'fail',
+        message: 'No user found with that ID'
       });
     }
 
@@ -283,7 +319,7 @@ exports.deleteUser = async (req, res) => {
 exports.getUserById = async (req, res) => {
   try {
     const user = await UserPayment.findOne({ _id: req.user.id }).populate("organizerId", "name email");
-    
+
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
@@ -448,7 +484,7 @@ exports.addUserAndSendEmail = async (req, res) => {
 
       // Send SMS notification
       // const smsMessage = `Welcome to our platform! You have been added as a ${userRole}. Your login credentials are:\n\nMobile Number: ${mobileNumber}\nPassword: ${password}\n\nMonthly EMI: ₹${monthlyEMI}`;
-      
+
       // await twilioClient.messages.create({
       //   body: smsMessage,
       //   from: process.env.TWILIO_PHONE_NUMBER,
@@ -468,7 +504,7 @@ exports.addUserAndSendEmail = async (req, res) => {
         }
       );
 
-      res.status(201).json({ 
+      res.status(201).json({
         message: "User added successfully, email and SMS sent!",
         user: userPayment
       });
@@ -496,78 +532,41 @@ exports.getUsersByOrganizer = async (req, res) => {
 };
 
 exports.getUserDetails = async (req, res) => {
-    try {
-      const userId = req.user.id; // User ID from authenticated token
-  
-      // Find user details in `UserPayment` collection using the same `_id`
-      const userDetails = await UserPayment.findById(userId);
-      if (!userDetails) {
-        return res.status(404).json({ message: "User details not found." });
-      }
-  
-      res.status(200).json({ data: userDetails });
-    } catch (error) {
-      console.error("Error fetching user details:", error);
-      res.status(500).json({ message: "Error fetching user details." });
+  try {
+    const userId = req.user.id; // User ID from authenticated token
+
+    // Find user details in `UserPayment` collection using the same `_id`
+    const userDetails = await UserPayment.findById(userId);
+    if (!userDetails) {
+      return res.status(404).json({ message: "User details not found." });
     }
-  };
-  
-  exports.getOrganizerDetails = async (req, res) => {
-    try {
-        // Ensure the logged-in user is an organizer
-        if (req.user.role !== "organizer") {
-            return res.status(403).json({ message: "Access denied. Not an organizer" });
-        }
 
-        // Find the organizer details using the authenticated user ID
-        const organizer = await User.findById(req.user.id);
-
-        if (!organizer) {
-            return res.status(404).json({ message: "Organizer not found" });
-        }
-
-        res.status(200).json({ success: true, data: organizer });
-    } catch (error) {
-        res.status(500).json({ message: "Server error", error: error.message });
-    }
+    res.status(200).json({ data: userDetails });
+  } catch (error) {
+    console.error("Error fetching user details:", error);
+    res.status(500).json({ message: "Error fetching user details." });
+  }
 };
-// // Login User
 
-// exports.userLogin = async (req, res) => {
-//   try {
-//     const { mobileNumber, password } = req.body;
+exports.getOrganizerDetails = async (req, res) => {
+  try {
+    // Ensure the logged-in user is an organizer
+    if (req.user.role !== "organizer") {
+      return res.status(403).json({ message: "Access denied. Not an organizer" });
+    }
 
-//     // Find the user by mobile number
-//     const user = await User.findOne({ mobileNumber });
-//     if (!user) {
-//       return res.status(404).json({ message: "User not found." });
-//     }
+    // Find the organizer details using the authenticated user ID
+    const organizer = await User.findById(req.user.id);
 
-//     // Direct password comparison
-//     if (password === user.password) {
-//       // Generate JWT token
-//       const token = jwt.sign(
-//         { id: user._id, role: user.role },
-//         process.env.JWT_SECRET,
-//         { expiresIn: "1d" }
-//       );
+    if (!organizer) {
+      return res.status(404).json({ message: "Organizer not found" });
+    }
 
-//       res.status(200).json({
-//         message: "Login successful.",
-//         token,
-//         user: {
-//           id: user._id,
-//           name: user.name,
-//           email: user.email,
-//           mobileNumber: user.mobileNumber,
-//           role: user.role,
-//         },
-//       });
-//     } else {
-//       return res.status(401).json({ message: "Invalid credentials." });
-//     }
-//   } catch (error) {
-//     console.error("Error during login:", error);
-//     res.status(500).json({ message: "Error during login.", error: error.message });
-//   }
-// };
+    res.status(200).json({ success: true, data: organizer });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+
+
