@@ -25,15 +25,14 @@ import ChangePassword from './components/changePassword/ChangePasswordForm';
 import ChangePasswordForm from './components/changePassword/ChangePasswordForm';
 import AddUserPage from './components/organizer/AddUserPage';
 import Approach from './components/admin/Approach';
+import Profile from './components/profile/Profile'; // Import Profile component
+
 const App = () => (
   <I18nextProvider i18n={i18n}>
     <Router>
       <Routes>
-        {/* Your existing routes */}
         <Route path="/" element={<HomePage />} />
         <Route path="/contact" element={<ContactForm />} />
-        
-        {/* New routes for login and dashboards */}
         <Route path="/login" element={<Login />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/admin" element={<AdminDashboard />} />
@@ -50,11 +49,9 @@ const App = () => (
         <Route path="/payment-schedule" element={<PaymentSchedulePage />} />
         <Route path="/change-password" element={<ChangePasswordForm />} />
         <Route path="/dashboard" element={<UserDashboard />} />
-        <Route path="/add-user" element={<AddUserPage />} /> {/* Add this route */}
+        <Route path="/add-user" element={<AddUserPage />} />
         <Route path="/approach" element={<Approach />} />
-
-        {/* Navigation and sidebar */}
-
+        <Route path="/profile" element={<Profile />} /> {/* Add this route */}
       </Routes>
     </Router>
   </I18nextProvider>
