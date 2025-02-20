@@ -24,6 +24,7 @@ import PaymentSchedulePage from './components/user/PaymentSchedulePage';
 import ChangePassword from './components/changePassword/ChangePasswordForm';
 import ChangePasswordForm from './components/changePassword/ChangePasswordForm';
 import AddUserPage from './components/organizer/AddUserPage';
+import Approach from './components/admin/Approach';
 const App = () => (
   <I18nextProvider i18n={i18n}>
     <Router>
@@ -50,6 +51,7 @@ const App = () => (
         <Route path="/change-password" element={<ChangePasswordForm />} />
         <Route path="/dashboard" element={<UserDashboard />} />
         <Route path="/add-user" element={<AddUserPage />} /> {/* Add this route */}
+        <Route path="/approach" element={<Approach />} />
 
         {/* Navigation and sidebar */}
 

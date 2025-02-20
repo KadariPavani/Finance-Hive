@@ -9,6 +9,7 @@ const ContactForm = () => {
     firstName: "",
     lastName: "",
     email: "",
+    mobileNumber: "", // Add this line
     message: "",
   });
 
@@ -38,6 +39,7 @@ const ContactForm = () => {
           firstName: "",
           lastName: "",
           email: "",
+          mobileNumber: "", // Reset this field
           message: "",
         });
 
@@ -95,6 +97,18 @@ const ContactForm = () => {
               placeholder="Email*"
               required
               value={formData.email}
+              onChange={handleChange}
+              className="form-input"
+            />
+          </div>
+
+          <div className="form-group">
+            <input
+              type="text"
+              name="mobileNumber"
+              placeholder="Mobile Number*"
+              required
+              value={formData.mobileNumber}
               onChange={handleChange}
               className="form-input"
             />

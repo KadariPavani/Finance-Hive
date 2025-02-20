@@ -307,13 +307,20 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard">
-      <nav className="dashboard-nav">
-        <div className="nav-logo">
-          <img src="/path/to/logo.png" alt="Logo" />
-          <span>Admin Dashboard</span>
-        </div>
-        <button className="logout-btn" onClick={handleLogout}>Logout</button>
-      </nav>
+<nav className="dashboard-nav">
+  <div className="nav-logo">
+    <img src="/path/to/logo.png" alt="Logo" />
+    <span>Admin Dashboard</span>
+  </div>
+  <div className="nav-buttons">
+    <button className="approach-btn" onClick={() => navigate('/approach')}>
+      Approach
+    </button>
+    <button className="logout-btn" onClick={handleLogout}>
+      Logout
+    </button>
+  </div>
+</nav>
 
       <div className="dashboard-content">
         <div className="analytics-section">
