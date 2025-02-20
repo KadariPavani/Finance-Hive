@@ -139,10 +139,11 @@ const userSchema = new mongoose.Schema({
   lastLogin: { type: Date, default: null },
 });
 
+
+
+module.exports = mongoose.model("User", userSchema);
 // // No need to hash password before saving
 // userSchema.pre("save", async function (next) {
 //   if (!this.isModified("password")) return next(); // Skip if the password hasn't changed
 //   next();
 // });
-
-module.exports = mongoose.model("User", userSchema);

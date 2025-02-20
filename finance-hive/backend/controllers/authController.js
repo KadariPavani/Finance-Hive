@@ -567,6 +567,15 @@ exports.getOrganizerDetails = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+exports.getUserStats = async (req, res) => {
+  try {
+    const admins = await User.countDocuments({ role: 'admin' });
+    const organizers = await User.countDocuments({ role: 'organizer' });
+    const users = await User.countDocuments({ role: 'user' }); // Count regular users
 
-
-
+    res.status(200).json({ admins, organizers, users });
+  } catch (error) {
+    console.error('Error fetching user stats:', error);
+    res.status(500).json({ message: 'Error fetching user stats' });
+  }
+};

@@ -12,7 +12,8 @@ const {
   getUsersByOrganizer,
   getUserDetails,
   getOrganizerDetails,
-  changePassword
+  changePassword,
+  getUserStats
 } = require('../controllers/authController');
 
 const router = express.Router();
@@ -32,5 +33,5 @@ router.get('/users/:organizerId/payments', paymentController.getAllUsersWithPaym
 // router.get('/payment-schedule/:userId', paymentController.createPaymentSchedule);
 
 router.put('/change-password', protect, changePassword);
-
+router.get('/users/stats',protect, restrictTo('admin'), getUserStats);
 module.exports = router;
