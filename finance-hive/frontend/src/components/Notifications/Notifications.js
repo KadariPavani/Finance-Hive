@@ -198,7 +198,6 @@ import './Notifications.css';
 const Notifications = () => {
   const { t, i18n } = useTranslation();
   const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
 
@@ -210,11 +209,9 @@ const Notifications = () => {
       });
       setNotifications(response.data.notifications);
       setUnreadCount(response.data.notifications.filter(n => !n.read).length);
-      setLoading(false);
     } catch (error) {
       console.error("Error fetching notifications:", error);
       setError(t('notifications.error'));
-      setLoading(false);
     }
   };
 
@@ -270,12 +267,7 @@ const Notifications = () => {
         </div>
       </div>
 
-      {loading ? (
-        <div className="notifications-loading">
-          <div className="loading-spinner"></div>
-          <p>{t('notifications.loading')}</p>
-        </div>
-      ) : error ? (
+      {error ? (
         <div className="notifications-error">
           <p>{error}</p>
         </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import LoadingAnimation from './LoadingAnimation/LoadingAnimation';
+import LoadingAnimation from './animations/LoadingAnimation';
 import './withLoading.css';
 
 const withLoading = (WrappedComponent, successMessage, errorMessage) => {

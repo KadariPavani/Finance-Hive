@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import OrganizerSidebar from '../sidebar/OrganizerSidebar';
 import { Bar, Line, Scatter, Radar, PolarArea } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement, ArcElement, RadialLinearScale } from 'chart.js';
-import CustomButton from '../CustomButton';
+// import CustomButton from '../CustomButton';
 import Modal from "../Modal/Modal";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement, ArcElement, RadialLinearScale);
