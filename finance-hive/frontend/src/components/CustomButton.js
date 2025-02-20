@@ -1,10 +1,12 @@
 import React from 'react';
-import withLoading from './withLoading';
+import withGlobalLoading from './withGlobalLoading';
 
-const CustomButton = withLoading((props) => (
-  <button {...props} className={`custom-btn ${props.className}`}>
-    {props.children}
-  </button>
-));
+const CustomButton = (props) => {
+  return (
+    <button {...props} className={`custom-btn ${props.className}`}>
+      {props.children}
+    </button>
+  );
+};
 
-export default CustomButton;
+export default withGlobalLoading(CustomButton);

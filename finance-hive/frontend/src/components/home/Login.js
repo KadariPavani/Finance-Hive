@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import CustomButton from '../CustomButton';
 import './Login.css';
 import image1 from '../assets/project[1].jpg';
 import logo from '../assets/logo.jpg';
@@ -95,9 +96,9 @@ const Login = () => {
               I agree to the <a href="/privacy-policy">Privacy Policy</a>
             </label>
           </div>
-          <button type="submit" className="login-btn-login" disabled={!agreeTerms}>
+          <CustomButton type="submit" className="login-btn-login" disabled={!agreeTerms}>
             Login
-          </button>
+          </CustomButton>
         </form>
       </div>
     </div>

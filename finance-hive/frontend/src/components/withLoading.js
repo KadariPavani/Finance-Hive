@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import LoadingAnimation from './animations/LoadingAnimation';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './withLoading.css';
 
 const withLoading = (WrappedComponent, successMessage, errorMessage) => {
@@ -17,9 +19,11 @@ const withLoading = (WrappedComponent, successMessage, errorMessage) => {
         }
         setIsSuccess(true);
         setModalMessage(successMessage || "Process completed successfully!");
+        toast.success(successMessage || "Process completed successfully!");
       } catch (error) {
         setIsSuccess(false);
         setModalMessage(error.message || errorMessage || "Process failed. Please try again.");
+        toast.error(error.message || errorMessage || "Process failed. Please try again.");
       } finally {
         setLoading(false);
         setShowModal(true);
