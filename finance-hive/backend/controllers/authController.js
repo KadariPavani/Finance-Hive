@@ -587,9 +587,52 @@ exports.getProfileDetails = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    res.status(200).json(user);
+
+    let financialDetails = {};
+    if (user.role === 'user') {
+      const userPayment = await UserPayment.findById(userId);
+      financialDetails = {
+        amountBorrowed: userPayment.amountBorrowed,
+        amountPaid: userPayment.paymentSchedule.reduce((acc, payment) => acc + (payment.status === 'PAID' ? payment.emiAmount : 0), 0),
+        balance: userPayment.amountBorrowed - userPayment.paymentSchedule.reduce((acc, payment) => acc + (payment.status === 'PAID' ? payment.emiAmount : 0), 0)
+      };
+    } else if (user.role === 'organizer') {
+      const users = await UserPayment.find({ organizerId: userId });
+      const amountGiven = users.reduce((acc, user) => acc + user.amountBorrowed, 0);
+      const amountCollected = users.reduce((acc, user) => acc + user.paymentSchedule.reduce((acc, payment) => acc + (payment.status === 'PAID' ? payment.emiAmount : 0), 0), 0);
+      financialDetails = {
+        amountGiven,
+        amountCollected,
+        profit: amountCollected - amountGiven,
+        balance: amountGiven - amountCollected
+      };
+    }
+
+    res.status(200).json({ ...user.toObject(), ...financialDetails });
   } catch (error) {
     console.error('Error fetching profile details:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.updateProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { gender, alternativeMobileNumber, dateOfBirth, bio } = req.body;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { gender, alternativeMobileNumber, dateOfBirth, bio },
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error('Error updating profile:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
