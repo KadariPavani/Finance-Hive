@@ -15,7 +15,9 @@ const {
   changePassword,
   getUserStats,
   getProfileDetails,
+  getSignupStats,
   updateProfile // Add this line
+
 } = require('../controllers/authController');
 
 const router = express.Router();
@@ -36,5 +38,6 @@ router.put('/change-password', protect, changePassword);
 router.get('/users/stats', protect, restrictTo('admin'), getUserStats);
 router.get('/profile', protect, getProfileDetails);
 router.put('/profile', protect, updateProfile); // Add this line
+router.get('/signup-stats', getSignupStats);
 
 module.exports = router;

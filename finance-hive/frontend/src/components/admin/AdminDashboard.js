@@ -199,6 +199,10 @@
 // };
 
 // export default AdminDashboard;
+
+
+
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -213,8 +217,11 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend,
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
-  const [stats, setStats] = useState({ admins: 0, organizers: 0, users: 0 });  const [error, setError] = useState('');
+  const [stats, setStats] = useState({ admins: 0, organizers: 0, users: 0 });
+  const [error, setError] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [visibleUsers, setVisibleUsers] = useState(5);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -277,6 +284,8 @@ const AdminDashboard = () => {
   const filteredUsers = users.filter(user => {
     if (activeFilter === 'all') return true;
     return user.role.toLowerCase() === activeFilter;
+  }).filter(user => {
+    return user.name.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   const barChartData = {
@@ -307,20 +316,20 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard">
-<nav className="dashboard-nav">
-  <div className="nav-logo">
-    <img src="/path/to/logo.png" alt="Logo" />
-    <span>Admin Dashboard</span>
-  </div>
-  <div className="nav-buttons">
-    <button className="approach-btn" onClick={() => navigate('/approach')}>
-      Approach
-    </button>
-    <button className="logout-btn" onClick={handleLogout}>
-      Logout
-    </button>
-  </div>
-</nav>
+      <nav className="dashboard-nav">
+        <div className="nav-logo">
+          <img src="/path/to/logo.png" alt="Logo" />
+          <span>Admin Dashboard</span>
+        </div>
+        <div className="nav-buttons">
+          <button className="approach-btn" onClick={() => navigate('/approach')}>
+            Approach
+          </button>
+          <button className="logout-btn" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
+      </nav>
 
       <div className="dashboard-content">
         <div className="analytics-section">
@@ -377,10 +386,19 @@ const AdminDashboard = () => {
           </div>
         </div>
 
+        <div className="search-bar">
+          <input
+            type="text"
+            placeholder="Search users..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
         {error && <div className="error-message">{error}</div>}
         
         <div className="users-grid">
-          {filteredUsers.map((user) => (
+          {filteredUsers.slice(0, visibleUsers).map((user) => (
             <div key={user._id} className="user-card">
               <h3>{user.name}</h3>
               <p>Role: {user.role}</p>
@@ -395,6 +413,12 @@ const AdminDashboard = () => {
             </div>
           ))}
         </div>
+
+        {visibleUsers < filteredUsers.length && (
+          <button className="show-more-btn" onClick={() => setVisibleUsers(visibleUsers + 5)}>
+            Show More
+          </button>
+        )}
       </div>
     </div>
   );
