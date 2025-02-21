@@ -7,7 +7,7 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 import CustomButton from '../CustomButton';
 import Modal from '../Modal/Modal';
 import './AdminDasboard.css';
-
+import LandingPage from '../home/LandingPage/LandingPage';
 // Register ChartJS components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
@@ -138,6 +138,8 @@ const AdminDashboard = () => {
       </nav>
 
       <div className="dashboard-content">
+        <LandingPage/>
+        
         <div className="analytics-section">
           <div className="stats-cards">
             <div className="stat-card">
