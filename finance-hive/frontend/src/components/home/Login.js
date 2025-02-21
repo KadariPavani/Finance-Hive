@@ -96,7 +96,7 @@ const Login = () => {
               I agree to the <a href="/privacy-policy">Privacy Policy</a>
             </label>
           </div>
-          <CustomButton type="submit" className="login-btn-login" disabled={!agreeTerms}>
+          <CustomButton type="submit" className="login-btn-login" disabled={!agreeTerms} withGlobalLoading>
             Login
           </CustomButton>
         </form>

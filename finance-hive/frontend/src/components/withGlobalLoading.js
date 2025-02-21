@@ -9,7 +9,7 @@ const withGlobalLoading = (WrappedComponent) => {
       setLoading(true);
       setTimeout(() => {
         setLoading(false);
-      }, 1000); // 1 minute loading animation
+      }, 2000); // Increase loading animation duration to 2 seconds
 
       if (props.onClick) {
         await props.onClick(event);
@@ -18,7 +18,7 @@ const withGlobalLoading = (WrappedComponent) => {
 
     return (
       <>
-        {loading && <GlobalLoadingAnimation />}
+        {loading && <GlobalLoadingAnimation onComplete={() => setLoading(false)} />}
         <WrappedComponent {...props} onClick={handleClick} />
       </>
     );

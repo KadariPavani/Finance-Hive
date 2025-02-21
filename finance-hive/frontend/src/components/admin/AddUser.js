@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import CustomButton from '../CustomButton';
 import './AddUser.css';
 
 const AddUser = ({ role, onUserAdded }) => {
@@ -11,7 +12,6 @@ const AddUser = ({ role, onUserAdded }) => {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate(); // Initialize the navigate function
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -84,7 +84,7 @@ const AddUser = ({ role, onUserAdded }) => {
           onChange={(e) => setPassword(e.target.value)}
           required 
         />
-        <button type="submit">Add {role.charAt(0).toUpperCase() + role.slice(1)}</button>
+        <CustomButton type="submit">Add {role.charAt(0).toUpperCase() + role.slice(1)}</CustomButton>
       </form>
     </div>
   );
