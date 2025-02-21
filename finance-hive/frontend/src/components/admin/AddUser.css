@@ -1,4 +1,4 @@
-.add-user-container {
+.add-useroa-container {
   max-width: 400px;
   margin: 0 auto;
   padding: 20px;
@@ -8,18 +8,18 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.add-user-container h2 {
+.add-useroa-container h2 {
   text-align: center;
   color: #333;
   margin-bottom: 20px;
 }
 
-.add-user-container p {
+.add-useroa-container p {
   text-align: center;
   font-weight: bold;
 }
 
-.add-user-container input {
+.add-useroa-input {
   width: 100%;
   padding: 10px;
   margin-bottom: 15px;
@@ -28,12 +28,12 @@
   font-size: 16px;
 }
 
-.add-user-container input:focus {
+.add-useroa-input:focus {
   border-color: #007BFF;
   outline: none;
 }
 
-.add-user-container button {
+.add-useroa-button {
   width: 100%;
   padding: 10px;
   background-color: #007BFF;
@@ -42,23 +42,24 @@
   border-radius: 4px;
   font-size: 16px;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
 
-.add-user-container button:hover {
+.add-useroa-button:hover {
   background-color: #0056b3;
 }
 
 @media (max-width: 480px) {
-  .add-user-container {
+  .add-useroa-container {
     padding: 15px;
   }
 
-  .add-user-container h2 {
+  .add-useroa-container h2 {
     font-size: 20px;
   }
 
-  .add-user-container input,
-  .add-user-container button {
+  .add-useroa-input,
+  .add-useroa-button {
     font-size: 14px;
   }
 }

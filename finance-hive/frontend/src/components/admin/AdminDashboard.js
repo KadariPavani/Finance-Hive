@@ -5,6 +5,7 @@ import { FiTrash2 } from 'react-icons/fi';
 import { Bar, Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 import CustomButton from '../CustomButton';
+import Modal from '../Modal/Modal';
 import './AdminDasboard.css';
 
 // Register ChartJS components
@@ -13,10 +14,12 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend,
 const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState({ admins: 0, organizers: 0, users: 0 });
-  const [error, setError] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [visibleUsers, setVisibleUsers] = useState(5);
+  const [modalMessage, setModalMessage] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [isError, setIsError] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,7 +37,9 @@ const AdminDashboard = () => {
       });
       setUsers(response.data);
     } catch (err) {
-      setError('Failed to fetch users');
+      setIsError(true);
+      setModalMessage('Failed to fetch users');
+      setShowModal(true);
       console.error(err);
     }
   };
@@ -49,7 +54,9 @@ const AdminDashboard = () => {
       });
       setStats(response.data);
     } catch (err) {
-      setError('Failed to fetch stats');
+      setIsError(true);
+      setModalMessage('Failed to fetch stats');
+      setShowModal(true);
       console.error(err);
     }
   };
@@ -64,9 +71,13 @@ const AdminDashboard = () => {
       });
 
       setUsers(users.filter(user => user._id !== id));
-      setError('User deleted successfully');
+      setIsError(false);
+      setModalMessage('User deleted successfully');
+      setShowModal(true);
     } catch (err) {
-      setError('Failed to delete user');
+      setIsError(true);
+      setModalMessage('Failed to delete user');
+      setShowModal(true);
       console.error(err);
     }
   };
@@ -155,24 +166,24 @@ const AdminDashboard = () => {
 
         <div className="dashboard-controls">
           <div className="filter-buttons">
-            <CustomButton 
+            <button 
               className={`filter-btn ${activeFilter === 'all' ? 'active' : ''}`}
               onClick={() => setActiveFilter('all')}
             >
               All Users
-            </CustomButton>
-            <CustomButton 
+            </button>
+            <button 
               className={`filter-btn ${activeFilter === 'admin' ? 'active' : ''}`}
               onClick={() => setActiveFilter('admin')}
             >
               Admins
-            </CustomButton>
-            <CustomButton 
+            </button>
+            <button 
               className={`filter-btn ${activeFilter === 'organizer' ? 'active' : ''}`}
               onClick={() => setActiveFilter('organizer')}
             >
               Organizers
-            </CustomButton>
+            </button>
           </div>
 
           <div className="action-buttons">
@@ -190,8 +201,6 @@ const AdminDashboard = () => {
           />
         </div>
 
-        {error && <div className="error-message">{error}</div>}
-        
         <div className="users-grid">
           {filteredUsers.slice(0, visibleUsers).map((user) => (
             <div key={user._id} className="user-card">
@@ -210,11 +219,21 @@ const AdminDashboard = () => {
         </div>
 
         {visibleUsers < filteredUsers.length && (
-          <CustomButton className="show-more-btn" onClick={() => setVisibleUsers(visibleUsers + 5)}>
+          // <CustomButton className="show-more-btn" onClick={() => setVisibleUsers(visibleUsers + 5)}>
+          //   Show More
+          // </CustomButton>
+          <button className="show-more-btn" onClick={() => setVisibleUsers(visibleUsers + 5)}>
             Show More
-          </CustomButton>
+          </button>
         )}
       </div>
+
+      <Modal 
+        show={showModal} 
+        message={modalMessage} 
+        onClose={() => setShowModal(false)} 
+        isError={isError} 
+      />
     </div>
   );
 };

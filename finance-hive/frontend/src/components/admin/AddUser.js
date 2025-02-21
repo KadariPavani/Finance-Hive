@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import CustomButton from '../CustomButton';
+import Modal from '../Modal/Modal';
 import './AddUser.css';
 
 const AddUser = ({ role, onUserAdded }) => {
@@ -9,14 +10,14 @@ const AddUser = ({ role, onUserAdded }) => {
   const [email, setEmail] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
   const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
-  const navigate = useNavigate(); // Initialize the navigate function
+  const [modalMessage, setModalMessage] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Get token from localStorage
       const token = localStorage.getItem('token');
 
       const response = await axios.post(
@@ -29,38 +30,43 @@ const AddUser = ({ role, onUserAdded }) => {
         }
       );
 
-      setMessage(response.data.message);
-      setError('');
-      
-      // Reset form
+      setModalMessage(response.data.message);
+      setIsError(false);
+      setShowModal(true);
+
       setName('');
       setEmail('');
       setMobileNumber('');
       setPassword('');
 
-      // Callback to refresh user list
       if (onUserAdded) {
         onUserAdded();
       }
-      navigate('/admin');
 
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to add user');
-      setMessage('');
+      setModalMessage(err.response?.data?.message || 'Failed to add user');
+      setIsError(true);
+      setShowModal(true);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    if (!isError) {
+      navigate('/admin');
     }
   };
 
   return (
-    <div className="add-user-container">
+    <div className="add-useroa-container">
       <h2>Add {role.charAt(0).toUpperCase() + role.slice(1)}</h2>
-      {message && <p style={{color: 'green'}}>{message}</p>}
-      {error && <p style={{color: 'red'}}>{error}</p>}
       <form onSubmit={handleSubmit}>
         <input 
           type="text" 
           placeholder="Name" 
           value={name}
           onChange={(e) => setName(e.target.value)}
+          className="add-useroa-input"
           required 
         />
         <input 
@@ -68,6 +74,7 @@ const AddUser = ({ role, onUserAdded }) => {
           placeholder="Email" 
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          className="add-useroa-input"
           required 
         />
         <input 
@@ -75,6 +82,7 @@ const AddUser = ({ role, onUserAdded }) => {
           placeholder="Mobile Number" 
           value={mobileNumber}
           onChange={(e) => setMobileNumber(e.target.value)}
+          className="add-useroa-input"
           required 
         />
         <input 
@@ -82,10 +90,20 @@ const AddUser = ({ role, onUserAdded }) => {
           placeholder="Password" 
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          className="add-useroa-input"
           required 
         />
-        <CustomButton type="submit">Add {role.charAt(0).toUpperCase() + role.slice(1)}</CustomButton>
+        <CustomButton type="submit" className="add-useroa-button">
+          Add {role.charAt(0).toUpperCase() + role.slice(1)}
+        </CustomButton>
       </form>
+  
+      <Modal 
+        show={showModal} 
+        message={modalMessage} 
+        onClose={handleCloseModal} 
+        isError={isError} 
+      />
     </div>
   );
 };
