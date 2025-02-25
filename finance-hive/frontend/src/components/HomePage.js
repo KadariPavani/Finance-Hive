@@ -13,7 +13,8 @@ import Footer from './home/Footer/Footer';
 import AnimatedCounter from './home/AnimatedCounter';
 import ContactForm from './home/GetInTouch';
 import WorkflowSteps from './home/WorkflowSteps';
-import RoleSelector from './home/RoleSelector';
+import FinanceInfo from "./home/FinanceInfo";
+// import RoleSelector from './home/RoleSelector';
 const HomePage = () => {
   return (
     <>
@@ -23,8 +24,10 @@ const HomePage = () => {
       <FinancialWizardsSlider />
       <TitleSection3 />
       <InvestmentTimeline />
+      <FinanceInfo/>
+
       <WorkflowSteps />
-      <RoleSelector />
+      {/* <RoleSelector /> */}
       <TitleSection4 />
       <TeamGrid />
       <ContactForm /> 

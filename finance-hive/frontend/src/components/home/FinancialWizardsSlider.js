@@ -86,34 +86,33 @@
 // FinancialWizardsSlider.js
 import React, { useState, useEffect, useRef } from 'react';
 import './FinancialWizardsSlider.css';
-import { FaPiggyBank, FaChartLine, FaWallet, FaSearchDollar } from 'react-icons/fa'; // Import icons
+import { FaHandshake, FaUserLock, FaPercentage, FaClipboardList } from 'react-icons/fa';
 
 const FinancialWizardsSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [visibleItems, setVisibleItems] = useState(3);
   const containerRef = useRef(null);
-  const cardRefs = useRef([]);
 
   const testimonials = [
     {
-      icon: <FaPiggyBank />,
-      name: "Savings Booster",
-      text: "Set goals and grow your savings. 🐷"
+      icon: <FaHandshake />,
+      name: "Loan Agreement",
+      text: "Seamlessly manage loan agreements with transparency. 🤝"
     },
     {
-      icon: <FaWallet />,
-      name: "Track Transactions",
-      text: "Monitor expenses easily. 💳"
+      icon: <FaUserLock />,
+      name: "Secure Access",
+      text: "Ensure safe and secure login for users. 🔐"
     },
     {
-      icon: <FaChartLine />,
-      name: "Finance Dashboard",
-      text: "All your finances in one view. 📊"
+      icon: <FaPercentage />,
+      name: "EMI Breakdown",
+      text: "Get accurate EMI calculations with interest details. 📉"
     },
     {
-      icon: <FaSearchDollar />,
-      name: "Spending Analyzer",
-      text: "Analyze and save smarter. 💡"
+      icon: <FaClipboardList />,
+      name: "Payment History",
+      text: "Keep track of payments and dues with ease. 📑"
     },
   ];
 
@@ -132,20 +131,9 @@ const FinancialWizardsSlider = () => {
     updateVisibleItems();
     window.addEventListener('resize', updateVisibleItems);
 
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('animate');
-        cardRefs.current.forEach((card) => {
-          if (card) card.classList.add('animate');
-        });
-      }
-    }, { threshold: 0.5 });
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-
-    return () => window.removeEventListener('resize', updateVisibleItems);
+    return () => {
+      window.removeEventListener('resize', updateVisibleItems);
+    };
   }, []);
 
   const nextSlide = () => {
@@ -153,15 +141,16 @@ const FinancialWizardsSlider = () => {
   };
 
   const prevSlide = () => {
-    setCurrentIndex((prevIndex) =>
-      (prevIndex - 1 + testimonials.length) % testimonials.length
-    );
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + testimonials.length) % testimonials.length);
   };
 
   const getVisibleItems = () => {
-    return testimonials.slice(currentIndex, currentIndex + visibleItems).concat(
-      testimonials.slice(0, Math.max(0, (currentIndex + visibleItems) - testimonials.length))
-    );
+    let items = [];
+    for (let i = 0; i < visibleItems; i++) {
+      const index = (currentIndex + i) % testimonials.length;
+      items.push(testimonials[index]);
+    }
+    return items;
   };
 
   return (
@@ -183,17 +172,9 @@ const FinancialWizardsSlider = () => {
       </div>
       <div className="financial-wizards-wrapper">
         {getVisibleItems().map((testimonial, index) => (
-          <div
-            key={index}
-            className="financial-wizard-card"
-            ref={(el) => {
-              if (el) {
-                cardRefs.current[index] = el;
-              }
-            }}
-          >
+          <div key={index} className="financial-wizard-card">
             <div className="wizard-icon">{testimonial.icon}</div>
-            <p className="wizard-author">{testimonial.name}</p>
+            <h3 className="wizard-author">{testimonial.name}</h3>
             <p className="wizard-text">{testimonial.text}</p>
           </div>
         ))}

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../home/Navbar.css';
@@ -41,14 +40,28 @@ const Navbar = () => {
               <h3>FINANCE HIVE</h3>
             </Link>
             <div className="nav__toggle" onClick={toggleMenu}>
-              <i className={`ri-menu-line nav__toggle-menu ${menuVisible ? 'show-icon' : ''}`}></i>
-              <i className={`ri-close-line nav__toggle-close ${menuVisible ? '' : 'show-icon'}`}></i>
+              <i
+                className={`ri-menu-line nav__toggle-menu ${
+                  menuVisible ? 'show-icon' : ''
+                }`}
+              ></i>
+              <i
+                className={`ri-close-line nav__toggle-close ${
+                  menuVisible ? '' : 'show-icon'
+                }`}
+              ></i>
             </div>
 
-            <div className={`nav__menu ${menuVisible || !isMobile ? 'show-menu' : ''}`}>
+            <div
+              className={`nav__menu ${
+                menuVisible || !isMobile ? 'show-menu' : ''
+              }`}
+            >
               <ul className="nav__list">
                 <li>
-                  <Link to="/" className="nav__link">Home</Link>
+                  <Link to="/" className="nav__link">
+                    Home
+                  </Link>
                 </li>
 
                 <DropdownItem
@@ -66,12 +79,18 @@ const Navbar = () => {
                   </DropdownGroup>
 
                   <DropdownGroup title="FINANCIAL WIZARDS" icon="ri-bank-line">
-                    <DropdownLink to="#" label="Loans Directly from Organization" />
+                    <DropdownLink
+                      to="#"
+                      label="Loans Directly from Organization"
+                    />
                     <DropdownLink to="#" label="Payment scheduled by own" />
                     <DropdownLink to="#" label="User Friendly" />
                   </DropdownGroup>
 
-                  <DropdownGroup title="GETTING STARTED WITH FMS" icon="ri-book-mark-line">
+                  <DropdownGroup
+                    title="GETTING STARTED WITH FMS"
+                    icon="ri-book-mark-line"
+                  >
                     <DropdownLink to="/register" label="Register" />
                     <DropdownLink to="/login" label="Login" />
                     <DropdownLink to="#" label="Track Finances" />
@@ -85,12 +104,14 @@ const Navbar = () => {
                 </DropdownItem>
 
                 <li>
-                  <Link to="/contact" className="nav__link">Contact</Link>
+                  <Link to="/contact" className="nav__link">
+                    Contact
+                  </Link>
                 </li>
                 <li>
-                <Link to="/login" className="nav__link">
-            Login
-          </Link>
+                  <Link to="/login" className="nav__link">
+                    Login
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -100,16 +121,29 @@ const Navbar = () => {
     </>
   );
 };
+
 // DropdownItem component
-const DropdownItem = ({ title, index, activeDropdown, toggleDropdown, isMobile, children }) => (
+const DropdownItem = ({
+  title,
+  index,
+  activeDropdown,
+  toggleDropdown,
+  isMobile,
+  children,
+}) => (
   <li
-    className={`dropdown__item ${activeDropdown === index ? 'show-dropdown' : ''}`}
+    className={`dropdown__item ${
+      activeDropdown === index ? 'show-dropdown' : ''
+    }`}
     onClick={() => toggleDropdown(index)}
   >
     <div className="nav__link dropdown__button">
       {title} <i className="ri-arrow-down-s-line dropdown__arrow"></i>
     </div>
-    <div className="dropdown__container" style={{ height: activeDropdown === index && isMobile ? 'auto' : '' }}>
+    <div
+      className="dropdown__container"
+      style={{ height: activeDropdown === index && isMobile ? 'auto' : '' }}
+    >
       <div className="dropdown__content">{children}</div>
     </div>
   </li>
@@ -129,10 +163,10 @@ const DropdownGroup = ({ title, icon, children }) => (
 // DropdownLink component
 const DropdownLink = ({ to, label }) => (
   <li>
-    <Link to={to} className="dropdown__link">{label}</Link>
+    <Link to={to} className="dropdown__link">
+      {label}
+    </Link>
   </li>
 );
-
-// DropdownItem, DropdownGroup, DropdownLink remain the same...
 
 export default Navbar;

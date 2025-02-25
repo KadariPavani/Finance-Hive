@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Navigation from '../Navigation/Navigation';
@@ -14,6 +14,14 @@ const ExpenseForm = () => {
     notes: ''
   });
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    });
+  }, []);
+  
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -21,35 +29,33 @@ const ExpenseForm = () => {
     });
   };
 
-// ExpenseForm.js
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const token = localStorage.getItem("token");
-    const response = await axios.post(
-      'http://localhost:5000/api/tracking/expense',
-      formData,
-      {
-        headers: { Authorization: `Bearer ${token}` }
-      }
-    );
-    // Handle success
-    navigate('/tracking');
-  } catch (error) {
-    console.error("Error saving expense:", error);
-  }
-};
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    window.scrollTo(0, 0); // Scroll to the top when submitting
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post(
+        'http://localhost:5000/api/tracking/expense',
+        formData,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      navigate('/tracking');
+    } catch (error) {
+      console.error("Error saving expense:", error);
+    }
+  };
+
   return (
-    <div className="dashboard-layout">
+    <div className="expense-dashboard-layout">
       <Navigation />
       <Sidebar />
-      <main className="dashboard-main">
-        <div className="form-container">
-          <div className="form-card">
-            <h2>Add Expense</h2>
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label htmlFor="amount">Amount</label>
+      <main className="expense-dashboard-main">
+        <div className="expense-form-container">
+          <div className="expense-form-card">
+            <h2 className="expense-form-title">Add Expense</h2>
+            <form onSubmit={handleSubmit} className="expense-form">
+              <div className="expense-form-group">
+                <label htmlFor="amount" className="expense-form-label">Amount</label>
                 <input
                   type="number"
                   id="amount"
@@ -57,17 +63,19 @@ const handleSubmit = async (e) => {
                   value={formData.amount}
                   onChange={handleChange}
                   required
+                  className="expense-form-input"
                 />
               </div>
 
-              <div className="form-group">
-                <label htmlFor="category">Category</label>
+              <div className="expense-form-group">
+                <label htmlFor="category" className="expense-form-label">Category</label>
                 <select
                   id="category"
                   name="category"
                   value={formData.category}
                   onChange={handleChange}
                   required
+                  className="expense-form-select"
                 >
                   <option value="">Select category</option>
                   <option value="food">Food & Dining</option>
@@ -81,8 +89,8 @@ const handleSubmit = async (e) => {
                 </select>
               </div>
 
-              <div className="form-group">
-                <label htmlFor="date">Date</label>
+              <div className="expense-form-group">
+                <label htmlFor="date" className="expense-form-label">Date</label>
                 <input
                   type="date"
                   id="date"
@@ -90,26 +98,28 @@ const handleSubmit = async (e) => {
                   value={formData.date}
                   onChange={handleChange}
                   required
+                  className="expense-form-input"
                 />
               </div>
 
-              <div className="form-group">
-                <label htmlFor="notes">Notes</label>
+              <div className="expense-form-group">
+                <label htmlFor="notes" className="expense-form-label">Notes</label>
                 <textarea
                   id="notes"
                   name="notes"
                   value={formData.notes}
                   onChange={handleChange}
+                  className="expense-form-textarea"
                 />
               </div>
 
-              <div className="form-buttons">
-                <button type="submit" className="submit-button">
+              <div className="expense-form-buttons">
+                <button type="submit" className="expense-submit-button">
                   Save Expense
                 </button>
                 <button
                   type="button"
-                  className="cancel-button"
+                  className="expense-cancel-button"
                   onClick={() => navigate('/tracking')}
                 >
                   Cancel

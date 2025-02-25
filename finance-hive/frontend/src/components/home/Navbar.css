@@ -1,5 +1,5 @@
 /*=============== GOOGLE FONTS ===============*/
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 /*=============== VARIABLES CSS ===============*/
 :root {
   --header-height: 3.5rem;
@@ -12,10 +12,10 @@
   --body-color: hsla(220, 20%, 10%);
   /*========== Font and typography ==========*/
   /*.5rem = 8px | 1rem = 16px ...*/
-  --body-font: "Poppins", sans-serif;
-  --normal-font-size: .938rem;
-  --small-font-size: .813rem;
-  --smaller-font-size: .75rem;
+  --body-font: 'Poppins', sans-serif;
+  --normal-font-size: 0.938rem;
+  --small-font-size: 0.813rem;
+  --smaller-font-size: 0.75rem;
   /*========== Font weight ==========*/
   --font-medium: 500;
   --font-semi-bold: 600;
@@ -26,8 +26,8 @@
 @media screen and (min-width: 1024px) {
   :root {
     --normal-font-size: 1rem;
-    --small-font-size: .875rem;
-    --smaller-font-size: .813rem;
+    --small-font-size: 0.875rem;
+    --smaller-font-size: 0.813rem;
   }
 }
 
@@ -48,7 +48,7 @@ html {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-attachment:fixed;
+  background-attachment: fixed;
   color: black;
   /*color: var(--text-color);*/
 }
@@ -75,6 +75,7 @@ a {
   box-shadow: 0 2px 8px rgba(10, 24, 51, 0.3);
   background-color: var(--body-color);
   z-index: var(--z-fixed);
+  white-space: nowrap; 
 }
 
 /*=============== NAV ===============*/
@@ -112,7 +113,8 @@ a {
   width: 32px;
   height: 32px;
 }
-.nav__toggle-menu, .nav__toggle-close {
+.nav__toggle-menu,
+.nav__toggle-close {
   font-size: 1.25rem;
   color: var(--title-color);
   position: absolute;
@@ -137,7 +139,7 @@ a {
     padding-block: 1.5rem 4rem;
     pointer-events: none;
     opacity: 0;
-    transition: top 0.4s, opacity 0.3s;
+    transition: top 0.4s, opacity 0.3s;;
   }
   .nav__menu::-webkit-scrollbar {
     width: 0.5rem;
@@ -162,8 +164,9 @@ a {
 /* Show menu */
 .show-menu {
   opacity: 1;
-  top: 4.0rem;
+  top: 4rem;
   pointer-events: initial;
+  margin-left: 150%;
 }
 
 /* Show icon */
@@ -186,7 +189,9 @@ a {
   font-weight: initial;
   transition: transform 0.4s;
 }
-.dropdown__content, .dropdown__group, .dropdown__list {
+.dropdown__content,
+.dropdown__group,
+.dropdown__list {
   display: grid;
 }
 .dropdown__container {
@@ -214,7 +219,7 @@ a {
 }
 .dropdown__title {
   text-align: center;
-  
+
   font-size: var(--small-font-size);
   font-weight: var(--font-semi-bold);
   color: var(--title-color);
@@ -259,6 +264,7 @@ a {
     display: flex;
     column-gap: 3rem;
     height: 100%;
+    margin-left: auto; /* This pushes the menu items to the right */
   }
   .nav li {
     display: flex;
@@ -298,7 +304,8 @@ a {
     align-content: baseline;
     row-gap: 1.25rem;
   }
-  .dropdown__group:first-child, .dropdown__group:last-child {
+  .dropdown__group:first-child,
+  .dropdown__group:last-child {
     margin: 0;
   }
   .dropdown__list {
@@ -354,14 +361,13 @@ a {
   }
 }
 
-
-@media (max-width:768px){
+@media (max-width: 768px) {
   .nav__data {
     margin: 0 10px;
   }
 }
 
-@media (max-width:480px){
+@media (max-width: 480px) {
   .nav__data {
     margin: 0 5px;
   }

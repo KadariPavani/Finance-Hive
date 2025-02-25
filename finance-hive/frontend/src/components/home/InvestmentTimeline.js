@@ -112,26 +112,26 @@ const InvestmentTimeline = () => {
   const steps = [
     {
       number: 1,
-      title: "Register",
-      description: "To begin your financial journey.",
+      title: "Organizer Approaches",
+      description: "The organizer enters the details of users and loan amounts into our system.",
       className: "investment-circle-1"
     },
     {
       number: 2,
-      title: "Login",
-      description: "Access your financial dashboard.",
+      title: "Credentials Sent to Users",
+      description: "Once registered, users receive login credentials via email.",
       className: "investment-circle-2"
     },
     {
       number: 3,
-      title: "Apply for Loan",
-      description: "Apply Now for Your Dream Loan",
+      title: " User Dashboard Access",
+      description: "Users log in to track their loan details, payments, and dues.",
       className: "investment-circle-3"
     },
     {
       number: 4,
-      title: "Schedule Payments ",
-      description: "Stay on Track: Schedule Your Loan Payments",
+      title: "Payment & Updates",
+      description: "As users make payments, organizers update the records, ensuring transparency.",
       className: "investment-circle-4"
     }
   ];

@@ -164,9 +164,6 @@
   margin: 0 auto;
   padding: 60px 20px;
   position: relative;
-  /* background: linear-gradient(135deg, #f7fafc, #edf2f7);
-  border-radius: 16px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); */
   transition: background-color 0.3s ease;
   z-index: 1;
 }
@@ -211,7 +208,7 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  color: #718096;
+  color: #131414;
   font-size: 1.5rem;
   transform-origin: center;
   z-index: 3;
@@ -234,13 +231,12 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 32px;
-  /* overflow: hidden; */
   position: relative;
   animation: fadeInGlow 1s ease-out;
   z-index: 2;
 }
 
-/* Each financial wizard card styling */
+/* Ensure cards are visible and slide correctly */
 .financial-wizard-card {
   background: #fff;
   border-radius: 16px;
@@ -249,11 +245,10 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
   display: flex;
   flex-direction: column;
-  transform: translateX(100%); /* Start off-screen */
-  opacity: 0;
+  opacity: 1; /* Ensure visibility */
+  transform: translateX(0); /* Ensure visible position */
   position: relative;
   z-index: 2;
-  animation: slideIn 1s ease-out forwards; /* Apply sliding effect */
 }
 
 /* Hover effect: pop-out effect */
@@ -299,13 +294,13 @@
   .financial-wizards-wrapper {
     grid-template-columns: 1fr;
   }
-  
+
   .financial-wizards-header {
     flex-direction: column;
     gap: 20px;
     text-align: center;
   }
-  
+
   .financial-wizards-header h2 {
     font-size: 2.5rem;
   }
@@ -320,17 +315,6 @@
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateX(100%); /* Off-screen to the right */
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
   }
 }
 

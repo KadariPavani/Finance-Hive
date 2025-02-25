@@ -83,7 +83,6 @@
 
 // export default Carousel;
 
-
 import React, { useState, useEffect } from 'react';
 import '../home/Carousel.css';
 
@@ -141,22 +140,22 @@ const Carousel = () => {
     <div className="carousel-container">
       {/* Static Background Image */}
       <div
-        className="carousel-background"
+        className="carousel-background-image"
         style={{ backgroundImage: `url('/Images/MainBgNOTxt.jpg')` }}
       ></div>
 
       {/* Text Box with Sliding Text */}
-      <div className="carousel-text-box">
-        <h1>{slides[currentSlide].title}</h1>
-        <p>{typingText}</p>
+      <div className="carousel-text-box-container">
+        <h1 className="carousel-title">{slides[currentSlide].title}</h1>
+        <p className="carousel-description">{typingText}</p>
       </div>
 
       {/* Indicators */}
-      <div className="carousel-indicators">
+      <div className="carousel-indicators-container">
         {slides.map((_, index) => (
           <button
             key={index}
-            className={`carousel-indicator ${index === currentSlide ? 'active' : ''}`}
+            className={`carousel-indicator-button ${index === currentSlide ? 'active-indicator' : ''}`}
             onClick={() => setSlide(index)}
           ></button>
         ))}

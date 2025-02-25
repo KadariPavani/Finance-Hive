@@ -1,21 +1,40 @@
-.form-container {
-  padding: 2rem;
-  max-width: 600px;
-  margin: 0 auto;
+.savings-dashboard-main{
+  /* width: 100%; */
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+    url("https://img.freepik.com/premium-photo/close-up-man-doing-finance-home-office-using-calculator-calculate-expenses-notebook-ai-generated_70626-15467.jpg?w=740");
+  background-size: cover;
+  background-repeat: no-repeat;
+  margin-top: 60px;
+  margin-left: 60px;
 }
 
-.form-card {
+.savings-dashboard-layout {
+  height: 100vh; /* Full viewport height */
+  /* overflow: hidden;  */
+  /* display: flex; */
+  flex-direction: column;
+}
+
+.savings-form-container {
+  margin: auto; /* Center content */
+  /* overflow: hidden; */
+  margin-top: 0px;
+  padding: 0.5rem 1rem;
+  max-width: 500px;
+  margin: 3rem auto;
+}
+
+.savings-form-card {
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
+  padding: 1rem 2rem;
 }
 
-.form-card h2 {
+.savings-form-card h2 {
   font-size: 1.5rem;
   font-weight: 600;
   color: #333;
-  margin-bottom: 1.5rem;
 }
 
 .form-group {
@@ -52,10 +71,10 @@
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
 }
 
-.progress-container {
+/* .progress-container {
   margin: 1.5rem 0;
 }
-
+ */
 .progress-label {
   margin-bottom: 0.5rem;
   font-weight: 500;

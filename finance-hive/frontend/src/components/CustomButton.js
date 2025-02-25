@@ -1,20 +1,27 @@
 import React from 'react';
-import withGlobalLoading from './withGlobalLoading';
 
-const CustomButton = ({ onClick, onAction, ...props }) => {
-  const handleClick = (event) => {
-    if (onAction) {
-      onAction(onClick, event);
-    } else if (onClick) {
-      onClick(event);
-    }
+const CustomButton = ({ 
+  children, 
+  onClick, 
+  className = '', 
+  type = 'button',
+  disabled = false
+}) => {
+  const handleClick = async (e) => {
+    if (!onClick || disabled) return;
+    onClick(e);
   };
 
   return (
-    <button {...props} className={`custom-btn ${props.className}`} onClick={handleClick}>
-      {props.children}
+    <button
+      type={type}
+      className={`custom-button ${className}`}
+      onClick={handleClick}
+      disabled={disabled}
+    >
+      {children}
     </button>
   );
 };
 
-export default withGlobalLoading(CustomButton);
+export default CustomButton;

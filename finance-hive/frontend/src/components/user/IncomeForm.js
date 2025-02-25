@@ -45,8 +45,8 @@ const handleSubmit = async (e) => {
     <div className="dashboard-layout">
       <Navigation />
       <Sidebar />
-      <main className="dashboard-main">
-        <div className="form-container">
+      <main className="income-dashboard-main">
+        <div className="income-form-container">
           <div className="form-card">
             <h2>Add Income</h2>
             <form onSubmit={handleSubmit}>

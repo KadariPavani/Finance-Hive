@@ -36,12 +36,12 @@ const SavingsForm = () => {
   };
 
   return (
-    <div className="dashboard-layout">
+    <div className="savings-dashboard-layout">
       <Navigation />
       <Sidebar />
-      <main className="dashboard-main">
-        <div className="form-container">
-          <div className="form-card">
+      <main className="savings-dashboard-main">
+        <div className="savings-form-container">
+          <div className="savings-form-card">
             <h2>Add Savings Goal</h2>
             <form onSubmit={handleSubmit}>
               <div className="form-group">
