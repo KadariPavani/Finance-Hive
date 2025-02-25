@@ -52,7 +52,26 @@
       "contact_info": "సంప్రదింపు సమాచారం",
       "loan_info": "లోన్ సమాచారం",
       "view_details": "వివరాలను చూడండి"
-    }
+    },
+    "analytics": "విశ్లేషణలు",
+    "total_amount_borrowed": "మొత్తం అప్పు తీసుకున్న మొత్తం",
+    "total_interest": "మొత్తం వడ్డీ",
+    "total_users": "మొత్తం వినియోగదారులు",
+    "total_amount_paid": "మొత్తం చెల్లించిన మొత్తం",
+    "total_interest_money": "మొత్తం వడ్డీ డబ్బు",
+    "total_payments_collected": "మొత్తం వసూలు చేసిన చెల్లింపులు",
+    "amount_borrowed_over_time": "కాలక్రమేణా అప్పు తీసుకున్న మొత్తం",
+    "scatter_plot": "స్కాటర్ ప్లాట్",
+    "polar_area_chart": "పోలార్ ఏరియా చార్ట్",
+    "surity_given": "ఇచ్చిన హామీ",
+    "adding_user": "వినియోగదారుని జోడిస్తోంది...",
+    "search_users": "వినియోగదారులను వెతకండి...",
+    "payment_details": "చెల్లింపు వివరాలు",
+    "sno": "క్రమ సంఖ్య",
+    "user_name": "వినియోగదారు పేరు",
+    "due_date": "గడువు తేదీ",
+    "not_paid": "చెల్లించలేదు",
+    "total_payments": "మొత్తం చెల్లింపులు"
   },
   "notifications": {
     "title": "నోటిఫికేషన్స్",
@@ -65,7 +84,7 @@
     "payment_overdue": "చెల్లింపు గడువు దాటింది",
     "clear_all": "అన్నీ తొలగించు",
     "username": "వినియోగదారు పేరు:",
-  "password": "పాస్వర్డ్:"
+    "password": "పాస్వర్డ్:"
   },
   "common": {
     "on": "పై",

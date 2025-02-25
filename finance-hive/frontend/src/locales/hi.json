@@ -52,7 +52,26 @@
       "contact_info": "संपर्क जानकारी",
       "loan_info": "ऋण जानकारी",
       "view_details": "विवरण देखें"
-    }
+    },
+    "analytics": "विश्लेषण",
+    "total_amount_borrowed": "कुल उधार ली गई राशि",
+    "total_interest": "कुल ब्याज",
+    "total_users": "कुल उपयोगकर्ता",
+    "total_amount_paid": "कुल भुगतान की गई राशि",
+    "total_interest_money": "कुल ब्याज राशि",
+    "total_payments_collected": "कुल एकत्रित भुगतान",
+    "amount_borrowed_over_time": "समय के साथ उधार ली गई राशि",
+    "scatter_plot": "स्कैटर प्लॉट",
+    "polar_area_chart": "पोलर एरिया चार्ट",
+    "surity_given": "दी गई गारंटी",
+    "adding_user": "उपयोगकर्ता जोड़ा जा रहा है...",
+    "search_users": "उपयोगकर्ताओं को खोजें...",
+    "payment_details": "भुगतान विवरण",
+    "sno": "क्र.सं.",
+    "user_name": "उपयोगकर्ता का नाम",
+    "due_date": "नियत तिथि",
+    "not_paid": "भुगतान नहीं किया",
+    "total_payments": "कुल भुगतान"
   },
   "notifications": {
     "title": "सूचनाएं",
@@ -65,7 +84,7 @@
     "payment_overdue": "भुगतान बाकी",
     "clear_all": "सभी हटाएं",
     "username": "उपयोगकर्ता नाम:",
-  "password": "पासवर्ड:"
+    "password": "पासवर्ड:"
   },
   "common": {
     "on": "पर",
