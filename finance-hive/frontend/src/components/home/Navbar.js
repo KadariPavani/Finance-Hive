@@ -36,8 +36,7 @@ const Navbar = () => {
         <nav className="nav container">
           <div className="nav__data">
             <Link to="/" className="nav__logo">
-              <img src="../Images/FH_LogoFinal.png" alt="FMS Logo" />
-              <h3>FINANCE HIVE</h3>
+              <img src="../Images/FinanceHiveLogoFinal.png" alt="FMS Logo" />
             </Link>
             <div className="nav__toggle" onClick={toggleMenu}>
               <i

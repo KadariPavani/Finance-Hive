@@ -11,7 +11,7 @@ import './AdminDasboard.css';
 import LandingPage from '../home/LandingPage/LandingPage';
 import AdminTitle from './AdminTitle1';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSignOutAlt, faPlus, faUserPlus, faUserShield, faUsers, faUser, faChartPie, faSearch } from '@fortawesome/free-solid-svg-icons'; // Import specific icons
+import { faSignOutAlt, faPlus, faUserPlus, faUserShield, faUsers, faUser, faChartPie, faSearch, faBars } from '@fortawesome/free-solid-svg-icons'; // Import specific icons
 import { FaUserPlus, FaUsersCog } from 'react-icons/fa';
 import { Dropdown } from 'react-bootstrap';
 // Register ChartJS components
@@ -32,6 +32,7 @@ const AdminDashboard = () => {
     email: '',
     role: ''
   });
+  const [isSidebarVisible, setIsSidebarVisible] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -352,25 +353,28 @@ const AdminDashboard = () => {
     return name ? name.charAt(0).toUpperCase() : 'A';
   };
 
+  const toggleSidebar = () => {
+    setIsSidebarVisible(!isSidebarVisible);
+  };
+
   return (
     <div className="admin-dashboard__container">
       {/* Navbar */}
       <nav className="admin-dashboard__navbar">
         <div className="admin-dashboard__nav-left">
           <div className="admin-dashboard__brand">
-            <img src="../Images/FH_LogoFinal.png" alt="Finance Hive Logo" />
-            <h2>Finance Hive</h2>
+            <img src="../Images/FinanceHiveLogoFinal.png" alt="Finance Hive Logo" />
           </div>
         </div>
         <div className="admin-dashboard__nav-right">
           <div className="admin-dashboard__nav-actions">
-          <CustomButton 
+          {/* <CustomButton 
               className="approach-btn" 
               onClick={() => navigate('/approach')} 
               withGlobalLoading
             >
               Approach
-            </CustomButton>
+            </CustomButton> */}
             {/* <button 
               className="nav-action-btn add-organizer-btn"
               onClick={() => navigate('/add-admin')}
@@ -397,16 +401,24 @@ const AdminDashboard = () => {
               <span className="admin-dashboard__profile-role">Administrator</span>
             </div>
           </div> */}
-          <button className="logout-button" onClick={handleLogout}>
+          {/* <button className="logout-button" onClick={handleLogout}>
             <FontAwesomeIcon icon={faSignOutAlt} />
             <span>Logout</span>
+          </button> */}
+          <button 
+            className="admin-dashboard__hamburger"
+            onClick={toggleSidebar}
+            aria-label="Toggle menu"
+          >
+            <FontAwesomeIcon icon={faBars} />
           </button>
         </div>
+
       </nav>
 
       <div className="admin-dashboard__layout">
         {/* Sidebar */}
-        <aside className="admin-dashboard__sidebar">
+        <aside className={`admin-dashboard__sidebar ${isSidebarVisible ? 'admin-dashboard__sidebar--visible' : ''}`}>
           <div className="admin-dashboard__menu">
             <button className="admin-dashboard__menu-item admin-dashboard__menu-item--active">
               <FontAwesomeIcon icon={faChartPie} />
