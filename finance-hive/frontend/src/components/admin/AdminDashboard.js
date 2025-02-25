@@ -11,7 +11,7 @@ import './AdminDasboard.css';
 import LandingPage from '../home/LandingPage/LandingPage';
 import AdminTitle from './AdminTitle1';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSignOutAlt, faPlus, faUserPlus, faUserShield, faUsers, faUser, faChartPie, faSearch, faBars } from '@fortawesome/free-solid-svg-icons'; // Import specific icons
+import { faSignOutAlt, faPlus, faUserPlus, faUserShield, faUsers, faUser, faChartPie, faSearch, faBars, faTimes, faUserTie, faUsersGear } from '@fortawesome/free-solid-svg-icons'; // Import specific icons
 import { FaUserPlus, FaUsersCog } from 'react-icons/fa';
 import { Dropdown } from 'react-bootstrap';
 // Register ChartJS components
@@ -410,7 +410,7 @@ const AdminDashboard = () => {
             onClick={toggleSidebar}
             aria-label="Toggle menu"
           >
-            <FontAwesomeIcon icon={faBars} />
+            <FontAwesomeIcon icon={isSidebarVisible ? faTimes : faBars} />
           </button>
         </div>
 
@@ -446,7 +446,7 @@ const AdminDashboard = () => {
         {/* Main Content */}
         <main className="admin-dashboard__main">
           <LandingPage /> 
-          <div className="admin-dashboard__header">
+          {/* <div className="admin-dashboard__header">
             <h1>Dashboard Overview</h1>
             <div className="admin-dashboard__actions">
               <CustomButton onClick={() => navigate('/add-admin')}>
@@ -456,55 +456,37 @@ const AdminDashboard = () => {
                 <FontAwesomeIcon icon={faUserPlus} /> Add Organizer
               </CustomButton>
             </div>
-          </div>
+          </div> */}
 
           {/* Stats Cards Section */}
           <div className="stats-overview">
             <div className="stat-card primary">
               <div className="stat-icon admin-icon">
-                <FontAwesomeIcon icon={faUserShield} />
+                <FontAwesomeIcon icon={faUserTie} />
               </div>
               <div className="stat-content">
                 <h3>Total Admins</h3>
-                 <p className="stat-number">{stats.admins}</p>
-                {/* <div className="stat-footer">
-                  <p className={`growth ${growth.admins >= 0 ? 'positive' : 'negative'}`}>
-                    {growth.admins >= 0 ? '▲' : '▼'} {Math.abs(growth.admins)}%
-                  </p>
-                  <span className="period">vs last month</span>
-                </div>  */}
+                <p className="stat-number">{stats.admins}</p>
               </div>
             </div>
 
             <div className="stat-card success">
               <div className="stat-icon organizer-icon">
-                <FontAwesomeIcon icon={faUsers} />
+                <FontAwesomeIcon icon={faUsersGear} />
               </div>
               <div className="stat-content">
                 <h3>Total Organizers</h3>
                 <p className="stat-number">{stats.organizers}</p>
-                {/* <div className="stat-footer">
-                  <p className={`growth ${growth.organizers >= 0 ? 'positive' : 'negative'}`}>
-                    {growth.organizers >= 0 ? '▲' : '▼'} {Math.abs(growth.organizers)}%
-                  </p>
-                  <span className="period">vs last month</span>
-                </div>  */}
               </div>
             </div>
 
             <div className="stat-card warning">
-              <div className="stat-icon user-icon">
+              <div className="stat-icon admin-icon">
                 <FontAwesomeIcon icon={faUser} />
               </div>
               <div className="stat-content">
                 <h3>Total Users</h3>
                 <p className="stat-number">{stats.users}</p>
-                {/* <div className="stat-footer">
-                  <p className={`growth ${growth.users >= 0 ? 'positive' : 'negative'}`}>
-                    {growth.users >= 0 ? '▲' : '▼'} {Math.abs(growth.users)}%
-                  </p>
-                  <span className="period">vs last month</span>
-                </div> */}
               </div>
             </div>
           </div>
