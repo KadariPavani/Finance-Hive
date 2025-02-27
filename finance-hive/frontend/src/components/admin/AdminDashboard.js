@@ -104,24 +104,29 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/api/users/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+  const handleDelete = async (id, userName) => {
+    // Show confirmation dialog
+    const isConfirmed = window.confirm(`Are you sure you want to delete ${userName}? This action cannot be undone.`);
+    
+    if (isConfirmed) {
+      try {
+        const token = localStorage.getItem('token');
+        await axios.delete(`http://localhost:5000/api/users/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-      setUsers(users.filter(user => user._id !== id));
-      setIsError(false);
-      setModalMessage('User deleted successfully');
-      setShowModal(true);
-    } catch (err) {
-      setIsError(true);
-      setModalMessage('Failed to delete user');
-      setShowModal(true);
-      console.error(err);
+        setUsers(users.filter(user => user._id !== id));
+        setIsError(false);
+        setModalMessage('User deleted successfully');
+        setShowModal(true);
+      } catch (err) {
+        setIsError(true);
+        setModalMessage('Failed to delete user');
+        setShowModal(true);
+        console.error(err);
+      }
     }
   };
 
@@ -565,7 +570,11 @@ const AdminDashboard = () => {
                     <p className="email">Email: {user.email}</p>
                     <p className="mobile">Mobile: {user.mobileNumber}</p>
                   </div>
-                  <button className="delete-btn" onClick={() => handleDelete(user._id)}>
+                  <button 
+                    className="delete-btn" 
+                    onClick={() => handleDelete(user._id, user.name)}
+                    title="Delete user"
+                  >
                     <FiTrash2 />
                   </button>
                 </div>

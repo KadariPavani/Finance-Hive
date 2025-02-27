@@ -608,10 +608,15 @@ const OrganizerDashboard = () => {
       <div className="users-grid">
         {currentUsers.map((user) => (
           <div key={user._id} className="user-card" onClick={() => handleUserClick(user)}>
-            <div className="user-card-header">
-              <User className="user-icon" />
-              <h3>{user.name}</h3>
-            </div>
+<div className="user-card-header">
+  {/* {user.image ? (
+    <img src={user.image} alt={user.name} className="user-avatar" />
+  ) : (
+    <div className="user-icon">{user.name[0]}</div>
+  )} */}
+  <h3>{user.name}</h3>
+</div>
+
             <div className="user-card-body">
               <p><Phone size={16} /> {user.mobileNumber}</p>
               <p><Mail size={16} /> {user.email}</p>

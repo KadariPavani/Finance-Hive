@@ -58,8 +58,8 @@
 }
 
 .user-icon {
-  width: 64px;
-  height: 64px;
+  width: 40px;
+  height: 40px;
   background-color: #f3f4f6;
   border-radius: 50%;
   display: flex;
@@ -91,9 +91,46 @@ h1 {
   color: #111827;
 }
 
-.input-group {
+.input-container {
   position: relative;
   margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.input-container.valid .form-input {
+  border-color: #4CAF50;
+}
+
+.input-container .input-status {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #ccc;
+  transition: all 0.3s ease;
+}
+
+.input-container .input-status.success {
+  color: #4CAF50;
+}
+
+.mobile-input-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.mobile-prefix {
+  position: absolute;
+  left: 40px;
+  color: #666;
+  font-size: 0.9rem;
+  padding-right: 8px;
+  border-right: 1px solid #ddd;
+}
+
+.mobile-input {
+  padding-left: 80px !important;
 }
 
 .input-group input {
@@ -419,11 +456,6 @@ h1 {
   font-size: 0.875rem;
 }
 
-.input-container {
-  margin-bottom: 1.25rem;
-  position: relative;
-}
-
 .input-icon {
   position: absolute;
   left: 1rem;
@@ -456,21 +488,6 @@ h1 {
   color: #94A3B8;
 }
 
-.input-status {
-  position: absolute;
-  right: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #10B981;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  font-size: 0.875rem;
-}
-
-.form-input:valid + .input-status {
-  opacity: 1;
-}
-
 .submit-button {
   width: 100%;
   padding: 0.75rem;
@@ -487,6 +504,14 @@ h1 {
   justify-content: center;
   gap: 0.5rem;
   margin-top: 1rem;
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.submit-button.enabled {
+  opacity: 1;
+  cursor: pointer;
+  background: #4CAF50;
 }
 
 .submit-button:hover {
@@ -547,4 +572,22 @@ h1 {
 .input-container {
   animation: slideIn 0.5s ease-out forwards;
   animation-delay: calc(var(--index) * 0.1s);
+}
+
+.spinner-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.submit-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }

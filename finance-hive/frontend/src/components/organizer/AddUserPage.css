@@ -34,6 +34,7 @@
   padding: 2rem;
   display: flex;
   align-items: center;
+  min-height: 100%;
 }
 
 .image-section::before {
@@ -51,6 +52,7 @@
   z-index: 1;
   color: white;
   text-align: center;
+  width: 100%;
 }
 
 .image-content h2 {
@@ -109,7 +111,7 @@
 .progress-container {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2.5rem;
   position: relative;
   padding: 0 0.5rem;
 }
@@ -194,6 +196,8 @@
   transition: all 0.2s ease;
   color: #1E293B;
   background-color: #F8FAFC;
+  padding-left: 36px; /* Adjust this value based on the icon size and spacing */
+
 }
 
 .form-group input:focus {
@@ -272,31 +276,149 @@
 @media (max-width: 768px) {
   .add-user-form {
     flex-direction: column;
+    max-height: none;
+    overflow: visible;
   }
 
   .form-section,
   .image-section {
     width: 100%;
+    max-height: none;
   }
 
   .image-section {
     order: -1;
-    padding: 2rem;
+    padding: 2rem 1.5rem;
+    min-height: auto;
   }
 
-  .form-grid {
-    grid-template-columns: 1fr;
+  .image-content {
+    padding: 1rem 0;
+  }
+
+  .image-content h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .image-content p {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .feature-list {
+    margin-top: 1.5rem;
+  }
+
+  .feature-item {
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
   }
 }
 
 @media (max-width: 640px) {
   .add-user-page {
-    padding: 1rem;
+    padding: 0.5rem;
+  }
+
+  .add-user-form {
+    border-radius: 12px;
   }
 
   .form-section,
   .image-section {
-    padding: 1.5rem;
+    padding: 1.25rem;
+  }
+
+  .image-content h2 {
+    font-size: 1.25rem;
+  }
+
+  .image-content p {
+    font-size: 0.9rem;
+  }
+
+  .feature-item {
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .feature-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 425px) {
+  .add-user-page {
+    padding: 0.25rem;
+  }
+
+  .add-user-form {
+    margin: 0.5rem;
+  }
+
+  .image-section {
+    padding: 1rem;
+  }
+
+  .image-content h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .image-content h2::after {
+    bottom: -0.3rem;
+    height: 2px;
+  }
+
+  .image-content p {
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+  }
+
+  .feature-list {
+    margin-top: 1rem;
+  }
+
+  .feature-item {
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .feature-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 320px) {
+  .add-user-page {
+    padding: 0.2rem;
+  }
+
+  .image-section {
+    padding: 0.75rem;
+  }
+
+  .image-content h2 {
+    font-size: 1.1rem;
+  }
+
+  .image-content p {
+    font-size: 0.8rem;
+  }
+
+  .feature-item {
+    font-size: 0.7rem;
+  }
+
+  .feature-icon {
+    width: 16px;
+    height: 16px;
   }
 }
 
@@ -341,4 +463,75 @@
   50% {
     transform: translateY(-6px);
   }
+}
+
+/* Add validation styles */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+}
+
+.input-icon {
+  position: absolute;
+  left: 12px;
+  color: #9CA3AF;
+}
+
+.validation-icon {
+  position: absolute;
+  right: 12px;
+  color: #10B981;
+}
+
+.form-group.valid input {
+  border-color: #10B981;
+}
+
+.mobile-prefix {
+  position: absolute;
+  left: 40px;
+  color: #6B7280;
+  padding-right: 8px;
+  border-right: 1px solid #E5E7EB;
+}
+
+.mobile-input {
+  padding-left: 80px !important;
+}
+
+/* Remove spinner from number inputs */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: #64748B;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  border-radius: 50%;
+  width: 2rem; /* adjust the width to your liking */
+  height: 2rem; /* adjust the height to your liking */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+}
+
+.close-btn:hover {
+  color: #4F46E5;
+  border-radius: 50%;
 }

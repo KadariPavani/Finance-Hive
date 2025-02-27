@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Bell, User, LogOut, Users, PlusCircle } from 'lucide-react';
+import { Bell, User, LogOut, Users, PlusCircle, Menu, Globe } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Navigation.css';
 import LanguageSwitcher from '../LanguageSwitcher';
 
 const NavigationOrganizer = ({ organizerDetails, onLogout }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const fetchUnreadCount = async () => {
     try {
@@ -29,6 +31,12 @@ const NavigationOrganizer = ({ organizerDetails, onLogout }) => {
     return () => clearInterval(interval);
   }, []);
 
+  const changeLanguage = (language) => {
+    i18n.changeLanguage(language);
+    localStorage.setItem('language', language);
+    setShowLanguageDropdown(false);
+  };
+
   return (
     <nav className="dashboard-nav">
       <div className="nav-logo">
@@ -40,7 +48,39 @@ const NavigationOrganizer = ({ organizerDetails, onLogout }) => {
         </Link>      
       </div>
 
-      <div className="nav-actions">
+      <div className="mobile-nav-group">
+        <div className="language-dropdown-container">
+          <button 
+            className="language-icon-btn"
+            onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
+          >
+            <Globe className="nav-icon" />
+          </button>
+          
+          {showLanguageDropdown && (
+            <div className="language-dropdown">
+              <button onClick={() => changeLanguage('en')}>
+                <span>English</span>
+              </button>
+              <button onClick={() => changeLanguage('hi')}>
+                <span>हिन्दी</span>
+              </button>
+              <button onClick={() => changeLanguage('te')}>
+                <span>తెలుగు</span>
+              </button>
+            </div>
+          )}
+        </div>
+
+        <button 
+          className="hamburger-btn"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        >
+          <Menu className="nav-icon" />
+        </button>
+      </div>
+
+      <div className={`nav-actions ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
         <Link to="/notifications" className="nav-icon-btn" title={t('notifications.title')}>
           <div className="notification-icon-wrapper">
             <Bell className="nav-icon" />
@@ -53,7 +93,6 @@ const NavigationOrganizer = ({ organizerDetails, onLogout }) => {
         <button className="nav-icon-btn logout-btn" onClick={onLogout} title={t('common.logout')}>
           <LogOut className="nav-icon" />
         </button>
-        <LanguageSwitcher />
       </div>
     </nav>
   );

@@ -469,8 +469,8 @@
 }
 
 .filter-btn.active {
-  background: #4285f4;
-  border-color: #4285f4;
+  background: #8561e1;
+  border-color: #8561e1;
   color: white;
   box-shadow: 0 4px 8px rgba(66, 133, 244, 0.2);
 }
@@ -484,21 +484,18 @@
 }
 
 .user-card {
-  background: white;
-  border-radius: 16px;
-  padding: 1.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.1);
   position: relative;
-  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 180px; /* Ensure consistent height */
 }
 
-.user-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+.user-info {
+  flex-grow: 1;
 }
 
 .user-info h3 {
-  margin: 0 0 1rem 0;
   color: #333;
 }
 
@@ -509,7 +506,7 @@
 
 .delete-btn {
   position: absolute;
-  top: 1rem;
+  bottom: 1rem;  /* Changed from top to bottom */
   right: 1rem;
   width: 36px;
   height: 36px;
@@ -527,6 +524,7 @@
 .delete-btn:hover {
   background: #dc3545;
   color: white;
+  transform: scale(1.1);
 }
 
 .show-more-btn {
@@ -875,12 +873,67 @@
   }
 
   .admin-dashboard__main {
-    margin-left: 0; /* Main content takes full width */
-    padding: 1rem; /* Adjust main content padding */
+    padding: 1rem;
+    margin-left: 0;
+    width: 100%;
+    overflow-x: hidden;
   }
 
-  .admin-dashboard__stats {
-    grid-template-columns: 1fr; /* Stack stats cards */
+  .analytics-charts {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+  }
+
+  .chart-wrapper {
+    width: 100%;
+    min-height: 300px;
+    padding: 1rem;
+  }
+
+  .chart-container {
+    width: 100% !important;
+    height: 250px !important;
+    position: relative;
+  }
+
+  .stats-overview {
+    grid-template-columns: 1fr;
+    padding: 0.5rem;
+    gap: 1rem;
+  }
+
+  .stat-card {
+    width: 100%;
+    min-height: 100px;
+    padding: 1rem;
+  }
+
+  .users-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 0.5rem;
+  }
+
+  .user-card {
+    width: 100%;
+    margin: 0;
+  }
+
+  .filter-buttons {
+    padding: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .search-container {
+    padding: 0.5rem;
+  }
+
+  .search-wrapper {
+    width: 100%;
   }
 
   .admin-dashboard__profile-info {
@@ -965,41 +1018,43 @@
 
 /* Extra Small Devices (phones, 480px and down) */
 @media (max-width: 576px) {
-
-
-  .admin-dashboard__layout {
-    padding-top: 60px;
+  .admin-dashboard__navbar {
+    padding: 0 0.5rem;
   }
 
   .admin-dashboard__brand img {
     height: 30px;
   }
 
-  .admin-dashboard__stat-card {
-    padding: 1rem; /* Adjust stat card padding */
+  .admin-dashboard__layout {
+    padding-top: 60px;
   }
 
-  .admin-dashboard__actions {
-    flex-direction: column; /* Stack action buttons */
+  .chart-container {
+    height: 200px !important;
   }
 
-  .stat-content p {
-    font-size: 1.8rem; /* Adjust stat content font size */
+  .stat-card {
+    padding: 0.75rem;
   }
 
-  .quick-stats {
-    grid-template-columns: 1fr; /* Stack quick stats */
+  .stat-content h3 {
+    font-size: 0.9rem;
   }
 
-  .filter-buttons {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.5rem;
+  .stat-number {
+    font-size: 1.2rem;
+  }
+
+  .stat-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
   }
 
   .filter-btn {
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
   }
 }
 
@@ -1013,84 +1068,128 @@
   }
 
   .analytics-section {
-    margin: 0.5rem 0;
-    padding: 0.5rem;
-    width: calc(100% - 1rem);
-    box-sizing: border-box;
-    overflow: hidden;
+    margin: 0.5rem 0.5rem;
+    padding: 0.75rem;
+    border-radius: 12px;
   }
 
   .analytics-grid {
-    width: 100%;
-    display: block;
-    margin: 0;
-    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
   }
 
-  .analytics-left,
-  .analytics-right {
-    width: 100%;
-    padding: 0;
-    margin: 0;
+  /* Bar Chart Container */
+  .bar-chart {
+    height: 250px;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    overflow: hidden;
+    border-radius: 12px;
+  }
+
+  /* Pie Chart Container */
+  .pie-chart {
+    height: 250px;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    overflow: hidden;
+    border-radius: 12px;
+  }
+
+  /* Chart Headers */
+  .analytics-header {
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .analytics-header h2 {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .analytics-period {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
   }
 
   /* Chart Containers */
-  .chart-container,
-  .bar-chart,
-  .pie-chart {
-    width: 100%;
-    box-sizing: border-box;
-    height: 200px !important;
+  .chart-container {
     margin: 0.5rem 0;
+    padding: 0.75rem;
+    height: 250px;
+    min-height: 200px;
+    border-radius: 12px;
+  }
+
+  .chart-container h3 {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Analytics Left & Right Sections */
+  .analytics-left,
+  .analytics-right {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .analytics-right {
+    margin-top: 1rem;
+  }
+
+  /* Distribution Stats */
+  .stats-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 0.5rem 0;
+  }
+
+  .stat-card {
+    margin: 0;
+    padding: 0.75rem;
+    height: auto;
+    min-height: 80px;
+  }
+
+  /* Quick Stats in Analytics */
+  .quick-stats {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
     padding: 0.5rem;
-    overflow: hidden;
+  }
+
+  .quick-stat-item {
+    padding: 0.75rem;
+    border-radius: 8px;
   }
 
   /* Chart Wrapper */
   .chart-wrapper {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 0.5rem;
-    margin: 0;
-  }
-
-  /* Stats Cards */
-  .stats-cards {
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .stat-card {
-    width: 100%;
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0.75rem;
-  }
-
-  /* Quick Stats */
-  .quick-stats {
-    width: 100%;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 0;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 1rem;
     margin: 0.5rem 0;
+    height: auto;
+    min-height: 200px;
   }
 
-  .quick-stat-item {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 0.75rem;
-    margin: 0;
+  .chart-header {
+    margin-bottom: 0.75rem;
+  }
+
+  /* Time Filter */
+  .time-filter {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    border-radius: 6px;
   }
 }
 
-/* Small Mobile Devices (375px and below) */
+/* Extra Small Devices (375px and below) */
 @media (max-width: 375px) {
   .admin-dashboard__main {
     padding: 0.25rem;
@@ -1463,5 +1562,258 @@
   .time-filter {
     padding: 0.3rem 0.6rem;
     font-size: 0.75rem;
+  }
+}
+
+/* Prevent Horizontal Scrolling */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Chart Responsiveness Fix */
+.recharts-wrapper {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.recharts-surface {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Ensure minimum content width */
+.admin-dashboard__container {
+  min-width: 320px;
+  overflow-x: hidden;
+}
+
+/* Fix for charts container */
+.analytics-charts {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Ensure sidebar doesn't cause horizontal scroll */
+.admin-dashboard__sidebar {
+  max-width: 100%;
+  width: 280px;
+}
+
+@media (max-width: 320px) {
+  .admin-dashboard__sidebar {
+    width: 100%;
+  }
+}
+
+/* Tablet and Medium Screen Adjustments (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .admin-dashboard__main {
+    margin-left: 280px; /* Keep the margin for sidebar */
+    padding: 1.5rem;
+    width: calc(100% - 280px); /* Adjust width accounting for sidebar */
+  }
+
+  .stats-overview {
+    grid-template-columns: repeat(2, 1fr); /* Show 2 cards per row */
+    gap: 1rem;
+    padding: 0.5rem;
+  }
+
+  .stat-card {
+    width: 100%;
+    min-height: 120px;
+  }
+
+  .analytics-charts {
+    display: grid;
+    grid-template-columns: 1fr; /* Stack charts vertically */
+    gap: 1.5rem;
+    width: 100%;
+  }
+
+  .chart-wrapper {
+    width: 100%;
+    min-height: 350px;
+  }
+
+  .chart-container {
+    height: 300px !important;
+  }
+
+  .users-grid {
+    grid-template-columns: repeat(2, 1fr); /* Show 2 user cards per row */
+    gap: 1rem;
+  }
+
+  /* Adjust stat cards for better fit */
+  .stat-content h3 {
+    font-size: 1rem;
+  }
+
+  .stat-number {
+    font-size: 1.5rem;
+  }
+
+  .stat-icon {
+    width: 45px;
+    height: 45px;
+    font-size: 1.3rem;
+  }
+
+  /* Improve filter buttons layout */
+  .filter-buttons {
+    justify-content: flex-start;
+    padding: 0.75rem 0;
+  }
+
+  .filter-btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  /* Adjust search container */
+  .search-container {
+    padding: 1rem 0;
+  }
+
+  .search-wrapper {
+    max-width: 100%;
+  }
+
+  /* Ensure proper chart scaling */
+  .recharts-wrapper,
+  .recharts-surface {
+    width: 100% !important;
+  }
+
+  /* Adjust sidebar position */
+  .admin-dashboard__sidebar {
+    width: 280px;
+    position: fixed;
+    left: 0;
+    height: calc(100vh - 80px);
+    overflow-y: auto;
+  }
+
+  /* Ensure main content doesn't overlap with sidebar */
+  .admin-dashboard__layout {
+    display: flex;
+    min-height: calc(100vh - 80px);
+  }
+}
+
+/* Large Tablet Specific Adjustments (900px - 1024px) */
+@media (min-width: 900px) and (max-width: 1024px) {
+  .stats-overview {
+    grid-template-columns: repeat(3, 1fr); /* Show 3 cards per row */
+  }
+
+  .users-grid {
+    grid-template-columns: repeat(2, 1fr); /* Keep 2 user cards per row */
+  }
+
+  .chart-container {
+    height: 350px !important; /* Slightly larger charts */
+  }
+}
+
+/* Ensure proper layout when sidebar is toggled */
+@media (min-width: 769px) {
+  .admin-dashboard__sidebar--visible {
+    transform: translateX(0);
+  }
+
+  .admin-dashboard__hamburger {
+    display: none; /* Hide hamburger on larger screens */
+  }
+}
+
+/* Fix for chart responsiveness */
+.chart-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.chart-container {
+  position: relative;
+  width: 100% !important;
+}
+
+/* Ensure content doesn't overflow */
+.admin-dashboard__main > * {
+  max-width: 100%;
+}
+
+/* Confirmation Modal Styles */
+.confirm-modal {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.confirm-modal h3 {
+  color: #333;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+}
+
+.confirm-modal p {
+  color: #666;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.confirm-modal__actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.confirm-modal__btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.confirm-modal__btn--cancel {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.confirm-modal__btn--cancel:hover {
+  background: #dee2e6;
+}
+
+.confirm-modal__btn--delete {
+  background: #dc3545;
+  color: white;
+}
+
+.confirm-modal__btn--delete:hover {
+  background: #c82333;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .confirm-modal {
+    padding: 1rem;
+  }
+
+  .confirm-modal h3 {
+    font-size: 1.1rem;
+  }
+
+  .confirm-modal p {
+    font-size: 0.9rem;
+  }
+
+  .confirm-modal__btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
   }
 }

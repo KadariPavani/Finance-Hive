@@ -41,9 +41,9 @@ const Navigation = ({ userDetails, onLogout, toggleSidebar, isSidebarOpen }) => 
       <div className="nav-logo">
         <Link to="/" className="nav__logo_sub">
           <div className="logo-container">
-            <img src="../Images/FH_LogoFinal.png" alt="FMS Logo" className="logo-img" />
+            <img src="../Images/FinanceHiveLogoFinal.png" alt="FMS Logo" className="logo-img" />
           </div>
-          <h3 className="logo-text">FINANCE HIVE</h3>
+          {/* <h3 className="logo-text">FINANCE HIVE</h3> */}
         </Link>
       </div>
 

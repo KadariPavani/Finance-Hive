@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './AddUser.css';
-import { FaUser, FaEnvelope, FaPhone, FaLock, FaCheck } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaPhone, FaLock, FaCheck, FaSpinner, FaTimes } from 'react-icons/fa';
 import Modal from '../Modal/Modal';
 
 const AddUser = ({ role, onUserAdded }) => {
@@ -14,20 +14,22 @@ const AddUser = ({ role, onUserAdded }) => {
   const [modalMessage, setModalMessage] = useState('');
   const [isError, setIsError] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [validations, setValidations] = useState({
+    name: false,
+    email: false,
+    mobile: false,
+    password: false
+  });
   const navigate = useNavigate();
 
   const updateProgress = () => {
-    if (!name) {
-      setProgress(0);
-    } else if (!email) {
-      setProgress(25);
-    } else if (!mobileNumber) {
-      setProgress(50);
-    } else if (!password) {
-      setProgress(75);
-    } else {
-      setProgress(100);
-    }
+    const completedSteps = Object.values(validations).filter(v => v).length;
+    setProgress(completedSteps * 25);
+  };
+
+  const isValidName = (name) => {
+    return name.trim().length >= 2;
   };
 
   const isValidEmail = (email) => {
@@ -38,80 +40,71 @@ const AddUser = ({ role, onUserAdded }) => {
     return /^\d{10}$/.test(number);
   };
 
+  const isValidPassword = (password) => {
+    return password.length >= 6;
+  };
+
   const handleNameChange = (e) => {
     const value = e.target.value;
     setName(value);
+    setValidations(prev => ({
+      ...prev,
+      name: isValidName(value)
+    }));
   };
 
   const handleEmailChange = (e) => {
-    if (!name) {
-      e.preventDefault();
-      return;
-    }
     const value = e.target.value;
-    if (value && !isValidEmail(value)) {
-      return;
-    }
     setEmail(value);
+    setValidations(prev => ({
+      ...prev,
+      email: isValidEmail(value)
+    }));
   };
 
   const handleMobileChange = (e) => {
-    if (!email) {
-      e.preventDefault();
-      return;
-    }
-    const value = e.target.value;
-    if (value && !isValidMobile(value)) {
-      return;
-    }
+    const value = e.target.value.replace(/\D/g, '').slice(0, 10);
     setMobileNumber(value);
+    setValidations(prev => ({
+      ...prev,
+      mobile: isValidMobile(value)
+    }));
   };
 
   const handlePasswordChange = (e) => {
-    if (!mobileNumber) {
-      e.preventDefault();
-      return;
-    }
     const value = e.target.value;
-    if (value && value.length < 6) {
-      return;
-    }
     setPassword(value);
+    setValidations(prev => ({
+      ...prev,
+      password: isValidPassword(value)
+    }));
   };
 
   useEffect(() => {
     updateProgress();
-  }, [name, email, mobileNumber, password]);
+  }, [validations]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!name || !email || !mobileNumber || !password) {
-      setModalMessage('Please fill in all fields in sequence');
-      setIsError(true);
-      setShowModal(true);
-      return;
-    }
-
-    if (!isValidEmail(email)) {
-      setModalMessage('Please enter a valid email address');
-      setIsError(true);
-      setShowModal(true);
-      return;
-    }
-
-    if (!isValidMobile(mobileNumber)) {
-      setModalMessage('Please enter a valid 10-digit mobile number');
-      setIsError(true);
-      setShowModal(true);
+    if (!Object.values(validations).every(v => v)) {
       return;
     }
 
     try {
+      setIsLoading(true);
       const token = localStorage.getItem('token');
+      const formattedMobileNumber = `+91${mobileNumber}`;
+      
       const response = await axios.post(
         'http://localhost:5000/api/add-user',
-        { name, email, mobileNumber, password, role },
+        { 
+          name, 
+          email, 
+          mobileNumber: formattedMobileNumber, 
+          password, 
+          role 
+        },
         {
           headers: { 'Authorization': `Bearer ${token}` }
         }
@@ -125,6 +118,12 @@ const AddUser = ({ role, onUserAdded }) => {
       setEmail('');
       setMobileNumber('');
       setPassword('');
+      setValidations({
+        name: false,
+        email: false,
+        mobile: false,
+        password: false
+      });
 
       if (onUserAdded) {
         onUserAdded();
@@ -138,6 +137,8 @@ const AddUser = ({ role, onUserAdded }) => {
       setModalMessage(err.response?.data?.message || 'Failed to add user');
       setIsError(true);
       setShowModal(true);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -153,26 +154,26 @@ const AddUser = ({ role, onUserAdded }) => {
             <div className="progress-line">
               <div className="progress-line-fill" style={{ width: `${progress}%` }}></div>
             </div>
-            <div className={`progress-step ${progress >= 25 ? 'completed' : ''} ${progress < 25 ? 'active' : ''}`}>
+            <div className={`progress-step ${validations.name ? 'completed' : ''}`}>
               <div className="progress-dot"></div>
               <span className="progress-label">Personal Info</span>
             </div>
-            <div className={`progress-step ${progress >= 50 ? 'completed' : ''} ${progress >= 25 && progress < 50 ? 'active' : ''}`}>
+            <div className={`progress-step ${validations.email ? 'completed' : ''}`}>
               <div className="progress-dot"></div>
               <span className="progress-label">Contact</span>
             </div>
-            <div className={`progress-step ${progress >= 75 ? 'completed' : ''} ${progress >= 50 && progress < 75 ? 'active' : ''}`}>
+            <div className={`progress-step ${validations.mobile ? 'completed' : ''}`}>
               <div className="progress-dot"></div>
               <span className="progress-label">Mobile</span>
             </div>
-            <div className={`progress-step ${progress >= 100 ? 'completed' : ''} ${progress >= 75 && progress < 100 ? 'active' : ''}`}>
+            <div className={`progress-step ${validations.password ? 'completed' : ''}`}>
               <div className="progress-dot"></div>
               <span className="progress-label">Security</span>
             </div>
           </div>
 
           <form onSubmit={handleSubmit}>
-            <div className="input-container" style={{"--index": 1}}>
+            <div className={`input-container ${validations.name ? 'valid' : ''}`} style={{"--index": 1}}>
               <FaUser className="input-icon" />
               <input 
                 type="text" 
@@ -182,10 +183,10 @@ const AddUser = ({ role, onUserAdded }) => {
                 onChange={handleNameChange}
                 required 
               />
-              <FaCheck className="input-status" />
+              {validations.name ? <FaCheck className="input-status success" /> : null}
             </div>
             
-            <div className="input-container" style={{"--index": 2}}>
+            <div className={`input-container ${validations.email ? 'valid' : ''}`} style={{"--index": 2}}>
               <FaEnvelope className="input-icon" />
               <input 
                 type="email" 
@@ -194,42 +195,52 @@ const AddUser = ({ role, onUserAdded }) => {
                 value={email}
                 onChange={handleEmailChange}
                 required 
-                disabled={!name}
               />
-              <FaCheck className="input-status" />
+              {validations.email ? <FaCheck className="input-status success" /> : null}
             </div>
             
-            <div className="input-container" style={{"--index": 3}}>
+            <div className={`input-container ${validations.mobile ? 'valid' : ''}`} style={{"--index": 3}}>
               <FaPhone className="input-icon" />
-              <input 
-                type="text" 
-                className="form-input"
-                placeholder="Mobile Number" 
-                value={mobileNumber}
-                onChange={handleMobileChange}
-                required 
-                disabled={!email}
-              />
-              <FaCheck className="input-status" />
+              <div className="mobile-input-wrapper">
+                <span className="mobile-prefix">+91</span>
+                <input 
+                  type="text" 
+                  className="form-input mobile-input"
+                  placeholder="Mobile Number" 
+                  value={mobileNumber}
+                  onChange={handleMobileChange}
+                  required 
+                />
+              </div>
+              {validations.mobile ? <FaCheck className="input-status success" /> : null}
             </div>
             
-            <div className="input-container" style={{"--index": 4}}>
+            <div className={`input-container ${validations.password ? 'valid' : ''}`} style={{"--index": 4}}>
               <FaLock className="input-icon" />
               <input 
                 type="password" 
                 className="form-input"
-                placeholder="Create Password" 
+                placeholder="Create Password (min. 6 characters)" 
                 value={password}
                 onChange={handlePasswordChange}
                 required 
-                disabled={!mobileNumber}
               />
-              <FaCheck className="input-status" />
+              {validations.password ? <FaCheck className="input-status success" /> : null}
             </div>
 
-            <button className="submit-button" type="submit">
-              Create Account
-              <FaCheck />
+            <button 
+              className={`submit-button ${Object.values(validations).every(v => v) ? 'enabled' : ''}`} 
+              type="submit" 
+              disabled={!Object.values(validations).every(v => v) || isLoading}
+            >
+              {isLoading ? (
+                <FaSpinner className="spinner-icon" />
+              ) : (
+                <>
+                  Create Account
+                  <FaCheck />
+                </>
+              )}
             </button>
           </form>
         </div>

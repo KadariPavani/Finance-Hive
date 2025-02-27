@@ -114,10 +114,10 @@ a:hover {
 /* Buttons */
 /* ==================== */
 button {
-  background-color: var(--secondary-color);
+  background-color: #864df2;
   color: var(--background-color);
   border: none;
-  padding: var(--spacing-sm) var(--spacing-md);
+  /* padding: var(--spacing-lg) var(--spacing-md); */
   font-size: var(--font-size-md);
   cursor: pointer;
   border-radius: 4px;
@@ -125,7 +125,7 @@ button {
 }
 
 button:hover {
-  background-color: var(--light-secondary-color);
+  background-color: #864df2;
 }
 
 /* ==================== */
