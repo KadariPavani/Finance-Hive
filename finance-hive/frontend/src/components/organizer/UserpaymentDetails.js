@@ -65,14 +65,20 @@ const UserPaymentDetails = () => {
 
         const currentIndex = paymentSchedule.findIndex(p => p.serialNo === serialNo);
         
-        // Calculate total remaining amount from current payment onwards
+        // Calculate total paid amount
         const paidAmount = paymentSchedule
           .slice(0, currentIndex)
           .reduce((acc, p) => acc + (p.status === 'PAID' ? p.emiAmount : 0), 0);
         
-        const totalRemainingAmount = userData.amountBorrowed - paidAmount;
+        // Calculate total amount with interest
+        const totalAmountWithInterest = Number(
+          (userData.amountBorrowed * (1 + (userData.interest * userData.tenure / 1200))).toFixed(2)
+        );
 
-        // Validate if new amount exceeds total remaining
+        // Calculate total remaining amount including interest
+        const totalRemainingAmount = Number((totalAmountWithInterest - paidAmount).toFixed(2));
+
+        // Validate if new amount exceeds total remaining with interest
         if (newEmiAmount > totalRemainingAmount) {
           setIsSuccess(false);
           setModalMessage(`Amount cannot exceed remaining balance of ${formatCurrency(totalRemainingAmount)}`);
@@ -80,24 +86,10 @@ const UserPaymentDetails = () => {
           return;
         }
 
-        // Calculate the difference in EMI amount
-        const currentEmi = paymentSchedule[currentIndex].emiAmount;
-        const difference = newEmiAmount - currentEmi;
-
-        // If this is the last payment, don't allow modifications that would make total incorrect
-        if (currentIndex === paymentSchedule.length - 1) {
-          if (newEmiAmount !== totalRemainingAmount) {
-            setIsSuccess(false);
-            setModalMessage(`Last payment must equal remaining balance: ${formatCurrency(totalRemainingAmount)}`);
-            setShowModal(true);
-            return;
-          }
-        }
-
         // Send update to backend
         const response = await api.patch(`/payment/${userId}/${serialNo}`, {
           emiAmount: newEmiAmount,
-          isLastPaymentAdjustment: currentIndex !== paymentSchedule.length - 1 // Flag to indicate if last payment should be adjusted
+          isLastPaymentAdjustment: currentIndex !== paymentSchedule.length - 1
         });
 
         if (response.data && response.data.schedule) {
@@ -176,11 +168,19 @@ const UserPaymentDetails = () => {
     }
 
     const currentIndex = paymentSchedule.findIndex(p => p.serialNo === payment.serialNo);
+    
+    // Calculate total paid amount
     const paidAmount = paymentSchedule
       .slice(0, currentIndex)
       .reduce((acc, p) => acc + (p.status === 'PAID' ? p.emiAmount : 0), 0);
     
-    const maxAmount = userData.amountBorrowed - paidAmount;
+    // Calculate total amount with interest
+    const totalAmountWithInterest = Number(
+      (userData.amountBorrowed * (1 + (userData.interest * userData.tenure / 1200))).toFixed(2)
+    );
+    
+    // Calculate max amount including interest
+    const maxAmount = Number((totalAmountWithInterest - paidAmount).toFixed(2));
 
     return editingEmi.serialNo === payment.serialNo ? (
       <div className="emi-input-container">
