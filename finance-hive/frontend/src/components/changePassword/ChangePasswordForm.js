@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './ChangePasswordForm.css';
+import { useNavigate } from 'react-router-dom';
 
 const ChangePasswordForm = ({ onClose }) => {
   const [mobileNumber, setMobileNumber] = useState('');
@@ -9,6 +10,7 @@ const ChangePasswordForm = ({ onClose }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -70,9 +72,25 @@ const ChangePasswordForm = ({ onClose }) => {
     }
   };
 
+  const handleBack = () => {
+    if (onClose) {
+      onClose();
+    } else {
+      // Fallback navigation if onClose is not provided
+      navigate(-1);
+    }
+  };
+
   return (
     <div className='ChangePassword-body-chng'>
       <div className="ChangePassword-container">
+        <button 
+          className="ChangePassword-back-btn" 
+          onClick={handleBack}
+          aria-label="Go back"
+        >
+          ←
+        </button>
         <h2 className="ChangePassword-h2">Change Password</h2>
         <form onSubmit={handleSubmit} className="ChangePassword-form">
           <div className="ChangePassword-input-group">

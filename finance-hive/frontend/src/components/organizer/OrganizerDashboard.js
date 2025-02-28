@@ -6,7 +6,7 @@ import { User, Phone, Mail, DollarSign, Calendar, Percent, Shield } from 'lucide
 import Navigation from "../Navigation/Navigation";
 import { useTranslation } from 'react-i18next';
 import OrganizerSidebar from '../sidebar/OrganizerSidebar';
-import { Bar, Line, Scatter, Radar, PolarArea } from 'react-chartjs-2';
+import { Bar, Line, Scatter, Radar, PolarArea, Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement, ArcElement, RadialLinearScale } from 'chart.js';
 // import CustomButton from '../CustomButton';
 import Modal from "../Modal/Modal";
@@ -440,14 +440,219 @@ const OrganizerDashboard = () => {
     }
   };
 
+  // Add this new function to calculate user progress
+  const calculateUserProgress = () => {
+    return users.map(user => {
+      const userPayments = paymentDetails.filter(payment => payment.userName === user.name);
+      const paidPayments = userPayments.filter(payment => payment.status.toLowerCase() === 'paid');
+      const progress = userPayments.length > 0 
+        ? (paidPayments.length / userPayments.length) * 100 
+        : 0;
+      
+      return {
+        name: user.name,
+        progress: Math.round(progress),
+        totalPayments: userPayments.length,
+        paidPayments: paidPayments.length
+      };
+    });
+  };
+
   return (
     <div className="organizer-dashboard">
       <Navigation organizerDetails={organizerDetails} onLogout={handleLogout} toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
       <div className="dashboard-layout">
         <OrganizerSidebar organizerDetails={organizerDetails} onLogout={handleLogout} isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
         <main className="dashboard-main">
-        <div className="analytics-section" id="analytics-section">
-        <h2>{t("dashboard.analytics")}</h2>
+          <div className="analytics-section" id="analytics-section">
+            <div className="organizer-analytics-dashboard">
+              <div className="organizer-analytics-header">
+                <div className="organizer-analytics-title-section">
+                  <h2 className="organizer-analytics-title">{t('dashboard.analytics')}</h2>
+                  <p className="organizer-analytics-subtitle">{t('dashboard.organizer_analytics_subtitle')}</p>
+                </div>
+              </div>
+
+              <div className="organizer-analytics-layout">
+                {/* Main Analytics Card */}
+                <div className="organizer-analytics-main">
+                  <div className="organizer-analytics-card organizer-timeline-card">
+                    <h3>
+                      <span className="organizer-card-title">{t('dashboard.loan_disbursement_timeline')}</span>
+                      <span className="organizer-card-subtitle">{t('dashboard.disbursement_subtitle')}</span>
+                    </h3>
+                    <div className="organizer-chart-container large">
+                      <Line 
+                        data={{
+                          labels: users.map(user => new Date(user.createdAt).toLocaleDateString()),
+                          datasets: [{
+                            label: t('dashboard.loan_amounts'),
+                            data: users.map(user => user.amountBorrowed),
+                            borderColor: '#4F46E5',
+                            backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                            fill: true
+                          }]
+                        }}
+                        options={{
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          scales: {
+                            y: {
+                              beginAtZero: true,
+                              ticks: {
+                                callback: value => formatCurrency(value)
+                              }
+                            }
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Secondary Analytics */}
+                <div className="organizer-analytics-secondary">
+                  <div className="organizer-analytics-card organizer-status-card">
+                    <h3>{t('dashboard.payment_overview')}</h3>
+                    <div className="organizer-status-overview">
+                      <Doughnut 
+                        data={{
+                          labels: [t('dashboard.paid'), t('dashboard.pending'), t('dashboard.overdue')],
+                          datasets: [{
+                            data: [
+                              paymentDetails.filter(p => p.status.toLowerCase() === 'paid').length,
+                              paymentDetails.filter(p => p.status.toLowerCase() === 'pending').length,
+                              paymentDetails.filter(p => 
+                                p.status.toLowerCase() === 'pending' && 
+                                new Date(p.dueDate) < new Date()
+                              ).length
+                            ],
+                            backgroundColor: ['#10B981', '#F59E0B', '#EF4444']
+                          }]
+                        }}
+                        options={{
+                          responsive: true,
+                          maintainAspectRatio: false
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="organizer-analytics-card organizer-collection-card">
+                    <h3>{t('dashboard.collection_efficiency')}</h3>
+                    <div className="organizer-collection-progress">
+                      {(() => {
+                        const totalDue = paymentDetails.length;
+                        const collected = paymentDetails.filter(p => p.status.toLowerCase() === 'paid').length;
+                        const efficiency = totalDue ? (collected / totalDue) * 100 : 0;
+                        
+                        return (
+                          <>
+                            <div className="organizer-progress-circle">
+                              <div className="organizer-progress-value">{Math.round(efficiency)}%</div>
+                            </div>
+                            <div className="organizer-progress-label">
+                              {t('dashboard.collection_rate')}
+                            </div>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom Analytics */}
+                <div className="organizer-analytics-bottom">
+                  <div className="organizer-analytics-card organizer-trends-card">
+                    <h3>{t('dashboard.monthly_collection_trends')}</h3>
+                    <div className="organizer-chart-container">
+                      <Bar 
+                        data={{
+                          labels: [...new Set(paymentDetails.map(p => 
+                            new Date(p.dueDate).toLocaleString('default', { month: 'short', year: 'numeric' })
+                          ))],
+                          datasets: [
+                            {
+                              label: t('dashboard.expected_amount'),
+                              data: paymentDetails.reduce((acc, payment) => {
+                                const monthYear = new Date(payment.dueDate)
+                                  .toLocaleString('default', { month: 'short', year: 'numeric' });
+                                acc[monthYear] = (acc[monthYear] || 0) + payment.emiAmount;
+                                return acc;
+                              }, {}),
+                              backgroundColor: '#4F46E5'
+                            },
+                            {
+                              label: t('dashboard.collected_amount'),
+                              data: paymentDetails.reduce((acc, payment) => {
+                                if (payment.status.toLowerCase() === 'paid') {
+                                  const monthYear = new Date(payment.dueDate)
+                                    .toLocaleString('default', { month: 'short', year: 'numeric' });
+                                  acc[monthYear] = (acc[monthYear] || 0) + payment.emiAmount;
+                                }
+                                return acc;
+                              }, {}),
+                              backgroundColor: '#10B981'
+                            }
+                          ]
+                        }}
+                        options={{
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          scales: {
+                            y: {
+                              beginAtZero: true,
+                              ticks: {
+                                callback: value => formatCurrency(value)
+                              }
+                            }
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="organizer-analytics-card organizer-insights-card">
+                    <h3>{t('dashboard.business_insights')}</h3>
+                    <div className="organizer-insights-grid">
+                      {[
+                        {
+                          label: t('dashboard.total_users'),
+                          value: users.length,
+                          icon: 'users',
+                          trend: '+' + users.filter(u => 
+                            new Date(u.createdAt) > new Date(Date.now() - 30*24*60*60*1000)
+                          ).length + ' ' + t('dashboard.this_month')
+                        },
+                        {
+                          label: t('dashboard.total_disbursed'),
+                          value: formatCurrency(totalAmountBorrowed),
+                          icon: 'money',
+                          trend: formatCurrency(totalAmountPaid) + ' ' + t('dashboard.collected')
+                        },
+                        {
+                          label: t('dashboard.avg_loan_size'),
+                          value: formatCurrency(totalAmountBorrowed / users.length || 0),
+                          icon: 'chart',
+                          trend: t('dashboard.across_all_users')
+                        }
+                      ].map((insight, index) => (
+                        <div key={index} className="organizer-insight-item">
+                          <div className="organizer-insight-header">
+                            <span className="organizer-insight-label">{insight.label}</span>
+                            <span className={`organizer-insight-icon ${insight.icon}`} />
+                          </div>
+                          <div className="organizer-insight-value">{insight.value}</div>
+                          <div className="organizer-insight-trend">{insight.trend}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Keep existing analytics grid */}
             <div className="analytics-grid">
               <div className="analytics-card">
                 <h3>{t("dashboard.total_amount_borrowed")}</h3>
@@ -474,122 +679,87 @@ const OrganizerDashboard = () => {
                 <p>{formatCurrency(totalPaymentsCollected)}</p>
               </div>
             </div>
-            <div className="chart-section">
-              <div className="chart-card">
-                <h3>{t("dashboard.amount_borrowed_over_time")}</h3>
-                <Line data={lineData} />
+
+            {/* Bottom Analytics with Tables */}
+            <div className="bottom-analytics-container">
+              {/* Payment Details Section */}
+              <div className="payment-details-section">
+                <div className="section-header">
+                  <h3>{t('dashboard.recent_payments')}</h3>
+                  <div className="search-bar">
+                    <input
+                      type="text"
+                      placeholder={t('dashboard.search_payments')}
+                      value={search}
+                      onChange={handleSearchChange}
+                    />
+                  </div>
+                </div>
+                <div className="scrollable-table">
+                  <table className="payment-details-table">
+                    <thead>
+                      <tr>
+                        <th>{t('dashboard.sno')}</th>
+                        <th>{t('dashboard.user_name')}</th>
+                        <th>{t('dashboard.due_date')}</th>
+                        <th>{t('dashboard.emi_amount')}</th>
+                        <th>{t('dashboard.payment_date')}</th>
+                        <th>{t('dashboard.balance')}</th>
+                        <th>{t('dashboard.status')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredPaymentDetails.map((payment, index) => (
+                        <tr key={index}>
+                          <td>{payment.sno}</td>
+                          <td>{payment.userName}</td>
+                          <td>{new Date(payment.dueDate).toLocaleDateString()}</td>
+                          <td>{formatCurrency(payment.emiAmount)}</td>
+                          <td>
+                            {payment.paymentDate 
+                              ? new Date(payment.paymentDate).toLocaleDateString() 
+                              : '-'}
+                          </td>
+                          <td>{formatCurrency(payment.balance)}</td>
+                          <td>
+                            <span className={`status-badge ${payment.status.toLowerCase()}`}>
+                              {payment.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-              <div className="chart-card">
-                <h3>{t("dashboard.scatter_plot")}</h3>
-                <Scatter data={scatterData} />
-              </div>
-              <div className="chart-card">
-                <h3>{t("dashboard.polar_area_chart")}</h3>
-                <PolarArea data={polarAreaData} />
+
+              {/* User Progress Section */}
+              <div className="user-progress-section">
+                <div className="section-header">
+                  <h3>{t('dashboard.user_progress')}</h3>
+                </div>
+                <div className="progress-bars-container">
+                  {calculateUserProgress().map((user, index) => (
+                    <div key={index} className="user-progress-item">
+                      <div className="progress-header">
+                        <span className="user-name">{user.name}</span>
+                        <span className="progress-percentage">{user.progress}%</span>
+                      </div>
+                      <div className="progress-bar-container">
+                        <div 
+                          className="progress-bar" 
+                          style={{ width: `${user.progress}%` }}
+                        />
+                      </div>
+                      <div className="progress-details">
+                        <span>{user.paidPayments} / {user.totalPayments} {t('dashboard.payments')}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
-          {/* <div className="add-user-section"">
-            <h2>{t("dashboard.add_new_user")}</h2>
-            <form onSubmit={handleSubmit} className="add-user-form">
-              <div className="form-grid">
-                <div className="form-group">
-                  <label>{t("dashboard.name")}</label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>{t("dashboard.email")}</label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>{t("dashboard.mobile")}</label>
-                  <input
-                    type="text"
-                    name="mobileNumber"
-                    value={formData.mobileNumber}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>{t("dashboard.password")}</label>
-                  <input
-                    type="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>{t("dashboard.amount_borrowed")}</label>
-                  <input
-                    type="number"
-                    name="amountBorrowed"
-                    value={formData.amountBorrowed}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>{t("dashboard.tenure")}</label>
-                  <input
-                    type="number"
-                    name="tenure"
-                    value={formData.tenure}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>{t("dashboard.interest")}</label>
-                  <input
-                    type="number"
-                    name="interest"
-                    value={formData.interest}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>{t("dashboard.surity_given")}</label>
-                  <input
-                    type="text"
-                    name="surityGiven"
-                    value={formData.surityGiven}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-              </div>
-<button 
-  type="submit" 
-  className={`submit-btn ${isSubmitting ? 'loading' : ''}`}
-  disabled={isSubmitting}
->
-  {isSubmitting ? (
-    <span className="button-content">
-      <span className="spinner"></span>
-      {t("dashboard.adding_user")}
-    </span>
-  ) : (
-    t("dashboard.add_user")
-  )}
-</button>
-            </form>
-          </div> */}
 
           <div className="users-section" id="users-section">
           <h2>{t("dashboard.your_users")}</h2>
@@ -663,59 +833,6 @@ const OrganizerDashboard = () => {
     </>
   )}
 </div>
-
-<div className="payment-details-section" id="payment-details-section">
-              <h2>{t("dashboard.payment_details")}</h2>
-            {error ? (
-              <div className="error">{error}</div>
-            ) : (
-              <>
-                <div className="search-bar">
-                  <input
-                    type="text"
-                    placeholder={t("dashboard.search")}
-                    value={search}
-                    onChange={handleSearchChange}
-                  />
-                </div>
-                <div className="scrollable-table">
-                  <table className="payment-details-table">
-                    <thead>
-                      <tr>
-                        <th>{t("dashboard.sno")}</th>
-                        <th>{t("dashboard.user_name")}</th>
-                        <th>{t("dashboard.due_date")}</th>
-                        <th>{t("dashboard.emi_amount")}</th>
-                        <th>{t("dashboard.payment_date")}</th>
-                        <th>{t("dashboard.balance")}</th>
-                        <th>{t("dashboard.status")}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredPaymentDetails.map((payment, index) => (
-                        <tr key={index}>
-                          <td>{index + 1}</td>
-                          <td>{payment.userName}</td>
-                          <td>{new Date(payment.dueDate).toLocaleDateString()}</td>
-                          <td>{formatCurrency(payment.emiAmount)}</td>
-                          <td>{payment.paymentDate ? new Date(payment.paymentDate).toLocaleDateString() : t("dashboard.not_paid")}</td>
-                          <td>{formatCurrency(payment.balance)}</td>
-                          <td>
-                            <span className={`status-badge ${payment.status.toLowerCase()}`}>
-                              {payment.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                <div className="total-count">
-                  {t("dashboard.total_payments")}: {filteredPaymentDetails.length}
-                </div>
-              </>
-            )}
-          </div>
         </main>
       </div>
       {showModal && (
