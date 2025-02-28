@@ -304,7 +304,6 @@ exports.createPaymentSchedule = async (req, res) => {
 //     });
 //   }
 // };
-
 exports.updatePaymentDetails = async (req, res) => {
   try {
     const { userId, serialNo } = req.params;
@@ -318,6 +317,12 @@ exports.updatePaymentDetails = async (req, res) => {
     if (!userPayment) {
       return res.status(404).json({ message: "User payment details not found" });
     }
+
+    // Calculate total amount with interest at the start
+    const totalAmountWithInterest = userPayment.paymentSchedule.reduce(
+      (acc, p) => acc + Number(p.emiAmount), 
+      0
+    );
 
     const currentIndex = userPayment.paymentSchedule.findIndex(
       p => p.serialNo === Number(serialNo)
@@ -338,17 +343,26 @@ exports.updatePaymentDetails = async (req, res) => {
         return res.status(400).json({ message: "Invalid EMI amount" });
       }
 
-      // Calculate total paid amount up to current payment
-      const paidAmount = userPayment.paymentSchedule
+      // Calculate total paid amount up to current payment for both principal and interest
+      const paidAmountWithInterest = userPayment.paymentSchedule
         .slice(0, currentIndex)
         .reduce((acc, p) => acc + (p.status === 'PAID' ? Number(p.emiAmount) : 0), 0);
-      
-      const totalRemainingAmount = Number((userPayment.amountBorrowed - paidAmount).toFixed(2));
 
-      // Validate if new amount exceeds total remaining
-      if (newEmiAmount > totalRemainingAmount) {
+      // Calculate proportional principal paid
+      const principalRatio = userPayment.amountBorrowed / totalAmountWithInterest;
+      const paidPrincipal = paidAmountWithInterest * principalRatio;
+      
+      // Calculate remaining amounts for both principal and total with interest
+      const totalRemainingWithInterest = Number((totalAmountWithInterest - paidAmountWithInterest).toFixed(2));
+      const principalRemainingAmount = Number((userPayment.amountBorrowed - paidPrincipal).toFixed(2));
+
+      // Get the maximum allowed amount (minimum of remaining principal and total with interest)
+      const maxAllowedAmount = Math.min(principalRemainingAmount, totalRemainingWithInterest);
+
+      // Validate if new amount exceeds maximum allowed
+      if (newEmiAmount > maxAllowedAmount) {
         return res.status(400).json({ 
-          message: `Amount cannot exceed remaining balance of ${totalRemainingAmount}` 
+          message: `Amount cannot exceed remaining balance of ${maxAllowedAmount}` 
         });
       }
 
@@ -365,10 +379,10 @@ exports.updatePaymentDetails = async (req, res) => {
         payment.locked = false;
         payment.paidDate = null;
       } else if (newEmiAmount === 0) {
-        // If amount becomes 0, set to NA and lock
-        payment.status = 'NA';
+        // If amount becomes 0, set to PAID and lock
+        payment.status = 'PAID';
         payment.locked = true;
-        payment.paidDate = null;
+        payment.paidDate = new Date();
       } else if (payment.status === 'PAID' && newEmiAmount !== oldAmount) {
         // If paid amount changes, reset to PENDING
         payment.status = 'PENDING';
@@ -381,7 +395,7 @@ exports.updatePaymentDetails = async (req, res) => {
       }
 
       // Calculate remaining amount after current payment
-      const remainingAfterCurrent = Number((totalRemainingAmount - newEmiAmount).toFixed(2));
+      const remainingAfterCurrent = Number((totalRemainingWithInterest - newEmiAmount).toFixed(2));
 
       // Update subsequent payments
       if (currentIndex < userPayment.paymentSchedule.length - 1) {
@@ -409,9 +423,9 @@ exports.updatePaymentDetails = async (req, res) => {
               currentPayment.locked = false;
               currentPayment.paidDate = null;
             } else if (currentPayment.emiAmount === 0) {
-              currentPayment.status = 'NA';
+              currentPayment.status = 'PAID';
               currentPayment.locked = true;
-              currentPayment.paidDate = null;
+              currentPayment.paidDate = new Date();
             } else if (currentPayment.status === 'PAID' && currentPayment.emiAmount !== oldPaymentAmount) {
               currentPayment.status = 'PENDING';
               currentPayment.locked = false;
@@ -425,8 +439,8 @@ exports.updatePaymentDetails = async (req, res) => {
         }
       }
 
-      // Recalculate balances
-      let runningBalance = userPayment.amountBorrowed;
+      // Recalculate balances based on total amount with interest
+      let runningBalance = totalAmountWithInterest;
       for (let i = 0; i < userPayment.paymentSchedule.length; i++) {
         const currentPayment = userPayment.paymentSchedule[i];
         currentPayment.emiAmount = Number(currentPayment.emiAmount.toFixed(2));
@@ -439,7 +453,7 @@ exports.updatePaymentDetails = async (req, res) => {
     if (status && !payment.locked) {
       payment.status = status;
 
-      if (status === 'PAID') {
+      if (status === 'PAID' && payment.emiAmount > 0) { // Only generate receipt for non-zero amounts
         payment.paidDate = new Date();
         payment.locked = true;
 
@@ -471,20 +485,21 @@ exports.updatePaymentDetails = async (req, res) => {
 
     await userPayment.save();
 
-    // Final validation
+    // Final validation against total amount with interest
     const finalTotal = userPayment.paymentSchedule.reduce(
       (acc, p) => acc + p.emiAmount, 
       0
     );
 
-    if (Math.abs(finalTotal - userPayment.amountBorrowed) > 0.01) {
-      throw new Error('Payment schedule validation failed: Total EMI does not match borrowed amount');
+    if (Math.abs(finalTotal - totalAmountWithInterest) > 0.01) {
+      throw new Error('Payment schedule validation failed: Total EMI does not match total amount with interest');
     }
 
     res.json({
       message: "Payment details updated successfully",
       schedule: userPayment.paymentSchedule,
-      amountBorrowed: userPayment.amountBorrowed
+      amountBorrowed: userPayment.amountBorrowed,
+      totalAmountWithInterest
     });
 
   } catch (error) {
@@ -496,119 +511,24 @@ exports.updatePaymentDetails = async (req, res) => {
   }
 };
 
+exports.getAllUsersWithPayments = async (req, res) => {
+  try {
+    const { organizerId } = req.params;
+    const users = await UserPayment.find({ organizerId })
+      .select('name email mobileNumber amountBorrowed tenure interest monthlyEMI paymentSchedule')
+      .sort({ name: 1 });
 
-// exports.updatePaymentDetails = async (req, res) => {
-//   try {
-//     const { userId, serialNo } = req.params;
-//     const { emiAmount, status } = req.body;
+    res.status(200).json({
+      message: "Users fetched successfully",
+      users
+    });
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ message: "Error fetching users" });
+  }
+};
 
-//     if (!mongoose.Types.ObjectId.isValid(userId)) {
-//       return res.status(400).json({ message: 'Invalid user ID' });
-//     }
-
-//     const userPayment = await UserPayment.findById(userId);
-//     if (!userPayment) {
-//       return res.status(404).json({ message: "User payment details not found" });
-//     }
-
-//     // Find the payment by serialNo
-//     const payment = userPayment.paymentSchedule.find(
-//       p => p.serialNo === Number(serialNo)
-//     );
-
-//     if (!payment) {
-//       return res.status(404).json({ message: "Payment schedule entry not found" });
-//     }
-
-//     // Update the EMI amount if provided
-//     if (emiAmount) {
-//       const newEmiAmount = Number(emiAmount);
-//       const difference = newEmiAmount - payment.emiAmount;
-
-//       // Update the current payment's EMI
-//       payment.emiAmount = newEmiAmount;
-
-//       // If the payable amount is greater than or equal to the remaining balance, mark it as PAID
-//       if (newEmiAmount >= userPayment.amountBorrowed) {
-//         payment.status = 'PAID';
-//         payment.paidDate = new Date();
-//         payment.locked = true;
-
-//         // Mark all subsequent payments as PAID and set their EMI amounts to 0
-//         for (let i = payment.serialNo; i < userPayment.paymentSchedule.length; i++) {
-//           const subsequentPayment = userPayment.paymentSchedule[i];
-//           subsequentPayment.emiAmount = 0;
-//           subsequentPayment.status = 'PAID';
-//           subsequentPayment.paidDate = new Date();
-//           subsequentPayment.locked = true;
-//         }
-//       } else {
-//         // Adjust the last payment's EMI to maintain the total balance
-//         const lastPayment = userPayment.paymentSchedule[userPayment.paymentSchedule.length - 1];
-//         lastPayment.emiAmount -= difference;
-//       }
-//     }
-
-//     let receipt = null;
-
-//     // Update the status if provided
-//     if (status) {
-//       payment.status = status;
-
-//       if (status === 'PAID') {
-//         payment.paidDate = new Date();
-
-//         // Generate receipt
-//         receipt = {
-//           receiptNumber: `RCPT-${Date.now()}-${payment.serialNo}`,
-//           paymentDate: new Date(),
-//           amount: payment.emiAmount,
-//           serialNo: payment.serialNo
-//         };
-
-//         // Add receipt to user's receipts
-//         userPayment.receipts.push(receipt);
-
-//         // Send notifications
-//         await Promise.all([
-//           createNotification(
-//             userPayment._id,
-//             'Payment Receipt Generated',
-//             `Payment of ${formatCurrency(payment.emiAmount)} for EMI ${payment.serialNo} is completed.`,
-//             'PAYMENT',
-//             { receipt }
-//           ),
-//           sendPaymentEmail(userPayment, payment, receipt),
-//           // sendPaymentSMS(userPayment, payment, receipt)
-//         ]);
-
-//         // Lock the payment to prevent further edits
-//         payment.locked = true;
-//       } else {
-//         payment.paidDate = null;
-//         payment.locked = false; // Unlock the payment if status is changed from PAID
-//       }
-//     }
-
-//     await userPayment.save();
-
-//     res.json({
-//       schedule: userPayment.paymentSchedule,
-//       amountBorrowed: userPayment.amountBorrowed,
-//       receipt
-//     });
-
-//   } catch (error) {
-//     console.error('Update error:', error);
-//     res.status(500).json({
-//       message: 'Error updating payment',
-//       error: error.message
-//     });
-//   }
-// };
-
-
-// Helper functions
+// Helper functions remain the same
 const formatCurrency = (amount) => {
   return new Intl.NumberFormat('en-IN', { 
     style: 'currency', 
@@ -646,9 +566,6 @@ const sendPaymentSMS = async (user, payment, receipt) => {
     to: user.mobileNumber
   });
 };
-
-
-
 // const updatePaymentDetails = async (req, res) => {
 //   try {
 //     const { userId, serialNo } = req.params;

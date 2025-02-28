@@ -13,7 +13,7 @@ const paymentScheduleSchema = new mongoose.Schema({
   balance: Number,
   status: {
     type: String,
-    enum: ['PENDING', 'PAID', 'OVERDUE', 'PAYMENT', 'NO DUE', 'NA'],
+    enum: ['PENDING', 'PAID', 'OVERDUE', 'PAYMENT', 'NO DUE'],
     default: 'PENDING'
   },
   locked: {
