@@ -143,6 +143,168 @@ exports.createPaymentSchedule = async (req, res) => {
 //   }
 // };
 
+// exports.updatePaymentDetails = async (req, res) => {
+//   try {
+//     const { userId, serialNo } = req.params;
+//     const { emiAmount, status } = req.body;
+
+//     const userPayment = await UserPayment.findById(userId);
+//     if (!userPayment) {
+//       return res.status(404).json({ message: "User payment details not found" });
+//     }
+
+//     const currentIndex = userPayment.paymentSchedule.findIndex(
+//       p => p.serialNo === Number(serialNo)
+//     );
+
+//     if (currentIndex === -1) {
+//       return res.status(404).json({ message: "Payment schedule entry not found" });
+//     }
+
+//     const payment = userPayment.paymentSchedule[currentIndex];
+
+//     // Check if payment is locked
+//     if (payment.locked) {
+//       return res.status(400).json({ message: "Cannot modify a locked payment" });
+//     }
+
+//     let receipt = null;
+
+//     // Handle EMI amount update
+//     if (emiAmount !== undefined) {
+//       const newEmiAmount = Number(parseFloat(emiAmount).toFixed(2));
+      
+//       // Validate EMI amount
+//       if (isNaN(newEmiAmount) || newEmiAmount < 0) {
+//         return res.status(400).json({ message: "Invalid EMI amount" });
+//       }
+
+//       // Calculate total paid amount up to current payment
+//       const paidAmount = userPayment.paymentSchedule
+//         .slice(0, currentIndex)
+//         .reduce((acc, p) => acc + (p.status === 'PAID' ? Number(p.emiAmount) : 0), 0);
+      
+//       const totalRemainingAmount = Number((userPayment.amountBorrowed - paidAmount).toFixed(2));
+
+//       // Update current payment
+//       payment.emiAmount = newEmiAmount;
+
+//       // Calculate remaining amount after current payment
+//       const remainingAfterCurrent = Number((totalRemainingAmount - newEmiAmount).toFixed(2));
+
+//       // Update remaining payments
+//       if (currentIndex < userPayment.paymentSchedule.length - 1) {
+//         const remainingPayments = userPayment.paymentSchedule.length - currentIndex - 1;
+        
+//         if (remainingPayments > 0) {
+//           let remainingBalance = remainingAfterCurrent;
+
+//           // Update subsequent payments
+//           for (let i = currentIndex + 1; i < userPayment.paymentSchedule.length; i++) {
+//             const currentPayment = userPayment.paymentSchedule[i];
+            
+//             if (i === userPayment.paymentSchedule.length - 1) {
+//               currentPayment.emiAmount = Number(remainingBalance.toFixed(2));
+//             } else {
+//               const equalShare = Number((remainingBalance / (userPayment.paymentSchedule.length - i)).toFixed(2));
+//               currentPayment.emiAmount = equalShare;
+//               remainingBalance -= equalShare;
+//             }
+
+//             // Update balance and check if payment should be marked as paid
+//             currentPayment.balance = Number(remainingBalance.toFixed(2));
+            
+//             // Auto-mark as paid if amount and balance are 0
+//             if (currentPayment.emiAmount === 0 && currentPayment.balance === 0) {
+//               currentPayment.status = 'PAID';
+//               currentPayment.paidDate = new Date();
+//               currentPayment.locked = true;
+//             }
+//           }
+//         }
+//       }
+
+//       // Recalculate balances and check for auto-paid status
+//       let runningBalance = userPayment.amountBorrowed;
+//       for (let i = 0; i < userPayment.paymentSchedule.length; i++) {
+//         const currentPayment = userPayment.paymentSchedule[i];
+//         runningBalance = Number((runningBalance - currentPayment.emiAmount).toFixed(2));
+//         currentPayment.balance = Math.max(0, runningBalance);
+
+//         // Auto-mark as paid if amount and balance are 0
+//         if (currentPayment.emiAmount === 0 && currentPayment.balance === 0 && !currentPayment.locked) {
+//           currentPayment.status = 'PAID';
+//           currentPayment.paidDate = new Date();
+//           currentPayment.locked = true;
+
+//           // Generate receipt for auto-paid payments
+//           const autoReceipt = {
+//             receiptNumber: `RCPT-${Date.now()}-${currentPayment.serialNo}`,
+//             paymentDate: new Date(),
+//             amount: 0,
+//             serialNo: currentPayment.serialNo
+//           };
+//           userPayment.receipts.push(autoReceipt);
+//         }
+//       }
+//     }
+
+//     // Handle manual status update
+//     if (status) {
+//       payment.status = status;
+
+//       if (status === 'PAID') {
+//         payment.paidDate = new Date();
+//         payment.locked = true;
+
+//         // Generate receipt for manual payment
+//         receipt = {
+//           receiptNumber: `RCPT-${Date.now()}-${payment.serialNo}`,
+//           paymentDate: new Date(),
+//           amount: payment.emiAmount,
+//           serialNo: payment.serialNo
+//         };
+
+//         userPayment.receipts.push(receipt);
+
+//         try {
+//           await Promise.all([
+//             createNotification(
+//               userPayment._id,
+//               'Payment Receipt Generated',
+//               `Payment of ${payment.emiAmount} for EMI ${payment.serialNo} is completed.`,
+//               'PAYMENT',
+//               { receipt }
+//             ),
+//             sendPaymentEmail(userPayment, payment, receipt)
+//           ]);
+//         } catch (error) {
+//           console.error('Notification/Email error:', error);
+//         }
+//       } else {
+//         payment.paidDate = null;
+//         payment.locked = false;
+//       }
+//     }
+
+//     await userPayment.save();
+
+//     res.json({
+//       message: "Payment details updated successfully",
+//       schedule: userPayment.paymentSchedule,
+//       amountBorrowed: userPayment.amountBorrowed,
+//       receipt
+//     });
+
+//   } catch (error) {
+//     console.error('Update error:', error);
+//     res.status(500).json({
+//       message: 'Error updating payment',
+//       error: error.message
+//     });
+//   }
+// };
+
 exports.updatePaymentDetails = async (req, res) => {
   try {
     const { userId, serialNo } = req.params;
@@ -157,101 +319,172 @@ exports.updatePaymentDetails = async (req, res) => {
       return res.status(404).json({ message: "User payment details not found" });
     }
 
-    // Find the payment by serialNo
-    const payment = userPayment.paymentSchedule.find(
+    const currentIndex = userPayment.paymentSchedule.findIndex(
       p => p.serialNo === Number(serialNo)
     );
 
-    if (!payment) {
+    if (currentIndex === -1) {
       return res.status(404).json({ message: "Payment schedule entry not found" });
     }
 
-    // Update the EMI amount if provided
-    if (emiAmount) {
-      const newEmiAmount = Number(emiAmount);
-      const difference = newEmiAmount - payment.emiAmount;
+    const payment = userPayment.paymentSchedule[currentIndex];
 
-      // Update the current payment's EMI
+    // Handle EMI amount update
+    if (emiAmount !== undefined) {
+      const newEmiAmount = Number(parseFloat(emiAmount).toFixed(2));
+      
+      // Validate EMI amount
+      if (isNaN(newEmiAmount) || newEmiAmount < 0) {
+        return res.status(400).json({ message: "Invalid EMI amount" });
+      }
+
+      // Calculate total paid amount up to current payment
+      const paidAmount = userPayment.paymentSchedule
+        .slice(0, currentIndex)
+        .reduce((acc, p) => acc + (p.status === 'PAID' ? Number(p.emiAmount) : 0), 0);
+      
+      const totalRemainingAmount = Number((userPayment.amountBorrowed - paidAmount).toFixed(2));
+
+      // Validate if new amount exceeds total remaining
+      if (newEmiAmount > totalRemainingAmount) {
+        return res.status(400).json({ 
+          message: `Amount cannot exceed remaining balance of ${totalRemainingAmount}` 
+        });
+      }
+
+      // Store old amount for comparison
+      const oldAmount = payment.emiAmount;
+
+      // Update current payment
       payment.emiAmount = newEmiAmount;
 
-      // If the payable amount is greater than or equal to the remaining balance, mark it as PAID
-      if (newEmiAmount >= userPayment.amountBorrowed) {
-        payment.status = 'PAID';
-        payment.paidDate = new Date();
+      // Handle status changes based on amount
+      if (oldAmount === 0 && newEmiAmount > 0) {
+        // If amount changes from 0 to something, set to PENDING and unlock
+        payment.status = 'PENDING';
+        payment.locked = false;
+        payment.paidDate = null;
+      } else if (newEmiAmount === 0) {
+        // If amount becomes 0, set to NA and lock
+        payment.status = 'NA';
         payment.locked = true;
+        payment.paidDate = null;
+      } else if (payment.status === 'PAID' && newEmiAmount !== oldAmount) {
+        // If paid amount changes, reset to PENDING
+        payment.status = 'PENDING';
+        payment.locked = false;
+        payment.paidDate = null;
+        // Remove the corresponding receipt
+        userPayment.receipts = userPayment.receipts.filter(
+          r => r.serialNo !== payment.serialNo
+        );
+      }
 
-        // Mark all subsequent payments as PAID and set their EMI amounts to 0
-        for (let i = payment.serialNo; i < userPayment.paymentSchedule.length; i++) {
-          const subsequentPayment = userPayment.paymentSchedule[i];
-          subsequentPayment.emiAmount = 0;
-          subsequentPayment.status = 'PAID';
-          subsequentPayment.paidDate = new Date();
-          subsequentPayment.locked = true;
+      // Calculate remaining amount after current payment
+      const remainingAfterCurrent = Number((totalRemainingAmount - newEmiAmount).toFixed(2));
+
+      // Update subsequent payments
+      if (currentIndex < userPayment.paymentSchedule.length - 1) {
+        const remainingPayments = userPayment.paymentSchedule.length - currentIndex - 1;
+        
+        if (remainingPayments > 0) {
+          let remainingBalance = remainingAfterCurrent;
+
+          // Update remaining payments
+          for (let i = currentIndex + 1; i < userPayment.paymentSchedule.length; i++) {
+            const currentPayment = userPayment.paymentSchedule[i];
+            const oldPaymentAmount = currentPayment.emiAmount;
+            
+            if (i === userPayment.paymentSchedule.length - 1) {
+              currentPayment.emiAmount = Number(remainingBalance.toFixed(2));
+            } else {
+              const equalShare = Number((remainingBalance / (userPayment.paymentSchedule.length - i)).toFixed(2));
+              currentPayment.emiAmount = equalShare;
+              remainingBalance = Number((remainingBalance - equalShare).toFixed(2));
+            }
+
+            // Handle status changes for subsequent payments
+            if (oldPaymentAmount === 0 && currentPayment.emiAmount > 0) {
+              currentPayment.status = 'PENDING';
+              currentPayment.locked = false;
+              currentPayment.paidDate = null;
+            } else if (currentPayment.emiAmount === 0) {
+              currentPayment.status = 'NA';
+              currentPayment.locked = true;
+              currentPayment.paidDate = null;
+            } else if (currentPayment.status === 'PAID' && currentPayment.emiAmount !== oldPaymentAmount) {
+              currentPayment.status = 'PENDING';
+              currentPayment.locked = false;
+              currentPayment.paidDate = null;
+              // Remove corresponding receipt
+              userPayment.receipts = userPayment.receipts.filter(
+                r => r.serialNo !== currentPayment.serialNo
+              );
+            }
+          }
         }
-      } else {
-        // Adjust the last payment's EMI to maintain the total balance
-        const lastPayment = userPayment.paymentSchedule[userPayment.paymentSchedule.length - 1];
-        lastPayment.emiAmount -= difference;
+      }
+
+      // Recalculate balances
+      let runningBalance = userPayment.amountBorrowed;
+      for (let i = 0; i < userPayment.paymentSchedule.length; i++) {
+        const currentPayment = userPayment.paymentSchedule[i];
+        currentPayment.emiAmount = Number(currentPayment.emiAmount.toFixed(2));
+        runningBalance = Number((runningBalance - currentPayment.emiAmount).toFixed(2));
+        currentPayment.balance = Math.max(0, runningBalance);
       }
     }
 
-    // Automatically mark any payment as PAID if the EMI amount is negative or less than 1 rupee
-    for (const p of userPayment.paymentSchedule) {
-      if (p.emiAmount < 1 && p.status !== 'PAID') {
-        p.status = 'PAID';
-        p.paidDate = new Date();
-        p.locked = true;
-        p.emiAmount = 0; // Set EMI amount to 0
-      }
-    }
-
-    let receipt = null;
-
-    // Update the status if provided
-    if (status) {
+    // Handle manual status update only if payment is not locked
+    if (status && !payment.locked) {
       payment.status = status;
 
       if (status === 'PAID') {
         payment.paidDate = new Date();
+        payment.locked = true;
 
-        // Generate receipt
-        receipt = {
+        const receipt = {
           receiptNumber: `RCPT-${Date.now()}-${payment.serialNo}`,
           paymentDate: new Date(),
           amount: payment.emiAmount,
           serialNo: payment.serialNo
         };
 
-        // Add receipt to user's receipts
         userPayment.receipts.push(receipt);
 
-        // Send notifications
-        await Promise.all([
-          createNotification(
-            userPayment._id,
-            'Payment Receipt Generated',
-            `Payment of ${formatCurrency(payment.emiAmount)} for EMI ${payment.serialNo} is completed.`,
-            'PAYMENT',
-            { receipt }
-          ),
-          sendPaymentEmail(userPayment, payment, receipt),
-          // sendPaymentSMS(userPayment, payment, receipt)
-        ]);
-
-        // Lock the payment to prevent further edits
-        payment.locked = true;
-      } else {
-        payment.paidDate = null;
-        payment.locked = false; // Unlock the payment if status is changed from PAID
+        try {
+          await Promise.all([
+            createNotification(
+              userPayment._id,
+              'Payment Receipt Generated',
+              `Payment of ${payment.emiAmount} for EMI ${payment.serialNo} is completed.`,
+              'PAYMENT',
+              { receipt }
+            ),
+            sendPaymentEmail(userPayment, payment, receipt)
+          ]);
+        } catch (error) {
+          console.error('Notification/Email error:', error);
+        }
       }
     }
 
     await userPayment.save();
 
+    // Final validation
+    const finalTotal = userPayment.paymentSchedule.reduce(
+      (acc, p) => acc + p.emiAmount, 
+      0
+    );
+
+    if (Math.abs(finalTotal - userPayment.amountBorrowed) > 0.01) {
+      throw new Error('Payment schedule validation failed: Total EMI does not match borrowed amount');
+    }
+
     res.json({
+      message: "Payment details updated successfully",
       schedule: userPayment.paymentSchedule,
-      amountBorrowed: userPayment.amountBorrowed,
-      receipt
+      amountBorrowed: userPayment.amountBorrowed
     });
 
   } catch (error) {
@@ -262,6 +495,8 @@ exports.updatePaymentDetails = async (req, res) => {
     });
   }
 };
+
+
 // exports.updatePaymentDetails = async (req, res) => {
 //   try {
 //     const { userId, serialNo } = req.params;

@@ -259,11 +259,11 @@ const UserDashboard = () => {
                 percentage: Math.round((statusCounts.PAID || 0) / paymentSchedule.length * 100)
             },
 
-            paymentHealth: {
-                onTime: emiBreakdown.onTime,
-                total: emiBreakdown.onTime + emiBreakdown.late + emiBreakdown.missed,
-                score: Math.round((emiBreakdown.onTime / (emiBreakdown.onTime + emiBreakdown.late + emiBreakdown.missed)) * 100)
-            },
+            // paymentHealth: {
+            //     onTime: emiBreakdown.onTime,
+            //     total: emiBreakdown.onTime + emiBreakdown.late + emiBreakdown.missed,
+            //     score: Math.round((emiBreakdown.onTime / (emiBreakdown.onTime + emiBreakdown.late + emiBreakdown.missed)) * 100)
+            // },
 
             loanInsights: {
                 currentStreak: loanInsights.currentStreak,
@@ -603,7 +603,7 @@ const UserDashboard = () => {
                             </div>
 
                             <div className="analytics-bottom">
-                                <div className="analytics-card health-card">
+                                {/* <div className="analytics-card health-card">
                                     <h3>{t('dashboard.payment_health')}</h3>
                                     <div className="health-score">
                                         <div className="score-circle">
@@ -635,7 +635,7 @@ const UserDashboard = () => {
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </div> */}
 
                                 <div className="analytics-card trends-card">
                                     <h3>{t('dashboard.monthly_trends')}</h3>

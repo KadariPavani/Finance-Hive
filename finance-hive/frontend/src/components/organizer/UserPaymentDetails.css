@@ -341,3 +341,26 @@ th {
   color: #7f8c8d;
   font-size: 0.9em;
 }
+
+.emi-input-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.remaining-balance-hint {
+  font-size: 0.8em;
+  color: #666;
+  margin-top: 2px;
+}
+
+.editable-amount {
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.editable-amount:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}

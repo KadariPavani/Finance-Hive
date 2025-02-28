@@ -36,8 +36,12 @@ const UserPaymentDetails = () => {
 
       setUserData(response.data);
       setPaymentSchedule(response.data.paymentSchedule || []);
+      setError(null); // Clear any existing errors
     } catch (error) {
+      console.error('Error fetching user data:', error);
       setError(error.response?.data?.message || 'Failed to load payment details');
+      setModalMessage('Error refreshing payment details');
+      setShowModal(true);
     }
   }, [userId]);
 
@@ -51,44 +55,91 @@ const UserPaymentDetails = () => {
     try {
       setUpdateInProgress(prev => ({ ...prev, [serialNo]: true }));
 
-      // Find the current payment details
-      const payment = paymentSchedule.find(p => p.serialNo === serialNo);
-      
-      // Optimistic update
-      const updatedPaymentSchedule = paymentSchedule.map(p =>
-        p.serialNo === serialNo ? { ...p, [field]: value } : p
-      );
-      setPaymentSchedule(updatedPaymentSchedule);
-
-      const response = await api.patch(`/payment/${userId}/${serialNo}`, {
-        [field]: field === 'emiAmount' ? Number(value) : value,
-      });
-
-      if (response.status === 200 || response.data.success) {
-        await fetchUserData();
-        setIsSuccess(true);
+      if (field === 'emiAmount') {
+        const newEmiAmount = Number(value);
         
-        // Set different messages based on the type of update
-        if (field === 'status' && value === 'PAID') {
-          setModalMessage(`Amount of ${formatCurrency(payment.emiAmount)} repayment successfully completed!`);
-          setShowModal(true);
-        } else if (field === 'emiAmount') {
-          // Don't show modal for EMI amount updates
-          setShowModal(false);
+        // Basic validation
+        if (isNaN(newEmiAmount) || newEmiAmount <= 0) {
+          throw new Error('Invalid EMI amount');
         }
-      } else {
-        throw new Error('Backend update failed');
+
+        const currentIndex = paymentSchedule.findIndex(p => p.serialNo === serialNo);
+        
+        // Calculate total remaining amount from current payment onwards
+        const paidAmount = paymentSchedule
+          .slice(0, currentIndex)
+          .reduce((acc, p) => acc + (p.status === 'PAID' ? p.emiAmount : 0), 0);
+        
+        const totalRemainingAmount = userData.amountBorrowed - paidAmount;
+
+        // Validate if new amount exceeds total remaining
+        if (newEmiAmount > totalRemainingAmount) {
+          setIsSuccess(false);
+          setModalMessage(`Amount cannot exceed remaining balance of ${formatCurrency(totalRemainingAmount)}`);
+          setShowModal(true);
+          return;
+        }
+
+        // Calculate the difference in EMI amount
+        const currentEmi = paymentSchedule[currentIndex].emiAmount;
+        const difference = newEmiAmount - currentEmi;
+
+        // If this is the last payment, don't allow modifications that would make total incorrect
+        if (currentIndex === paymentSchedule.length - 1) {
+          if (newEmiAmount !== totalRemainingAmount) {
+            setIsSuccess(false);
+            setModalMessage(`Last payment must equal remaining balance: ${formatCurrency(totalRemainingAmount)}`);
+            setShowModal(true);
+            return;
+          }
+        }
+
+        // Send update to backend
+        const response = await api.patch(`/payment/${userId}/${serialNo}`, {
+          emiAmount: newEmiAmount,
+          isLastPaymentAdjustment: currentIndex !== paymentSchedule.length - 1 // Flag to indicate if last payment should be adjusted
+        });
+
+        if (response.data && response.data.schedule) {
+          setPaymentSchedule(response.data.schedule);
+          setIsSuccess(true);
+          setModalMessage('Payment amount updated successfully');
+          setShowModal(true);
+          await fetchUserData(); // Refresh data to get updated schedule
+        } else {
+          throw new Error('Invalid response from server');
+        }
+      } else if (field === 'status') {
+        const response = await api.patch(`/payment/${userId}/${serialNo}`, {
+          status: value
+        });
+
+        if (response.data && response.data.schedule) {
+          setPaymentSchedule(response.data.schedule);
+          setIsSuccess(true);
+          setModalMessage(`Payment status updated to ${value}`);
+          setShowModal(true);
+          await fetchUserData();
+        }
       }
+
     } catch (error) {
+      console.error('Update error:', error);
       setIsSuccess(false);
-      setModalMessage('Update failed. Please try again.');
-      setError('Update failed. Reverting changes...');
-      fetchUserData();
+      setModalMessage(error.response?.data?.message || 'Update failed. Please try again.');
       setShowModal(true);
     } finally {
       setUpdateInProgress(prev => ({ ...prev, [serialNo]: false }));
       setEditingEmi({ serialNo: null, value: '' });
     }
+  };
+
+  // Add a helper function to calculate remaining balance
+  const calculateRemainingBalance = (currentIndex) => {
+    const previousPayments = paymentSchedule
+      .slice(0, currentIndex)
+      .reduce((acc, p) => acc + (p.status === 'PAID' ? p.emiAmount : 0), 0);
+    return userData.amountBorrowed - previousPayments;
   };
 
   const handleDownloadReceipt = (receipt) => {
@@ -118,32 +169,59 @@ const UserPaymentDetails = () => {
     .filter((payment) => payment.status !== 'PAID')
     .reduce((acc, payment) => acc + payment.emiAmount, 0);
 
+  // Update renderEmiAmount to show correct maximum amount
   const renderEmiAmount = (payment) => {
-    if (payment.status === 'PAID') {
+    if (payment.locked || payment.status === 'PAID') {
       return <span>{formatCurrency(payment.emiAmount)}</span>;
     }
 
+    const currentIndex = paymentSchedule.findIndex(p => p.serialNo === payment.serialNo);
+    const paidAmount = paymentSchedule
+      .slice(0, currentIndex)
+      .reduce((acc, p) => acc + (p.status === 'PAID' ? p.emiAmount : 0), 0);
+    
+    const maxAmount = userData.amountBorrowed - paidAmount;
+
     return editingEmi.serialNo === payment.serialNo ? (
-      <input
-        type="number"
-        value={editingEmi.value}
-        onChange={(e) => setEditingEmi({ ...editingEmi, value: e.target.value })}
-        onBlur={() => handlePaymentUpdate(payment.serialNo, 'emiAmount', editingEmi.value)}
-        onKeyPress={(e) =>
-          e.key === 'Enter' &&
-          handlePaymentUpdate(payment.serialNo, 'emiAmount', editingEmi.value)
-        }
-        autoFocus
-      />
+      <div className="emi-input-container">
+        <input
+          type="number"
+          value={editingEmi.value}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (value === '' || (Number(value) >= 0 && Number(value) <= maxAmount)) {
+              setEditingEmi({ ...editingEmi, value });
+            }
+          }}
+          onBlur={() => {
+            if (editingEmi.value !== '') {
+              handlePaymentUpdate(payment.serialNo, 'emiAmount', editingEmi.value);
+            }
+          }}
+          onKeyPress={(e) => {
+            if (e.key === 'Enter' && editingEmi.value !== '') {
+              handlePaymentUpdate(payment.serialNo, 'emiAmount', editingEmi.value);
+            }
+          }}
+          autoFocus
+          min="0"
+          max={maxAmount}
+          step="any"
+        />
+        <small className="remaining-balance-hint">
+          Max: {formatCurrency(maxAmount)}
+        </small>
+      </div>
     ) : (
       <span
         onClick={() =>
           setEditingEmi({
             serialNo: payment.serialNo,
-            value: payment.emiAmount,
+            value: payment.emiAmount.toString()
           })
         }
         className="editable-amount"
+        title={`Maximum allowed: ${formatCurrency(maxAmount)}`}
       >
         {formatCurrency(payment.emiAmount)}
       </span>
@@ -254,3 +332,4 @@ const UserPaymentDetails = () => {
 };
 
 export default UserPaymentDetails;
+
