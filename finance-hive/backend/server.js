@@ -15,6 +15,7 @@ const userRoutes = require("./routes/userRoutes");
 const notificationRoutes = require("./routes/notifications");
 const trackingRoutes = require("./routes/tracking");
 const userPaymentsRoute = require("./routes/userPayments");
+const organizerRoutes = require("./routes/organizerRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -82,7 +83,7 @@ app.use("/api", userRoutes);
 app.use("/api/tracking", trackingRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api", userPaymentsRoute);
-
+app.use("/api/organizer", organizerRoutes);
 // Start cron job
 autoUpdateOverdueStatus();
 

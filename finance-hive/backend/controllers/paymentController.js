@@ -569,4 +569,169 @@ exports.getAllUsersWithPayments = async (req, res) => {
   }
 };
 
+exports.getDayAnalytics = async (req, res) => {
+    try {
+        const { date } = req.params;
+        const organizerId = req.user._id; // Get organizer ID from authenticated user
+
+        // Get start and end of the day
+        const startDate = new Date(date);
+        startDate.setHours(0, 0, 0, 0);
+        const endDate = new Date(date);
+        endDate.setHours(23, 59, 59, 999);
+
+        // Find all payments for this day
+        const payments = await UserPayment.aggregate([
+            {
+                $match: {
+                    organizerId: new mongoose.Types.ObjectId(organizerId)
+                }
+            },
+            {
+                $unwind: '$paymentSchedule'
+            },
+            {
+                $match: {
+                    'paymentSchedule.paymentDate': {
+                        $gte: startDate,
+                        $lte: endDate
+                    }
+                }
+            },
+            {
+                $project: {
+                    name: 1,
+                    'paymentSchedule.emiAmount': 1,
+                    'paymentSchedule.status': 1,
+                    'paymentSchedule.paymentDate': 1,
+                    'paymentSchedule.paidDate': 1
+                }
+            }
+        ]);
+
+        // Calculate analytics
+        const totalCollections = payments.reduce((sum, payment) => 
+            payment.paymentSchedule.status === 'PAID' ? sum + payment.paymentSchedule.emiAmount : sum, 0);
+
+        const totalPending = payments.reduce((sum, payment) => 
+            payment.paymentSchedule.status === 'PENDING' ? sum + payment.paymentSchedule.emiAmount : sum, 0);
+
+        const paidCount = payments.filter(p => p.paymentSchedule.status === 'PAID').length;
+        const pendingCount = payments.filter(p => p.paymentSchedule.status === 'PENDING').length;
+
+        res.json({
+            totalCollections,
+            totalPending,
+            netProfit: totalCollections,
+            totalPayments: payments.length,
+            paidCount,
+            pendingCount,
+            payments: payments.map(p => ({
+                userName: p.name,
+                amount: p.paymentSchedule.emiAmount,
+                status: p.paymentSchedule.status,
+                time: p.paymentSchedule.paidDate || p.paymentSchedule.paymentDate
+            }))
+        });
+
+    } catch (error) {
+        console.error('Error fetching day analytics:', error);
+        res.status(500).json({ message: 'Error fetching day analytics', error: error.message });
+    }
+};
+
+exports.getMonthAnalytics = async (req, res) => {
+    try {
+        const { month } = req.params; // Format: YYYY-MM
+        const organizerId = req.user._id; // Get organizer ID from authenticated user
+
+        // Get start and end of the month
+        const startDate = new Date(`${month}-01`);
+        const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0);
+        endDate.setHours(23, 59, 59, 999);
+
+        // Find all payments for this month
+        const payments = await UserPayment.aggregate([
+            {
+                $match: {
+                    organizerId: new mongoose.Types.ObjectId(organizerId)
+                }
+            },
+            {
+                $unwind: '$paymentSchedule'
+            },
+            {
+                $match: {
+                    'paymentSchedule.paymentDate': {
+                        $gte: startDate,
+                        $lte: endDate
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        $dateToString: { format: "%Y-%m-%d", date: "$paymentSchedule.paymentDate" }
+                    },
+                    totalCollections: {
+                        $sum: {
+                            $cond: [
+                                { $eq: ["$paymentSchedule.status", "PAID"] },
+                                "$paymentSchedule.emiAmount",
+                                0
+                            ]
+                        }
+                    },
+                    totalPending: {
+                        $sum: {
+                            $cond: [
+                                { $eq: ["$paymentSchedule.status", "PENDING"] },
+                                "$paymentSchedule.emiAmount",
+                                0
+                            ]
+                        }
+                    },
+                    paidCount: {
+                        $sum: {
+                            $cond: [
+                                { $eq: ["$paymentSchedule.status", "PAID"] },
+                                1,
+                                0
+                            ]
+                        }
+                    },
+                    pendingCount: {
+                        $sum: {
+                            $cond: [
+                                { $eq: ["$paymentSchedule.status", "PENDING"] },
+                                1,
+                                0
+                            ]
+                        }
+                    },
+                    totalPayments: { $sum: 1 }
+                }
+            }
+        ]);
+
+        // Convert array to object with dates as keys
+        const monthData = payments.reduce((acc, day) => {
+            acc[day._id] = {
+                totalCollections: day.totalCollections,
+                totalPending: day.totalPending,
+                paidCount: day.paidCount,
+                pendingCount: day.pendingCount,
+                totalPayments: day.totalPayments
+            };
+            return acc;
+        }, {});
+
+        res.json(monthData);
+
+    } catch (error) {
+        console.error('Error fetching month analytics:', error);
+        res.status(500).json({ message: 'Error fetching month analytics', error: error.message });
+    }
+};
+
 

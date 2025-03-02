@@ -27,6 +27,7 @@ import AddUserPage from './components/organizer/AddUserPage';
 import Approach from './components/admin/Approach';
 import Profile from './components/profile/Profile'; // Import Profile component
 import LoadingAnimation from './components/animations/LoadingAnimation';
+import Calendar from './components/calendar/Calendar';
 const App = () => {
   const [loading, setLoading] = useState(true);
 
@@ -67,6 +68,7 @@ const App = () => {
           <Route path="/add-user" element={<AddUserPage />} />
           <Route path="/approach" element={<Approach />} />
           <Route path="/profile" element={<Profile />} /> {/* Add this route */}
+          <Route path="/calendar" element={<Calendar />} />
         </Routes>
       </Router>
     </I18nextProvider>

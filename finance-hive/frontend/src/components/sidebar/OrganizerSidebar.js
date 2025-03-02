@@ -10,6 +10,7 @@ import {
     Lock,
     LogOut,
     Plus,
+    Calendar as CalendarIcon,
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Sidebar.css';
@@ -123,9 +124,14 @@ const OrganizerSidebar = ({ organizerDetails, onLogout, isSidebarOpen, toggleSid
                     </Link>
 
                     <Link to="/add-user" className="sidebar-btn">
-    <Plus className="sidebar-icon" />
-    <span>Add New User</span>
-</Link>
+                        <Plus className="sidebar-icon" />
+                        <span>Add New User</span>
+                    </Link>
+
+                    <Link to="/calendar" className="sidebar-btn">
+                        <CalendarIcon className="sidebar-icon" />
+                        <span>Calendar</span>
+                    </Link>
 
                     <button className="sidebar-btn logout" onClick={onLogout}>
                         <LogOut className="sidebar-icon" />
