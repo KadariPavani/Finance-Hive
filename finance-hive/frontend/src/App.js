@@ -28,6 +28,8 @@ import Approach from './components/admin/Approach';
 import Profile from './components/profile/Profile'; // Import Profile component
 import LoadingAnimation from './components/animations/LoadingAnimation';
 import Calendar from './components/calendar/Calendar';
+import EditSavingsGoal from './components/user/EditSavingsGoal';
+
 const App = () => {
   const [loading, setLoading] = useState(true);
 
@@ -62,6 +64,7 @@ const App = () => {
           <Route path="/tracking/income-form" element={<IncomeForm />} />
           <Route path="/tracking/expense-form" element={<ExpenseForm />} />
           <Route path="/tracking/savings-form" element={<SavingsForm />} />
+          <Route path="/tracking/savings-form/:goalId" element={<EditSavingsGoal />} />
           <Route path="/payment-schedule" element={<PaymentSchedulePage />} />
           <Route path="/change-password" element={<ChangePasswordForm />} />
           <Route path="/dashboard" element={<UserDashboard />} />

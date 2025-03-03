@@ -140,32 +140,119 @@ router.post('/expense', auth, async (req, res) => {
   }
 });
 
-// Add savings goal
-router.post('/savings', auth, async (req, res) => {
+// Get all savings goals
+router.get('/savings', auth, async (req, res) => {
   try {
-    const { goalName, targetAmount, currentAmount, targetDate, description } = req.body;
-    const savingsGoal = new SavingsGoal({
-      userId: req.user.id,
-      goalName,
-      targetAmount: Number(targetAmount),
-      currentAmount: Number(currentAmount),
-      targetDate: new Date(targetDate),
-      description
-    });
-    await savingsGoal.save();
-    res.status(201).json(savingsGoal);
+    const goals = await SavingsGoal.find({ userId: req.user.id });
+    res.json(goals);
   } catch (error) {
-    res.status(500).json({ message: 'Error adding savings goal', error: error.message });
+    res.status(500).json({ message: 'Error fetching savings goals' });
   }
 });
 
-// Get savings goals
-router.get('/savings', auth, async (req, res) => {
+// Get single savings goal
+router.get('/savings/:id', auth, async (req, res) => {
   try {
-    const savingsGoals = await SavingsGoal.find({ userId: req.user.id });
-    res.json(savingsGoals);
+    const goal = await SavingsGoal.findOne({
+      _id: req.params.id,
+      userId: req.user.id
+    });
+    if (!goal) {
+      return res.status(404).json({ message: 'Savings goal not found' });
+    }
+    res.json(goal);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching savings goals', error: error.message });
+    res.status(500).json({ message: 'Error fetching savings goal' });
+  }
+});
+
+// Create savings goal
+router.post('/savings', auth, async (req, res) => {
+  try {
+    const { goalName, targetAmount, currentAmount, targetDate, description, category } = req.body;
+    const newGoal = new SavingsGoal({
+      userId: req.user.id,
+      goalName,
+      targetAmount,
+      currentAmount: currentAmount || 0,
+      targetDate,
+      description,
+      category,
+      progress: (currentAmount / targetAmount) * 100,
+      status: currentAmount >= targetAmount ? 'Completed' : 'In Progress'
+    });
+    await newGoal.save();
+    res.status(201).json(newGoal);
+  } catch (error) {
+    res.status(500).json({ message: 'Error creating savings goal' });
+  }
+});
+
+// Update savings goal
+router.put('/savings/:id', auth, async (req, res) => {
+  try {
+    const { goalName, targetAmount, currentAmount, targetDate, description, category } = req.body;
+    const goal = await SavingsGoal.findOneAndUpdate(
+      { _id: req.params.id, userId: req.user.id },
+      {
+        goalName,
+        targetAmount,
+        currentAmount,
+        targetDate,
+        description,
+        category,
+        progress: (currentAmount / targetAmount) * 100,
+        status: currentAmount >= targetAmount ? 'Completed' : 'In Progress',
+        lastUpdated: Date.now()
+      },
+      { new: true }
+    );
+    if (!goal) {
+      return res.status(404).json({ message: 'Savings goal not found' });
+    }
+    res.json(goal);
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating savings goal' });
+  }
+});
+
+// Delete savings goal
+router.delete('/savings/:id', auth, async (req, res) => {
+  try {
+    const goal = await SavingsGoal.findOneAndDelete({
+      _id: req.params.id,
+      userId: req.user.id
+    });
+    if (!goal) {
+      return res.status(404).json({ message: 'Savings goal not found' });
+    }
+    res.json({ message: 'Savings goal deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting savings goal' });
+  }
+});
+
+// Get savings statistics
+router.get('/savings-stats', auth, async (req, res) => {
+  try {
+    const goals = await SavingsGoal.find({ userId: req.user.id });
+    const stats = {
+      totalGoals: goals.length,
+      completedGoals: goals.filter(g => g.status === 'Completed').length,
+      totalSaved: goals.reduce((sum, g) => sum + g.currentAmount, 0),
+      totalTarget: goals.reduce((sum, g) => sum + g.targetAmount, 0),
+      categoryBreakdown: goals.reduce((acc, g) => {
+        acc[g.category] = (acc[g.category] || 0) + g.currentAmount;
+        return acc;
+      }, {}),
+      upcomingDeadlines: goals
+        .filter(g => g.status !== 'Completed')
+        .sort((a, b) => new Date(a.targetDate) - new Date(b.targetDate))
+        .slice(0, 5)
+    };
+    res.json(stats);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching savings statistics' });
   }
 });
 

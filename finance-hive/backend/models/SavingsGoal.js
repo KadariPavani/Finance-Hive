@@ -23,7 +23,45 @@ const savingsGoalSchema = new mongoose.Schema({
     type: Date,
     required: true
   },
-  description: String
+  description: String,
+  category: {
+    type: String,
+    required: true,
+    enum: ['Emergency Fund', 'Retirement', 'Education', 'Travel', 'Home', 'Vehicle', 'Wedding', 'Other']
+  },
+  progress: {
+    type: Number,
+    default: 0
+  },
+  status: {
+    type: String,
+    enum: ['Not Started', 'In Progress', 'Completed'],
+    default: 'Not Started'
+  },
+  priority: {
+    type: String,
+    enum: ['Low', 'Medium', 'High'],
+    default: 'Medium'
+  },
+  contributions: [{
+    amount: Number,
+    date: {
+      type: Date,
+      default: Date.now
+    },
+    note: String
+  }],
+  lastUpdated: {
+    type: Date,
+    default: Date.now
+  }
 }, { timestamps: true });
+
+// Calculate progress before saving
+savingsGoalSchema.pre('save', function(next) {
+  this.progress = (this.currentAmount / this.targetAmount) * 100;
+  this.status = this.progress >= 100 ? 'Completed' : this.currentAmount > 0 ? 'In Progress' : 'Not Started';
+  next();
+});
 
 module.exports = mongoose.model('SavingsGoal', savingsGoalSchema);
