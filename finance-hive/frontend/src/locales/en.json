@@ -71,7 +71,13 @@
     "user_name": "User Name",
     "due_date": "Due Date",
     "not_paid": "Not Paid",
-    "total_payments": "Total Payments"
+    "total_payments": "Total Payments",
+    "organizer_info": "Organizer Information",
+    "organizer_name": "Organizer Name",
+    "organizer_email": "Organizer Email",
+    "contact": "Contact Number",
+    "not_available": "Not Available",
+    "no_organizer_info": "No organizer information available"
   },
   "notifications": {
     "title": "Notifications",

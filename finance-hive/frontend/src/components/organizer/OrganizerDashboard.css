@@ -120,11 +120,11 @@ body {
 }
 
 .users-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
+    display: grid
+;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.5rem;
 }
-
 /* User Card Styles */
 .users-section {
   background: var(--white);
@@ -1388,11 +1388,12 @@ body {
 }
 
 .search-bar input {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid var(--gray-200);
-  border-radius: 6px;
-  font-size: 14px;
+    width: 80%;
+    margin: 15px;
+    padding: 8px;
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    font-size: 14px;
 }
 
 .search-bar input:focus {

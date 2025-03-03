@@ -533,15 +533,22 @@ exports.getUsersByOrganizer = async (req, res) => {
 
 exports.getUserDetails = async (req, res) => {
   try {
-    const userId = req.user.id; // User ID from authenticated token
+    const userId = req.user.id;
 
-    // Find user details in `UserPayment` collection using the same `_id`
-    const userDetails = await UserPayment.findById(userId);
+    // Find user details and populate organizer information
+    const userDetails = await UserPayment.findById(userId)
+      .populate('organizerId', 'name email mobileNumber'); // Populate organizer details
+
     if (!userDetails) {
       return res.status(404).json({ message: "User details not found." });
     }
 
-    res.status(200).json({ data: userDetails });
+    res.status(200).json({
+      data: {
+        ...userDetails.toObject(),
+        organizer: userDetails.organizerId // This will contain the populated organizer details
+      }
+    });
   } catch (error) {
     console.error("Error fetching user details:", error);
     res.status(500).json({ message: "Error fetching user details." });

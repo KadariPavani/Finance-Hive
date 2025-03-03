@@ -22,7 +22,7 @@ const UserDashboard = () => {
         paymentStatus: {},
         paymentTimeline: {},
         monthlyPaymentTrends: {},
-        principalVsInterest: {},
+        principalVsInterest: {}, 
         completionProgress: {},
         loanUtilization: {},
         paymentHealth: {},
@@ -420,24 +420,35 @@ const UserDashboard = () => {
 
                     {userDetails && (
                         <div className="user-content-wrapper">
-                            {/* Personal Info Card */}
+                            {/* Organizer Info Card */}
                             <div className="user-info-card">
                                 <div className="user-info-header">
-                                    <h2>{t('dashboard.personal_info')}</h2>
+                                    <h2>{t('dashboard.organizer_info')}</h2>
                                 </div>
                                 <div className="user-info-content">
-                                    <div className="user-info-item">
-                                        <span className="user-info-label">{t('dashboard.name')}</span>
-                                        <span className="user-info-value">{userDetails.name}</span>
-                                    </div>
-                                    <div className="user-info-item">
-                                        <span className="user-info-label">{t('dashboard.email')}</span>
-                                        <span className="user-info-value">{userDetails.email}</span>
-                                    </div>
-                                    <div className="user-info-item">
-                                        <span className="user-info-label">{t('dashboard.mobile')}</span>
-                                        <span className="user-info-value">{userDetails.mobileNumber}</span>
-                                    </div>
+                                    {userDetails.organizer ? (
+                                        <>
+                                            <div className="user-info-item">
+                                                <span className="user-info-label">{t('dashboard.organizer_name')}</span>
+                                                <span className="user-info-value">{userDetails.organizer.name}</span>
+                                            </div>
+                                            <div className="user-info-item">
+                                                <span className="user-info-label">{t('dashboard.organizer_email')}</span>
+                                                <span className="user-info-value">{userDetails.organizer.email}</span>
+                                            </div>
+                                            <div className="user-info-item">
+                                                <span className="user-info-label">{t('dashboard.contact')}</span>
+                                                <span className="user-info-value">
+                                                    <FaPhone className="info-icon" />
+                                                    {userDetails.organizer.mobileNumber || t('dashboard.not_available')}
+                                                </span>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <div className="user-info-empty">
+                                            {t('dashboard.no_organizer_info')}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
