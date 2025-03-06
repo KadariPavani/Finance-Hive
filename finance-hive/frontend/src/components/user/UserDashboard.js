@@ -488,7 +488,7 @@ const UserDashboard = () => {
                             {/* Payment Schedule Table */}
                             {userDetails.paymentSchedule && (
                                 <div className="user-payment-schedule" id="payments-table">
-                                    <h2>{t('dashboard.payment_schedule')}</h2>
+                                    <h3>{t('dashboard.payment_schedule')}</h3>
                                     <div className="user-table-wrapper">
                                         <table className="user-payment-table">
                                             <thead>
