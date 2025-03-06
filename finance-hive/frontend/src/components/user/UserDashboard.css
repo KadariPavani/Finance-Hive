@@ -382,8 +382,8 @@
 }
 
 /* Info and Loan Cards */
-.user-info-card {
-  grid-column: span 4;
+.user-info-card,
+.user-loan-card {
   background: #ffffff;
   border-radius: 16px;
   padding: 24px;
@@ -391,13 +391,12 @@
   border: 1px solid #f0f0f0;
 }
 
+.user-info-card {
+  grid-column: span 4;
+}
+
 .user-loan-card {
   grid-column: span 8;
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  border: 1px solid #f0f0f0;
 }
 
 .user-info-header,
@@ -479,7 +478,7 @@
 }
 
 .user-payment-table td {
-  padding: 20px;
+  padding: 10px;
   font-size: 15px;
   color: #4b5563;
   border-bottom: 1px solid rgba(37, 99, 235, 0.1);
@@ -528,6 +527,7 @@
   
   .user-content-wrapper {
     gap: 24px;
+    grid-template-columns: 1fr;
   }
   
   .user-dashboard-header {
@@ -536,6 +536,54 @@
   
   .stat-card {
     padding: 20px;
+  }
+
+  .user-info-card,
+  .user-loan-card {
+    grid-column: span 12;
+  }
+
+  .user-payment-schedule {
+    padding: 16px;
+  }
+
+  .user-table-wrapper {
+    height: auto;
+  }
+
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-container {
+    height: 200px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .insight-metrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .insight-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .indicator {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .indicator-bar {
+    width: 100%;
+  }
+
+  .credit-impact {
+    width: 100%;
+    text-align: left;
   }
 }
 

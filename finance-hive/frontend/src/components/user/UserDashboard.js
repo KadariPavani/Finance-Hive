@@ -22,7 +22,7 @@ const UserDashboard = () => {
         paymentStatus: {},
         paymentTimeline: {},
         monthlyPaymentTrends: {},
-        principalVsInterest: {}, 
+        principalVsInterest: {},
         completionProgress: {},
         loanUtilization: {},
         paymentHealth: {},
@@ -56,7 +56,7 @@ const UserDashboard = () => {
             let totalDaysEarly = 0;
 
             // Sort payments by date
-            const sortedPayments = [...paymentSchedule].sort((a, b) => 
+            const sortedPayments = [...paymentSchedule].sort((a, b) =>
                 moment(a.paymentDate).diff(moment(b.paymentDate))
             );
 
@@ -86,17 +86,17 @@ const UserDashboard = () => {
             });
 
             // Calculate payment consistency
-            const totalDuePayments = sortedPayments.filter(payment => 
+            const totalDuePayments = sortedPayments.filter(payment =>
                 moment(payment.paymentDate).isBefore(today)
             ).length;
 
-            const paidOnTime = sortedPayments.filter(payment => 
-                payment.status === 'PAID' && 
+            const paidOnTime = sortedPayments.filter(payment =>
+                payment.status === 'PAID' &&
                 moment(payment.paidDate).isSameOrBefore(moment(payment.paymentDate))
             ).length;
 
-            const consistency = totalDuePayments > 0 
-                ? Math.round((paidOnTime / totalDuePayments) * 100) 
+            const consistency = totalDuePayments > 0
+                ? Math.round((paidOnTime / totalDuePayments) * 100)
                 : 100;
 
             // Determine credit impact based on consistency
@@ -122,12 +122,12 @@ const UserDashboard = () => {
             const today = new Date();
             const paymentDate = new Date(payment.paymentDate);
             let status = payment.status;
-            
+
             // Mark as overdue if payment is pending and date has passed
             if (status === 'PENDING' && paymentDate < today) {
                 status = 'OVERDUE';
             }
-            
+
             acc[status] = (acc[status] || 0) + 1;
             return acc;
         }, {});
@@ -138,15 +138,15 @@ const UserDashboard = () => {
             if (!acc[month]) {
                 acc[month] = { PAID: 0, PENDING: 0, OVERDUE: 0 };
             }
-            
+
             const today = new Date();
             const paymentDate = new Date(payment.paymentDate);
             let status = payment.status;
-            
+
             if (status === 'PENDING' && paymentDate < today) {
                 status = 'OVERDUE';
             }
-            
+
             acc[month][status] += payment.emiAmount;
             return acc;
         }, {});
@@ -541,7 +541,7 @@ const UserDashboard = () => {
                                         <span className="card-subtitle">{t('dashboard.timeline_subtitle')}</span>
                                     </h3>
                                     <div className="chart-container large">
-                                        <Line 
+                                        <Line
                                             data={analyticsData.paymentTimeline}
                                             options={{
                                                 responsive: true,
@@ -600,9 +600,9 @@ const UserDashboard = () => {
                                     <h3>{t('dashboard.completion_progress')}</h3>
                                     <div className="progress-container">
                                         <div className="progress-bar">
-                                            <div 
-                                                className="progress-fill" 
-                                                style={{width: `${analyticsData.completionProgress.percentage}%`}}
+                                            <div
+                                                className="progress-fill"
+                                                style={{ width: `${analyticsData.completionProgress.percentage}%` }}
                                             />
                                         </div>
                                         <div className="progress-label">
@@ -651,7 +651,7 @@ const UserDashboard = () => {
                                 <div className="analytics-card trends-card">
                                     <h3>{t('dashboard.monthly_trends')}</h3>
                                     <div className="chart-container">
-                                        <Bar 
+                                        <Bar
                                             data={analyticsData.monthlyTrends}
                                             options={{
                                                 plugins: {
@@ -662,7 +662,7 @@ const UserDashboard = () => {
                                                 },
                                                 scales: {
                                                     x: { stacked: true },
-                                                    y: { 
+                                                    y: {
                                                         stacked: true,
                                                         ticks: {
                                                             callback: value => `₹${value}`
@@ -717,7 +717,7 @@ const UserDashboard = () => {
                                                     {t('dashboard.early_payments')}
                                                 </div>
                                                 <div className="metric-subtitle">
-                                                    {analyticsData.loanInsights.avgDaysEarly > 0 && 
+                                                    {analyticsData.loanInsights.avgDaysEarly > 0 &&
                                                         `${t('dashboard.avg_days_early')}: ${analyticsData.loanInsights.avgDaysEarly}`
                                                     }
                                                 </div>
