@@ -756,7 +756,7 @@ const OrganizerDashboard = () => {
                       </div>
                     </div>
                   ))}
-                </div>
+                </div>  
               </div>
             </div>
           </div>

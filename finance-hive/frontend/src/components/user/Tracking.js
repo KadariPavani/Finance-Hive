@@ -1,110 +1,10 @@
-// import React from 'react';
-// import { useNavigate } from 'react-router-dom';
-// import Navigation from '../Navigation/Navigation';
-// import Sidebar from '../sidebar/Sidebar';
-// import { LineChart, PiggyBank } from 'lucide-react';
-// import './Tracking.css';
-
-// const Tracking = () => {
-//   const navigate = useNavigate();
-
-//   return (
-//     <div className="dashboard-layout">
-//       <Navigation />
-//       <Sidebar />
-//       <main className="dashboard-main">
-//         <div className="tracking-container">
-//           <div className="tracking-header">
-//             <h1>Personal Finance Tracking</h1>
-//           </div>
-          
-//           <div className="tracking-cards">
-//             <div className="tracking-card">
-//               <div className="card-header">
-//                 <LineChart className="card-icon" />
-//                 <h2>Income & Expense Tracking</h2>
-//               </div>
-//               <div className="card-content">
-//                 <p>Track your daily income and expenses to maintain a clear financial overview.</p>
-//                 <div className="card-buttons">
-//                   <button 
-//                     className="primary-button"
-//                     onClick={() => navigate('/tracking/income-form')}
-//                   >
-//                     Add Income
-//                   </button>
-//                   <button 
-//                     className="primary-button"
-//                     onClick={() => navigate('/tracking/expense-form')}
-//                   >
-//                     Add Expense
-//                   </button>
-//                 </div>
-//               </div>
-//             </div>
-
-//             <div className="tracking-card">
-//               <div className="card-header">
-//                 <PiggyBank className="card-icon" />
-//                 <h2>Savings Tracking</h2>
-//               </div>
-//               <div className="card-content">
-//                 <p>Set and track your savings goals to secure your financial future.</p>
-//                 <button 
-//                   className="primary-button full-width"
-//                   onClick={() => navigate('/tracking/savings-form')}
-//                 >
-//                   Manage Savings
-//                 </button>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </main>
-//     </div>
-//   );
-// };
-
-// export default Tracking;
-
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  ArcElement,
-  RadialLinearScale,
-  Title,
-  Tooltip,
-  Legend,
-  RadarController
-} from 'chart.js';
-import { Line, Bar, Doughnut } from 'react-chartjs-2';
 import Navigation from '../Navigation/Navigation';
 import Sidebar from '../sidebar/Sidebar';
 import './Tracking.css';
-import { FaPlus, FaChartLine, FaPiggyBank, FaWallet } from 'react-icons/fa';
-
-// Register ChartJS components
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  ArcElement,
-  RadialLinearScale,
-  RadarController,
-  Title,
-  Tooltip,
-  Legend
-);
+import { FaPlus, FaPiggyBank, FaWallet, FaEdit, FaTrash, FaSave } from 'react-icons/fa';
 
 const Tracking = () => {
   const navigate = useNavigate();
@@ -114,6 +14,7 @@ const Tracking = () => {
   const [loading, setLoading] = useState(true);
   const [userDetails, setUserDetails] = useState(null);  // State to hold user details
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null); // State to track the editing row
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -164,132 +65,42 @@ const Tracking = () => {
     }
   };
 
-  const renderCharts = () => {
-    if (!statistics) return null;
+  const handleDelete = async (id, type) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`http://localhost:5000/api/tracking/${type}/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchData(); // Refresh data after deletion
+    } catch (error) {
+      console.error(`Error deleting ${type}:`, error);
+    }
+  };
 
-    return (
-      <div className="charts-container">
-        {/* Income vs Expenses Trend */}
-        <div className="chart-card">
-          <h3>Income vs Expenses Trend</h3>
-          <Line
-            data={{
-              labels: statistics.trend.map(t => t.date),
-              datasets: [
-                {
-                  label: 'Income',
-                  data: statistics.trend.map(t => t.income),
-                  borderColor: '#4CAF50',
-                  tension: 0.4
-                },
-                {
-                  label: 'Expenses',
-                  data: statistics.trend.map(t => t.expenses),
-                  borderColor: '#f44336',
-                  tension: 0.4
-                }
-              ]
-            }}
-            options={{
-              responsive: true,
-              plugins: {
-                title: { display: true, text: 'Monthly Trend' }
-              }
-            }}
-          />
-        </div>
+  const handleEdit = (id) => {
+    setEditingId(id);
+  };
 
-        {/* Expense Categories */}
-        <div className="chart-card">
-          <h3>Expense Distribution</h3>
-          <Doughnut
-            data={{
-              labels: statistics.expensesByCategory.map(e => e.category),
-              datasets: [{
-                data: statistics.expensesByCategory.map(e => e.amount),
-                backgroundColor: [
-                  '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
-                  '#9966FF', '#FF9F40', '#FF6384', '#36A2EB'
-                ]
-              }]
-            }}
-            options={{
-              plugins: {
-                legend: { position: 'right' }
-              }
-            }}
-          />
-        </div>
+  const handleSave = async (transaction) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(`http://localhost:5000/api/tracking/transaction/${transaction._id}`, transaction, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setEditingId(null);
+      fetchData(); // Refresh data after saving
+    } catch (error) {
+      console.error('Error saving transaction:', error);
+    }
+  };
 
-        {/* Savings Progress */}
-        <div className="chart-card">
-          <h3>Savings Goals Progress</h3>
-          <Bar
-            data={{
-              labels: savingsGoals.map(goal => goal.goalName),
-              datasets: [
-                {
-                  label: 'Current Amount',
-                  data: savingsGoals.map(goal => goal.currentAmount),
-                  backgroundColor: '#4CAF50'
-                },
-                {
-                  label: 'Remaining',
-                  data: savingsGoals.map(goal => goal.targetAmount - goal.currentAmount),
-                  backgroundColor: '#FFA726'
-                }
-              ]
-            }}
-            options={{
-              scales: {
-                x: { stacked: true },
-                y: { stacked: true }
-              }
-            }}
-          />
-        </div>
-
-        {/* Financial Overview (using Bar instead of Radar) */}
-        <div className="chart-card">
-          <h3>Financial Health Overview</h3>
-          <Bar
-            data={{
-              labels: ['Savings Rate', 'Expense Control', 'Income Growth', 'Goal Progress', 'Budget Adherence'],
-              datasets: [{
-                label: 'Current Status (%)',
-                data: [
-                  (statistics.totalSavings / statistics.totalIncome * 100).toFixed(1),
-                  ((statistics.totalIncome - statistics.totalExpenses) / statistics.totalIncome * 100).toFixed(1),
-                  85, // Example value
-                  (savingsGoals.reduce((acc, goal) => acc + (goal.currentAmount / goal.targetAmount), 0) / savingsGoals.length * 100).toFixed(1),
-                  90  // Example value
-                ],
-                backgroundColor: [
-                  '#4CAF50',
-                  '#2196F3',
-                  '#FFC107',
-                  '#9C27B0',
-                  '#FF5722'
-                ]
-              }]
-            }}
-            options={{
-              scales: {
-                y: {
-                  beginAtZero: true,
-                  max: 100
-                }
-              },
-              plugins: {
-                legend: {
-                  display: false
-                }
-              }
-            }}
-          />
-        </div>
-      </div>
-    );
+  const handleChange = (e, transaction) => {
+    const { name, value } = e.target;
+    const updatedTransaction = { ...transaction, [name]: value };
+    setStatistics({
+      ...statistics,
+      transactions: statistics.transactions.map(t => t._id === transaction._id ? updatedTransaction : t)
+    });
   };
 
   const handleLogout = () => {
@@ -298,11 +109,21 @@ const Tracking = () => {
   };
 
   return (
-    <div className="tracking-dashboard">
-      <Navigation />
-      <Sidebar />
-      <main className="tracking-main">
-        <div className="tracking-header">
+    <div className="dashboard-layout">
+      <Navigation
+        userDetails={userDetails}
+        onLogout={handleLogout}
+        toggleSidebar={toggleSidebar}
+        isSidebarOpen={isSidebarOpen}
+      />
+      <Sidebar
+        userDetails={userDetails}
+        onLogout={handleLogout}
+        isSidebarOpen={isSidebarOpen}
+        toggleSidebar={toggleSidebar}
+      />
+      <main className="dashboard-main">
+        <div className="dashboard-header">
           <h1>Financial Overview</h1>
           <div className="period-selector">
             <select value={period} onChange={(e) => setPeriod(e.target.value)}>
@@ -322,9 +143,6 @@ const Tracking = () => {
               <div className="card-content">
                 <h3>Total Income</h3>
                 <p>₹{statistics.totalIncome.toLocaleString()}</p>
-                <span className="trend positive">
-                  <FaChartLine /> +{((statistics.totalIncome - statistics.totalExpenses) / statistics.totalIncome * 100).toFixed(1)}%
-                </span>
               </div>
             </div>
 
@@ -335,12 +153,6 @@ const Tracking = () => {
               <div className="card-content">
                 <h3>Total Expenses</h3>
                 <p>₹{statistics.totalExpenses.toLocaleString()}</p>
-                <span className="trend">
-                  {statistics.totalExpenses > statistics.totalIncome ? 
-                    <span className="negative">Over Budget</span> : 
-                    <span className="positive">Within Budget</span>
-                  }
-                </span>
               </div>
             </div>
 
@@ -351,15 +163,174 @@ const Tracking = () => {
               <div className="card-content">
                 <h3>Total Savings</h3>
                 <p>₹{statistics.totalSavings.toLocaleString()}</p>
-                <span className="trend">
-                  {((statistics.totalSavings / statistics.totalIncome) * 100).toFixed(1)}% of Income
-                </span>
               </div>
             </div>
           </div>
         )}
 
-        {renderCharts()}
+        <div className="tables-section">
+          <h2>Income Transactions</h2>
+          <table className="transactions-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Notes</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {statistics?.transactions?.filter(t => t.type === 'income').map(transaction => (
+                <tr key={transaction._id}>
+                  <td>
+                    {editingId === transaction._id ? (
+                      <input
+                        type="date"
+                        name="date"
+                        value={new Date(transaction.date).toISOString().split('T')[0]}
+                        onChange={(e) => handleChange(e, transaction)}
+                      />
+                    ) : (
+                      new Date(transaction.date).toLocaleDateString()
+                    )}
+                  </td>
+                  <td>
+                    {editingId === transaction._id ? (
+                      <input
+                        type="text"
+                        name="category"
+                        value={transaction.category}
+                        onChange={(e) => handleChange(e, transaction)}
+                      />
+                    ) : (
+                      transaction.category
+                    )}
+                  </td>
+                  <td>
+                    {editingId === transaction._id ? (
+                      <input
+                        type="number"
+                        name="amount"
+                        value={transaction.amount}
+                        onChange={(e) => handleChange(e, transaction)}
+                      />
+                    ) : (
+                      `₹${transaction.amount.toLocaleString()}`
+                    )}
+                  </td>
+                  <td>
+                    {editingId === transaction._id ? (
+                      <input
+                        type="text"
+                        name="notes"
+                        value={transaction.notes}
+                        onChange={(e) => handleChange(e, transaction)}
+                      />
+                    ) : (
+                      transaction.notes
+                    )}
+                  </td>
+                  <td>
+                    {editingId === transaction._id ? (
+                      <button onClick={() => handleSave(transaction)}>
+                        <FaSave /> Save
+                      </button>
+                    ) : (
+                      <button onClick={() => handleEdit(transaction._id)}>
+                        <FaEdit /> Edit
+                      </button>
+                    )}
+                    <button onClick={() => handleDelete(transaction._id, 'income')}>
+                      <FaTrash /> Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <h2>Expense Transactions</h2>
+          <table className="transactions-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Notes</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {statistics?.transactions?.filter(t => t.type === 'expense').map(transaction => (
+                <tr key={transaction._id}>
+                  <td>
+                    {editingId === transaction._id ? (
+                      <input
+                        type="date"
+                        name="date"
+                        value={new Date(transaction.date).toISOString().split('T')[0]}
+                        onChange={(e) => handleChange(e, transaction)}
+                      />
+                    ) : (
+                      new Date(transaction.date).toLocaleDateString()
+                    )}
+                  </td>
+                  <td>
+                    {editingId === transaction._id ? (
+                      <input
+                        type="text"
+                        name="category"
+                        value={transaction.category}
+                        onChange={(e) => handleChange(e, transaction)}
+                      />
+                    ) : (
+                      transaction.category
+                    )}
+                  </td>
+                  <td>
+                    {editingId === transaction._id ? (
+                      <input
+                        type="number"
+                        name="amount"
+                        value={transaction.amount}
+                        onChange={(e) => handleChange(e, transaction)}
+                      />
+                    ) : (
+                      `₹${transaction.amount.toLocaleString()}`
+                    )}
+                  </td>
+                  <td>
+                    {editingId === transaction._id ? (
+                      <input
+                        type="text"
+                        name="notes"
+                        value={transaction.notes}
+                        onChange={(e) => handleChange(e, transaction)}
+                      />
+                    ) : (
+                      transaction.notes
+                    )}
+                  </td>
+                  <td>
+                    {editingId === transaction._id ? (
+                      <button onClick={() => handleSave(transaction)}>
+                        <FaSave /> Save
+                      </button>
+                    ) : (
+                      <button onClick={() => handleEdit(transaction._id)}>
+                        <FaEdit /> Edit
+                      </button>
+                    )}
+                    <button onClick={() => handleDelete(transaction._id, 'expense')}>
+                      <FaTrash /> Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         <div className="action-buttons">
           <button onClick={() => navigate('/tracking/income-form')} className="action-button income">
