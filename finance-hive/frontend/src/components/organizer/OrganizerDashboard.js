@@ -2,13 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import "./OrganizerDashboard.css";
-import { User, Phone, Mail, DollarSign, Calendar, Percent, Shield } from 'lucide-react';
+import { User, Phone, Mail, DollarSign, Calendar, Percent, Shield, Coins, CheckCircle, CreditCard , TrendingUp} from 'lucide-react';
 import Navigation from "../Navigation/Navigation";
 import { useTranslation } from 'react-i18next';
 import OrganizerSidebar from '../sidebar/OrganizerSidebar';
 import { Bar, Line, Scatter, Radar, PolarArea, Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement, ArcElement, RadialLinearScale } from 'chart.js';
-// import CustomButton from '../CustomButton';
 import Modal from "../Modal/Modal";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement, ArcElement, RadialLinearScale);
@@ -31,11 +30,7 @@ const OrganizerDashboard = () => {
   const [error, setError] = useState(null);
   const [organizerDetails, setOrganizerDetails] = useState(null);
   const [paymentDetails, setPaymentDetails] = useState([]);
-  const [particular,setparticular]=useState([]);
-  // const [timeFilter, setTimeFilter] = useState('daily');
-
-  // console.log("Payment Details:", paymentDetails);
-  console.log(particular)
+  const [particular, setparticular] = useState([]);
   const [filter, setFilter] = useState({
     sno: "",
     userName: "",
@@ -52,12 +47,8 @@ const OrganizerDashboard = () => {
   const [modalMessage, setModalMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 4;
-
-  // Add state for time filter
   const [timeFilter, setTimeFilter] = useState('daily');
 
   const toggleSidebar = () => {
@@ -77,38 +68,35 @@ const OrganizerDashboard = () => {
 
   const fetchOrganizerDetails = async () => {
     try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            throw new Error("No authentication token found");
-        }
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
 
-        const response = await axios.get("http://localhost:5000/api/organizer/details", {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
+      const response = await axios.get("http://localhost:5000/api/organizer/details", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-        setOrganizerDetails({
-            ...response.data.data,
-            role: 'organizer'
-        });
+      setOrganizerDetails({
+        ...response.data.data,
+        role: 'organizer'
+      });
 
-        // Store the organizer ID in localStorage
-        localStorage.setItem("orgtoken", response.data.data._id);
+      localStorage.setItem("orgtoken", response.data.data._id);
 
     } catch (error) {
-        console.error("Error fetching organizer details:", error);
-        setError(error.response?.data?.message || "Error fetching organizer details");
+      console.error("Error fetching organizer details:", error);
+      setError(error.response?.data?.message || "Error fetching organizer details");
     }
-};
-
+  };
 
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("No authentication token found");
-      
       }
 
       const response = await axios.get("http://localhost:5000/api/organizer/users", {
@@ -118,7 +106,6 @@ const OrganizerDashboard = () => {
       });
 
       setUsers(response.data.users);
-      console.log("Users:", response.data.users);
       setError(null);
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -131,32 +118,23 @@ const OrganizerDashboard = () => {
       const token = localStorage.getItem("token");
       const organizerId = localStorage.getItem("orgtoken");
 
-      console.log("Organizer ID:", organizerId);
-      console.log("Token:", token);
-
       if (!token || !organizerId) {
         throw new Error("Authentication tokens not found");
       }
 
-      // Fetch all users associated with the organizer
       const usersResponse = await axios.get("http://localhost:5000/api/organizer/users", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       const userIds = usersResponse.data.users.map(user => user._id);
-      console.log("User IDs:", userIds);
-
       let allPaymentDetails = [];
 
-      // Fetch payments for each user
       await Promise.all(userIds.map(async (userId) => {
         try {
           const paymentResponse = await axios.get(
             `http://localhost:5000/api/finance-payments/${organizerId}/${userId}`,
             { headers: { Authorization: `Bearer ${token}` } }
           );
-
-          console.log(`Payments for User ${userId}:`, paymentResponse.data);
           allPaymentDetails.push(...paymentResponse.data);
         } catch (error) {
           console.error(`Error fetching payments for User ${userId}:`, error.response?.data?.message);
@@ -188,7 +166,6 @@ const OrganizerDashboard = () => {
         },
       });
 
-      // setPaymentDetails(response.data);
       setError(null);
     } catch (error) {
       console.error("Error fetching payment details:", error);
@@ -205,35 +182,34 @@ const OrganizerDashboard = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!formData.name || !formData.email || !formData.mobileNumber || !formData.password || 
-        !formData.amountBorrowed || !formData.tenure || !formData.interest || !formData.surityGiven) {
+
+    if (!formData.name || !formData.email || !formData.mobileNumber || !formData.password ||
+      !formData.amountBorrowed || !formData.tenure || !formData.interest || !formData.surityGiven) {
       setIsSuccess(false);
       setModalMessage(t("dashboard.failed_to_add_user"));
       setShowModal(true);
       setTimeout(() => setShowModal(false), 3000);
       return;
     }
-  
-    setIsSubmitting(true); // Start loading
-  
+
+    setIsSubmitting(true);
+
     try {
       const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("No authentication token found");
       }
-  
+
       await axios.post("http://localhost:5000/api/add-user-payment", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+
       setIsSuccess(true);
       setModalMessage("User added successfully!");
       await fetchUsers();
-      
-      // Reset form
+
       setFormData({
         name: "",
         email: "",
@@ -244,68 +220,19 @@ const OrganizerDashboard = () => {
         interest: "",
         surityGiven: ""
       });
-  
+
     } catch (error) {
       setIsSuccess(false);
       setModalMessage(error.response?.data?.message || "Failed to add user");
       setError(error.response?.data?.message || "Failed to add user");
     } finally {
-      setIsSubmitting(false); // Stop loading
+      setIsSubmitting(false);
       setShowModal(true);
       setTimeout(() => {
         setShowModal(false);
       }, 3000);
     }
   };
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   if (!formData.name || !formData.email || !formData.mobileNumber || !formData.password || !formData.amountBorrowed || !formData.tenure || !formData.interest || !formData.surityGiven) {
-  //     setIsSuccess(false);
-  //     setModalMessage(t("dashboard.failed_to_add_user"));
-  //     setShowModal(true);
-  //     setTimeout(() => setShowModal(false), 3000);
-  //     return;
-  //   }
-  //   try {
-  //     const token = localStorage.getItem("token");
-
-  //     if (!token) {
-  //       throw new Error("No authentication token found");
-  //     }
-
-  //     await axios.post("http://localhost:5000/api/add-user-payment", formData, {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     });
-
-  //     setIsSuccess(true);
-  //     setModalMessage("User added successfully!");
-  //     await fetchUsers();
-      
-  //     setFormData({
-  //       name: "",
-  //       email: "",
-  //       mobileNumber: "",
-  //       password: "",
-  //       amountBorrowed: "",
-  //       tenure: "",
-  //       interest: "",
-  //       surityGiven: ""
-  //     });
-
-  //   } catch (error) {
-  //     setIsSuccess(false);
-  //     setModalMessage(error.response?.data?.message || "Failed to add user");
-  //     setError(error.response?.data?.message || "Failed to add user");
-  //   } finally {
-  //     setShowModal(true);
-  //     setTimeout(() => {
-  //       setShowModal(false);
-  //     }, 3000);
-  //   }
-  // };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -361,40 +288,35 @@ const OrganizerDashboard = () => {
     }
 
     const now = new Date();
-    
+
     return paymentDetails.filter(payment => {
       if (!payment.dueDate) return false;
-      
+
       const paymentDate = new Date(payment.dueDate);
-      
+
       if (timeFilter === 'daily') {
-        // Filter for payments due today
         return paymentDate.toDateString() === now.toDateString();
       } else if (timeFilter === 'weekly') {
-        // Filter for payments due this week (last 7 days)
         const weekStart = new Date(now);
         weekStart.setDate(now.getDate() - now.getDay());
         weekStart.setHours(0, 0, 0, 0);
-        
+
         const weekEnd = new Date(weekStart);
         weekEnd.setDate(weekStart.getDate() + 6);
         weekEnd.setHours(23, 59, 59, 999);
-        
+
         return paymentDate >= weekStart && paymentDate <= weekEnd;
       } else if (timeFilter === 'monthly') {
-        // Filter for payments due this month
-        return paymentDate.getMonth() === now.getMonth() && 
-               paymentDate.getFullYear() === now.getFullYear();
+        return paymentDate.getMonth() === now.getMonth() &&
+          paymentDate.getFullYear() === now.getFullYear();
       } else if (timeFilter === 'yearly') {
-        // Filter for payments due this year
         return paymentDate.getFullYear() === now.getFullYear();
       }
-      
-      return true; // If no filter is applied, include all payments
+
+      return true;
     });
   };
 
-  // Group payments by time period based on the selected filter
   const groupPaymentsByTimePeriod = (payments) => {
     if (!payments || payments.length === 0) {
       return { labels: [], data: [] };
@@ -405,52 +327,43 @@ const OrganizerDashboard = () => {
 
     payments.forEach(payment => {
       if (!payment.dueDate) return;
-      
+
       const date = new Date(payment.dueDate);
       let key = '';
-      
+
       if (timeFilter === 'daily') {
-        // Group by hour (0-23)
         key = date.getHours().toString();
       } else if (timeFilter === 'weekly') {
-        // Group by day of week (0-6, where 0 is Sunday)
         const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         key = dayNames[date.getDay()];
       } else if (timeFilter === 'monthly') {
-        // Group by day of month (1-31)
         key = date.getDate().toString();
       } else if (timeFilter === 'yearly') {
-        // Group by month (0-11)
         const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         key = monthNames[date.getMonth()];
       }
-      
+
       if (!grouped[key]) {
         grouped[key] = 0;
       }
-      
+
       grouped[key] += parseFloat(payment.emiAmount || 0);
     });
 
-    // Prepare data in the correct order
     let labels = [];
     let data = [];
 
     if (timeFilter === 'daily') {
-      // Hours of the day (0-23)
-      labels = Array.from({length: 24}, (_, i) => i.toString());
+      labels = Array.from({ length: 24 }, (_, i) => i.toString());
       data = labels.map(hour => grouped[hour] || 0);
     } else if (timeFilter === 'weekly') {
-      // Days of the week
       labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       data = labels.map(day => grouped[day] || 0);
     } else if (timeFilter === 'monthly') {
-      // Days of the month (1-31)
       const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-      labels = Array.from({length: daysInMonth}, (_, i) => (i + 1).toString());
+      labels = Array.from({ length: daysInMonth }, (_, i) => (i + 1).toString());
       data = labels.map(day => grouped[day] || 0);
     } else if (timeFilter === 'yearly') {
-      // Months of the year
       labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       data = labels.map(month => grouped[month] || 0);
     }
@@ -469,7 +382,6 @@ const OrganizerDashboard = () => {
     );
   };
 
-  // Generate line chart data based on filtered and grouped payments
   const generateLineChartData = () => {
     const filteredPayments = getFilteredPaymentDetails();
     const { labels, data } = groupPaymentsByTimePeriod(filteredPayments);
@@ -488,7 +400,6 @@ const OrganizerDashboard = () => {
       ]
     };
   };
-
 
   const filteredUsers = users.filter(user => {
     const searchLower = userSearch.toLowerCase();
@@ -513,17 +424,36 @@ const OrganizerDashboard = () => {
       );
     })
     .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+// Calculate Totals
+const totalAmountBorrowed = users.reduce((total, user) => total + parseFloat(user.amountBorrowed || 0), 0);
 
-  const totalAmountBorrowed = users.reduce((total, user) => total + parseFloat(user.amountBorrowed || 0), 0);
-  const totalInterest = users.reduce((total, user) => total + parseFloat(user.interest || 0), 0);
-  const totalUsers = users.length;
+// Total Interest Money (total interest users are supposed to pay)
+const totalInterestMoney = users.reduce((total, user) => {
+  const amountBorrowed = parseFloat(user.amountBorrowed || 0);
+  const interest = parseFloat(user.interest || 0);
+  const tenure = parseFloat(user.tenure || 0); // Assuming tenure is in months
+  return total + (amountBorrowed * interest * tenure) / 1200; // Updated formula
+}, 0);
 
-  const totalAmountPaid = paymentDetails.reduce((total, payment) => total + parseFloat(payment.emiAmount || 0), 0);
-  const totalInterestMoney = users.reduce((total, user) => total + (parseFloat(user.amountBorrowed || 0) * parseFloat(user.interest || 0) / 100), 0);
-  const totalPaymentsCollected = paymentDetails
-    .filter(payment => payment.status.toLowerCase() === 'paid')
-    .reduce((total, payment) => total + parseFloat(payment.emiAmount || 0), 0);
+// Total Interest Profit (organizer's profit from interest)
+const totalInterestProfit = totalInterestMoney; // Same as totalInterestMoney
 
+// Total Amount Paid (sum of all paid EMIs)
+const totalAmountPaid = paymentDetails
+  .filter(payment => payment.status.toLowerCase() === 'paid')
+  .reduce((total, payment) => total + parseFloat(payment.emiAmount || 0), 0);
+
+// Total Amount Collected (total amount the organizer is supposed to collect)
+const totalAmountCollected = totalAmountBorrowed + totalInterestMoney;
+
+// Total Payments Collected (sum of all paid EMIs)
+const totalPaymentsCollected = paymentDetails
+  .filter(payment => payment.status.toLowerCase() === 'paid')
+  .reduce((total, payment) => total + parseFloat(payment.emiAmount || 0), 0);
+// Calculate Profit Percentage
+const profitPercentage = ((totalAmountCollected - totalAmountBorrowed) / totalAmountBorrowed) * 100;
+// Total Users
+const totalUsers = users.length; // Add this line
   const filteredPaymentDetailsForLineData = getFilteredPaymentDetails();
 
   const lineData = {
@@ -584,7 +514,6 @@ const OrganizerDashboard = () => {
     ]
   };
 
-  // Pagination logic
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
@@ -603,15 +532,14 @@ const OrganizerDashboard = () => {
     }
   };
 
-  // Add this new function to calculate user progress
   const calculateUserProgress = () => {
     return users.map(user => {
       const userPayments = paymentDetails.filter(payment => payment.userName === user.name);
       const paidPayments = userPayments.filter(payment => payment.status.toLowerCase() === 'paid');
-      const progress = userPayments.length > 0 
-        ? (paidPayments.length / userPayments.length) * 100 
+      const progress = userPayments.length > 0
+        ? (paidPayments.length / userPayments.length) * 100
         : 0;
-      
+
       return {
         name: user.name,
         progress: Math.round(progress),
@@ -629,6 +557,62 @@ const OrganizerDashboard = () => {
         <main className="dashboard-main">
           <div className="analytics-section" id="analytics-section">
             <div className="organizer-analytics-dashboard">
+            <div className="analytics-grid">
+      {/* Total Amount Borrowed */}
+      <div className="analytics-card">
+        <div className="analytics-icon">
+          <DollarSign size={24} />
+        </div>
+        <h3>Total Amount Borrowed</h3>
+        <p>{formatCurrency(totalAmountBorrowed)}</p>
+      </div>
+
+      {/* Total Interest Money */}
+      <div className="analytics-card">
+        <div className="analytics-icon">
+          <Percent size={24} />
+        </div>
+        <h3>Total Interest Money</h3>
+        <p>{formatCurrency(totalInterestMoney)}</p>
+      </div>
+
+      {/* Total Users */}
+      <div className="analytics-card">
+        <div className="analytics-icon">
+          <User size={24} />
+        </div>
+        <h3>Total Users</h3>
+        <p>{totalUsers}</p>
+      </div>
+
+      {/* Profit Percentage */}
+      <div className="analytics-card">
+        <div className="analytics-icon">
+          <TrendingUp size={24} /> {/* Use an appropriate icon */}
+        </div>
+        <h3>Profit Percentage</h3>
+        <p>{profitPercentage.toFixed(2)}%</p>
+      </div>
+
+      {/* Total Amount Collected */}
+      <div className="analytics-card">
+        <div className="analytics-icon">
+          <Coins size={24} />
+        </div>
+        <h3>Total Amount Collected</h3>
+        <p>{formatCurrency(totalAmountCollected)}</p>
+      </div>
+
+      {/* Total Payments Collected */}
+      <div className="analytics-card">
+        <div className="analytics-icon">
+          <CheckCircle size={24} />
+        </div>
+        <h3>Total Payments Collected</h3>
+        <p>{formatCurrency(totalPaymentsCollected)}</p>
+      </div>
+    </div>
+  
               <div className="organizer-analytics-header">
                 <div className="organizer-analytics-title-section">
                   <h2 className="organizer-analytics-title">{t('dashboard.analytics')}</h2>
@@ -641,7 +625,6 @@ const OrganizerDashboard = () => {
               </div>
 
               <div className="organizer-analytics-layout">
-                {/* Main Analytics Card */}
                 <div className="organizer-analytics-main">
                   <div className="organizer-analytics-card organizer-timeline-card">
                     <h3>
@@ -654,7 +637,7 @@ const OrganizerDashboard = () => {
                       </span>
                     </h3>
                     <div className="organizer-chart-container large">
-                      <Line 
+                      <Line
                         data={generateLineChartData()}
                         options={{
                           responsive: true,
@@ -673,7 +656,7 @@ const OrganizerDashboard = () => {
                             },
                             tooltip: {
                               callbacks: {
-                                label: function(context) {
+                                label: function (context) {
                                   return `Amount: ${formatCurrency(context.raw)}`;
                                 }
                               }
@@ -684,21 +667,21 @@ const OrganizerDashboard = () => {
                     </div>
                   </div>
                 </div>
+                
 
-                {/* Secondary Analytics */}
                 <div className="organizer-analytics-secondary">
                   <div className="organizer-analytics-card organizer-status-card">
                     <h3>{t('dashboard.payment_overview')}</h3>
                     <div className="organizer-status-overview">
-                      <Doughnut 
+                      <Doughnut
                         data={{
                           labels: [t('dashboard.paid'), t('dashboard.pending'), t('dashboard.overdue')],
                           datasets: [{
                             data: [
                               paymentDetails.filter(p => p.status?.toLowerCase() === 'paid').length,
                               paymentDetails.filter(p => p.status?.toLowerCase() === 'pending').length,
-                              paymentDetails.filter(p => 
-                                p.status?.toLowerCase() === 'pending' && 
+                              paymentDetails.filter(p =>
+                                p.status?.toLowerCase() === 'pending' &&
                                 new Date(p.dueDate) < new Date()
                               ).length
                             ],
@@ -720,7 +703,7 @@ const OrganizerDashboard = () => {
                         const totalDue = paymentDetails.length;
                         const collected = paymentDetails.filter(p => p.status.toLowerCase() === 'paid').length;
                         const efficiency = totalDue ? (collected / totalDue) * 100 : 0;
-                        
+
                         return (
                           <>
                             <div className="organizer-progress-circle">
@@ -736,14 +719,13 @@ const OrganizerDashboard = () => {
                   </div>
                 </div>
 
-                {/* Bottom Analytics */}
                 <div className="organizer-analytics-bottom">
                   <div className="organizer-analytics-card organizer-trends-card">
                     <h3>{t('dashboard.monthly_collection_trends')}</h3>
                     <div className="organizer-chart-container">
-                      <Bar 
+                      <Bar
                         data={{
-                          labels: [...new Set(paymentDetails.map(p => 
+                          labels: [...new Set(paymentDetails.map(p =>
                             new Date(p.dueDate).toLocaleString('default', { month: 'short', year: 'numeric' })
                           ))],
                           datasets: [
@@ -795,8 +777,8 @@ const OrganizerDashboard = () => {
                           label: t('dashboard.total_users'),
                           value: users.length,
                           icon: 'users',
-                          trend: '+' + users.filter(u => 
-                            new Date(u.createdAt) > new Date(Date.now() - 30*24*60*60*1000)
+                          trend: '+' + users.filter(u =>
+                            new Date(u.createdAt) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
                           ).length + ' ' + t('dashboard.this_month')
                         },
                         {
@@ -826,38 +808,75 @@ const OrganizerDashboard = () => {
                 </div>
               </div>
             </div>
-
-            {/* Keep existing analytics grid */}
-            <div className="analytics-grid">
-              <div className="analytics-card">
-                <h3>{t("dashboard.total_amount_borrowed")}</h3>
-                <p>{formatCurrency(totalAmountBorrowed)}</p>
-              </div>
-              <div className="analytics-card">
-                <h3>{t("dashboard.total_interest")}</h3>
-                <p>{totalInterest}%</p>
-              </div>
-              <div className="analytics-card">
-                <h3>{t("dashboard.total_users")}</h3>
-                <p>{totalUsers}</p>
-              </div>
-              <div className="analytics-card">
-                <h3>{t("dashboard.total_amount_paid")}</h3>
-                <p>{formatCurrency(totalAmountPaid)}</p>
-              </div>
-              <div className="analytics-card">
-                <h3>{t("dashboard.total_interest_money")}</h3>
-                <p>{formatCurrency(totalInterestMoney)}</p>
-              </div>
-              <div className="analytics-card">
-                <h3>{t("dashboard.total_payments_collected")}</h3>
-                <p>{formatCurrency(totalPaymentsCollected)}</p>
-              </div>
+            <div className="users-section" id="users-section">
+            <h2>{t("dashboard.your_users")}</h2>
+            <div className="search-bar">
+              <input
+                type="text"
+                placeholder={t("dashboard.search_users")}
+                value={userSearch}
+                onChange={handleUserSearchChange}
+              />
             </div>
+            {error ? (
+              <div className="error">{error}</div>
+            ) : (
+              <>
+                <div className="users-grid">
+                  {currentUsers.map((user) => (
+                    <div key={user._id} className="user-card" onClick={() => handleUserClick(user)}>
+                      <div className="user-card-header">
+                        <h3>{user.name}</h3>
+                      </div>
 
-            {/* Bottom Analytics with Tables */}
+                      <div className="user-card-body">
+                        <p><Phone size={16} /> {user.mobileNumber}</p>
+                        <p><Mail size={16} /> {user.email}</p>
+                        <p><DollarSign size={16} /> {formatCurrency(user.amountBorrowed)}</p>
+                        <div className="user-card-footer">
+                          <span><Calendar size={14} /> {user.tenure} {t("dashboard.months")}</span>
+                          <span><Percent size={14} /> {user.interest}%</span>
+                          <span><Shield size={14} /> {user.surityGiven}</span>
+                        </div>
+                        <button
+                          className="view-details-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleUserClick(user);
+                          }}
+                        >
+                          View Details
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="pagination">
+                  <button onClick={handlePreviousPage} disabled={currentPage === 1} className="page-btn">
+                    Previous
+                  </button>
+                  {Array.from({ length: Math.ceil(filteredUsers.length / usersPerPage) }, (_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => paginate(index + 1)}
+                      className={`page-btn ${currentPage === index + 1 ? 'active' : ''}`}
+                    >
+                      {index + 1}
+                    </button>
+                  ))}
+                  <button
+                    onClick={handleNextPage}
+                    disabled={currentPage === Math.ceil(filteredUsers.length / usersPerPage)}
+                    className="page-btn"
+                  >
+                    Next
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+
             <div className="bottom-analytics-container">
-              {/* Payment Details Section */}
               <div className="payment-details-section">
                 <div className="section-header">
                   <h3>{t('dashboard.recent_payments')}</h3>
@@ -891,8 +910,8 @@ const OrganizerDashboard = () => {
                           <td>{formatDate(payment.dueDate)}</td>
                           <td>{formatCurrency(payment.emiAmount)}</td>
                           <td>
-                            {payment.paymentDate 
-                              ? formatDate(payment.paymentDate) 
+                            {payment.paymentDate
+                              ? formatDate(payment.paymentDate)
                               : '-'}
                           </td>
                           <td>{formatCurrency(payment.balance)}</td>
@@ -908,7 +927,6 @@ const OrganizerDashboard = () => {
                 </div>
               </div>
 
-              {/* User Progress Section */}
               <div className="user-progress-section">
                 <div className="section-header">
                   <h3>{t('dashboard.user_progress')}</h3>
@@ -921,8 +939,8 @@ const OrganizerDashboard = () => {
                         <span className="progress-percentage">{user.progress}%</span>
                       </div>
                       <div className="progress-bar-container">
-                        <div 
-                          className="progress-bar" 
+                        <div
+                          className="progress-bar"
                           style={{ width: `${user.progress}%` }}
                         />
                       </div>
@@ -931,83 +949,13 @@ const OrganizerDashboard = () => {
                       </div>
                     </div>
                   ))}
-                </div>  
+                </div>
               </div>
             </div>
+            
           </div>
 
-          <div className="users-section" id="users-section">
-          <h2>{t("dashboard.your_users")}</h2>
-  <div className="search-bar">
-    <input
-      type="text"
-      placeholder={t("dashboard.search_users")}
-      value={userSearch}
-      onChange={handleUserSearchChange}
-    />
-  </div>
-  {error ? (
-    <div className="error">{error}</div>
-  ) : (
-    <>
-      <div className="users-grid">
-        {currentUsers.map((user) => (
-          <div key={user._id} className="user-card" onClick={() => handleUserClick(user)}>
-<div className="user-card-header">
-  {/* {user.image ? (
-    <img src={user.image} alt={user.name} className="user-avatar" />
-  ) : (
-    <div className="user-icon">{user.name[0]}</div>
-  )} */}
-  <h3>{user.name}</h3>
-</div>
 
-            <div className="user-card-body">
-              <p><Phone size={16} /> {user.mobileNumber}</p>
-              <p><Mail size={16} /> {user.email}</p>
-              <p><DollarSign size={16} /> {formatCurrency(user.amountBorrowed)}</p>
-              <div className="user-card-footer">
-                <span><Calendar size={14} /> {user.tenure} {t("dashboard.months")}</span>
-                <span><Percent size={14} /> {user.interest}%</span>
-                <span><Shield size={14} /> {user.surityGiven}</span>
-              </div>
-              <button 
-                className="view-details-btn"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleUserClick(user);
-                }}
-              >
-                View Details
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="pagination">
-        <button onClick={handlePreviousPage} disabled={currentPage === 1} className="page-btn">
-          Previous
-        </button>
-        {Array.from({ length: Math.ceil(filteredUsers.length / usersPerPage) }, (_, index) => (
-          <button
-            key={index}
-            onClick={() => paginate(index + 1)}
-            className={`page-btn ${currentPage === index + 1 ? 'active' : ''}`}
-          >
-            {index + 1}
-          </button>
-        ))}
-        <button 
-          onClick={handleNextPage} 
-          disabled={currentPage === Math.ceil(filteredUsers.length / usersPerPage)} 
-          className="page-btn"
-        >
-          Next
-        </button>
-      </div>
-    </>
-  )}
-</div>
         </main>
       </div>
       {showModal && (

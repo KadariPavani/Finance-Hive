@@ -34,7 +34,7 @@
 /* Layout Styles */
 .dashboard-layout {
   display: flex;
-  flex-direction: column; /* Default to column for smaller screens */
+  flex-direction: column;
 }
 
 .dashboard-main {
@@ -52,12 +52,12 @@
 }
 
 /* Organizer Analytics Dashboard */
-.organizer-analytics-dashboard {
+/* .organizer-analytics-dashboard {
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   padding: 20px;
-}
+} */
 
 .organizer-analytics-header {
   display: flex;
@@ -92,8 +92,8 @@
 
 /* Main Analytics Card */
 .organizer-analytics-main {
-  flex: 2; /* Takes up more space */
-  min-width: 600px; /* Adjust as needed */
+  flex: 2;
+  min-width: 600px;
 }
 
 /* Secondary Analytics */
@@ -140,21 +140,20 @@
 
 /* Chart Container */
 .organizer-chart-container {
-  height: 300px; /* Adjust as needed */
+  height: 300px;
   width: 100%;
 }
 
 .organizer-chart-container.large {
-  height: 400px; /* For timeline chart */
+  height: 400px;
 }
 
 /* Status Card */
 .organizer-status-card {
-
 }
 
 .organizer-status-overview {
-  height: 200px; /* Adjust as needed */
+  height: 200px;
   width: 100%;
   display: flex;
   align-items: center;
@@ -192,12 +191,12 @@
 
 /* Trends Card */
 .organizer-trends-card {
-flex:1;
+  flex: auto;
 }
 
 /* Insights Card */
 .organizer-insights-card {
-  
+  flex: auto;
 }
 
 .organizer-insights-grid {
@@ -225,23 +224,21 @@ flex:1;
 }
 
 .organizer-insight-icon.users::before {
-  content: "\f0c0"; /* FontAwesome users icon */
+  content: "\f0c0";
   font-family: FontAwesome;
 }
 
 .organizer-insight-icon.money::before {
-  content: "\f155"; /* FontAwesome money icon */
+  content: "\f155";
   font-family: FontAwesome;
 }
 
 .organizer-insight-icon.chart::before {
-  content: "\f080"; /* FontAwesome chart icon */
+  content: "\f080";
   font-family: FontAwesome;
 }
 
 .organizer-insight-icon {
-  /* Add your icon styles here (e.g., using FontAwesome) */
-  /* Example: */
   font-size: 1.2em;
   color: #555;
 }
@@ -293,7 +290,7 @@ flex:1;
 
 /* Payment Details Section */
 .payment-details-section {
-  flex: 1;
+  flex: 2 1;
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
@@ -320,6 +317,8 @@ flex:1;
 
 .scrollable-table {
   overflow-x: auto;
+  max-height: 450px;
+  overflow-y: auto;
 }
 
 .payment-details-table {
@@ -375,6 +374,8 @@ flex:1;
 
 .progress-bars-container {
   margin-top: 10px;
+  max-height: 450px;
+  overflow-y: auto;
 }
 
 .user-progress-item {
@@ -407,7 +408,7 @@ flex:1;
 .progress-bar {
   background-color: #4f46e5;
   height: 100%;
-  width: 0%; /* Set dynamically with inline styles */
+  width: 0%;
   border-radius: 5px;
 }
 
@@ -425,6 +426,278 @@ flex:1;
 .users-section h2 {
   font-size: 20px;
   margin-bottom: 15px;
+}
+
+.search-bar {
+  margin-bottom: 15px;
+}
+
+.search-bar input[type="text"] {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 200px;
+}
+
+/* Monthly Collection Trends */
+.organizer-analytics-card.organizer-trends-card {
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  overflow: hidden; /* Ensure content stays within the card */
+}
+
+.organizer-chart-container {
+  height: 300px; /* Adjust height as needed */
+  width: 100%;
+  overflow: hidden; /* Ensure content stays within the container */
+}
+
+.users-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+/* User Card Container */
+.user-card {
+  background: linear-gradient(145deg, #ffffff, #f9fafb);
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid rgba(79, 70, 229, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.user-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(79, 70, 229, 0.1), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.user-card:hover::before {
+  opacity: 1;
+}
+
+.user-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(79, 70, 229, 0.2), 0 6px 12px rgba(79, 70, 229, 0.15);
+  border-color: rgba(79, 70, 229, 0.3);
+}
+
+/* User Card Header */
+.user-card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(79, 70, 229, 0.1);
+  position: relative;
+}
+
+.user-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgba(79, 70, 229, 0.2);
+  transition: all 0.3s ease-in-out;
+}
+
+.user-card:hover .user-avatar {
+  transform: scale(1.1);
+  border-color: rgba(79, 70, 229, 0.5);
+}
+
+.user-card h3 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+  color: #1e293b;
+  letter-spacing: 0.5px;
+  position: relative;
+}
+
+.user-card h3::after {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 3px;
+  background: linear-gradient(90deg, rgba(79, 70, 229, 1), rgba(124, 58, 237, 1));
+  margin-top: 8px;
+  transition: width 0.3s ease-in-out;
+}
+
+.user-card:hover h3::after {
+  width: 80px;
+}
+
+/* User Card Body */
+.user-card-body {
+  margin-top: 16px;
+}
+
+.user-card-body p {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0;
+  font-size: 14px;
+  color: #475569;
+  transition: color 0.3s ease-in-out;
+}
+
+.user-card:hover .user-card-body p {
+  color: #1e293b;
+}
+
+.user-card-body p svg {
+  color: rgba(79, 70, 229, 0.8);
+  width: 18px;
+  height: 18px;
+  transition: all 0.3s ease-in-out;
+}
+
+.user-card:hover .user-card-body p svg {
+  color: rgba(79, 70, 229, 1);
+  transform: scale(1.1);
+}
+
+/* User Card Footer */
+.user-card-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(79, 70, 229, 0.1);
+  font-size: 14px;
+}
+
+.user-card-footer span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #64748b;
+  transition: color 0.3s ease-in-out;
+}
+
+.user-card:hover .user-card-footer span {
+  color: #1e293b;
+}
+
+.user-card-footer span svg {
+  color: rgba(79, 70, 229, 0.8);
+  width: 16px;
+  height: 16px;
+  transition: all 0.3s ease-in-out;
+}
+
+.user-card:hover .user-card-footer span svg {
+  color: rgba(79, 70, 229, 1);
+  transform: scale(1.1);
+}
+
+/* View Details Button */
+.view-details-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(90deg, rgba(79, 70, 229, 1), rgba(124, 58, 237, 1));
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  margin-top: 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.view-details-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+  transition: left 0.5s ease-in-out;
+}
+
+.view-details-btn:hover::before {
+  left: 100%;
+}
+
+.view-details-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(79, 70, 229, 0.3);
+}
+
+/* Pagination Styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.pagination button {
+  padding: 10px 18px;
+  background-color: #ffffff;
+  border: 1px solid rgba(79, 70, 229, 0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  font-weight: 500;
+  color: #475569;
+}
+
+.pagination button:hover {
+  background-color: rgba(79, 70, 229, 0.1);
+  border-color: rgba(79, 70, 229, 0.5);
+  color: rgba(79, 70, 229, 1);
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: rgba(79, 70, 229, 0.1);
+  border-color: rgba(79, 70, 229, 0.2);
+  color: rgba(79, 70, 229, 0.5);
+}
+
+.pagination button.active {
+  background-color: rgba(79, 70, 229, 1);
+  color: #ffffff;
+  border-color: rgba(79, 70, 229, 1);
+}
+
+.pagination button.active:hover {
+  background-color: rgba(79, 70, 229, 0.9);
+  border-color: rgba(79, 70, 229, 0.9);
+}
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+}
+
+.error {
+  color: #ff0000;
+  text-align: center;
 }
 
 /* Media Queries for Responsiveness */
@@ -487,172 +760,4 @@ flex:1;
   .pagination button {
     padding: 5px 10px;
   }
-}
-
-/* User Card Styles */
-.user-card {
-  background: linear-gradient(145deg, var(--white), var(--gray-100));
-  border-radius: var(--border-radius);
-  padding: 20px;
-  border: 1px solid var(--gray-200);
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition);
-  cursor: pointer;
-  width: 300px; /* Or whatever width you want */
-}
-
-.user-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--primary-light);
-}
-
-.user-card-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--gray-200);
-}
-
-.user-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--primary);
-  margin-right: 10px;
-}
-
-.user-card h3 {
-  font-size: 18px;
-  font-weight: 700;
-  margin: 0;
-  color: var(--gray-900);
-  letter-spacing: 0.5px;
-}
-
-.user-card-body p {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 8px 0;
-  font-size: 14px;
-  color: var(--gray-600);
-}
-
-.user-card-body p svg {
-  color: var(--primary);
-  width: 16px;
-  height: 16px;
-}
-
-.user-card-footer {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 16px;
-  padding-top: 12px;
-  border-top: 1px solid var(--gray-200);
-  font-size: 13px;
-}
-
-.user-card-footer span {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--gray-600);
-}
-
-.user-card-footer span svg {
-  color: var(--primary);
-}
-
-.view-details-btn {
-  width: auto; /* Adjust width as needed */
-  padding: 8px 12px;
-  background-color: var(--primary);
-  color: var(--white);
-  border: none;
-  border-radius: var(--border-radius);
-  font-weight: 500;
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.view-details-btn:hover {
-  background-color: var(--primary-hover);
-}
-
-/* New Additions */
-.user-cards-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: flex-start; /* Or 'center' depending on your layout */
-}
-
-/* Pagination Styles */
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.pagination button {
-  padding: 8px 16px;
-  background-color: var(--white);
-  border: 1px solid var(--gray-300);
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.pagination button:hover {
-  background-color: var(--gray-100);
-}
-
-.pagination button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 200px;
-}
-
-.error {
-  color: #ff0000;
-  text-align: center;
-}
-
-/* Users Section */
-.users-section {
-  padding: 20px;
-}
-
-.users-section h2 {
-  font-size: 20px;
-  margin-bottom: 15px;
-}
-
-.search-bar {
-  margin-bottom: 15px;
-}
-
-.search-bar input[type="text"] {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  width: 200px; /* Adjust as needed */
-}
-
-/* Ensure user cards fit in the secondary analytics section */
-.organizer-analytics-secondary .user-card {
-  min-width: auto; /* Adjust based on content */
 }
