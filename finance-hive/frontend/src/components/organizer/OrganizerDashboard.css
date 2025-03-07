@@ -192,10 +192,12 @@
 
 /* Trends Card */
 .organizer-trends-card {
+flex:1;
 }
 
 /* Insights Card */
 .organizer-insights-card {
+  
 }
 
 .organizer-insights-grid {
