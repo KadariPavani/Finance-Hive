@@ -32,6 +32,8 @@ const OrganizerDashboard = () => {
   const [organizerDetails, setOrganizerDetails] = useState(null);
   const [paymentDetails, setPaymentDetails] = useState([]);
   const [particular,setparticular]=useState([]);
+  // const [timeFilter, setTimeFilter] = useState('daily');
+
   // console.log("Payment Details:", paymentDetails);
   console.log(particular)
   const [filter, setFilter] = useState({
@@ -54,6 +56,9 @@ const OrganizerDashboard = () => {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 4;
+
+  // Add state for time filter
+  const [timeFilter, setTimeFilter] = useState('daily');
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -319,6 +324,14 @@ const OrganizerDashboard = () => {
     }).format(amount);
   };
 
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString('en-IN', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
   };
@@ -337,6 +350,145 @@ const OrganizerDashboard = () => {
   const handleUserSearchChange = (e) => {
     setUserSearch(e.target.value.toLowerCase());
   };
+
+  const handleTimeFilterChange = (e) => {
+    setTimeFilter(e.target.value);
+  };
+
+  const getFilteredPaymentDetails = () => {
+    if (!paymentDetails || paymentDetails.length === 0) {
+      return [];
+    }
+
+    const now = new Date();
+    
+    return paymentDetails.filter(payment => {
+      if (!payment.dueDate) return false;
+      
+      const paymentDate = new Date(payment.dueDate);
+      
+      if (timeFilter === 'daily') {
+        // Filter for payments due today
+        return paymentDate.toDateString() === now.toDateString();
+      } else if (timeFilter === 'weekly') {
+        // Filter for payments due this week (last 7 days)
+        const weekStart = new Date(now);
+        weekStart.setDate(now.getDate() - now.getDay());
+        weekStart.setHours(0, 0, 0, 0);
+        
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
+        weekEnd.setHours(23, 59, 59, 999);
+        
+        return paymentDate >= weekStart && paymentDate <= weekEnd;
+      } else if (timeFilter === 'monthly') {
+        // Filter for payments due this month
+        return paymentDate.getMonth() === now.getMonth() && 
+               paymentDate.getFullYear() === now.getFullYear();
+      } else if (timeFilter === 'yearly') {
+        // Filter for payments due this year
+        return paymentDate.getFullYear() === now.getFullYear();
+      }
+      
+      return true; // If no filter is applied, include all payments
+    });
+  };
+
+  // Group payments by time period based on the selected filter
+  const groupPaymentsByTimePeriod = (payments) => {
+    if (!payments || payments.length === 0) {
+      return { labels: [], data: [] };
+    }
+
+    const grouped = {};
+    const now = new Date();
+
+    payments.forEach(payment => {
+      if (!payment.dueDate) return;
+      
+      const date = new Date(payment.dueDate);
+      let key = '';
+      
+      if (timeFilter === 'daily') {
+        // Group by hour (0-23)
+        key = date.getHours().toString();
+      } else if (timeFilter === 'weekly') {
+        // Group by day of week (0-6, where 0 is Sunday)
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        key = dayNames[date.getDay()];
+      } else if (timeFilter === 'monthly') {
+        // Group by day of month (1-31)
+        key = date.getDate().toString();
+      } else if (timeFilter === 'yearly') {
+        // Group by month (0-11)
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        key = monthNames[date.getMonth()];
+      }
+      
+      if (!grouped[key]) {
+        grouped[key] = 0;
+      }
+      
+      grouped[key] += parseFloat(payment.emiAmount || 0);
+    });
+
+    // Prepare data in the correct order
+    let labels = [];
+    let data = [];
+
+    if (timeFilter === 'daily') {
+      // Hours of the day (0-23)
+      labels = Array.from({length: 24}, (_, i) => i.toString());
+      data = labels.map(hour => grouped[hour] || 0);
+    } else if (timeFilter === 'weekly') {
+      // Days of the week
+      labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      data = labels.map(day => grouped[day] || 0);
+    } else if (timeFilter === 'monthly') {
+      // Days of the month (1-31)
+      const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+      labels = Array.from({length: daysInMonth}, (_, i) => (i + 1).toString());
+      data = labels.map(day => grouped[day] || 0);
+    } else if (timeFilter === 'yearly') {
+      // Months of the year
+      labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      data = labels.map(month => grouped[month] || 0);
+    }
+
+    return { labels, data };
+  };
+
+  const renderTimeFilterOptions = () => {
+    return (
+      <select id="timeFilter" value={timeFilter} onChange={handleTimeFilterChange}>
+        <option value="daily">{t('dashboard.daily')}</option>
+        <option value="weekly">{t('dashboard.weekly')}</option>
+        <option value="monthly">{t('dashboard.monthly')}</option>
+        <option value="yearly">{t('dashboard.yearly')}</option>
+      </select>
+    );
+  };
+
+  // Generate line chart data based on filtered and grouped payments
+  const generateLineChartData = () => {
+    const filteredPayments = getFilteredPaymentDetails();
+    const { labels, data } = groupPaymentsByTimePeriod(filteredPayments);
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: 'Total Amount (₹)',
+          data: data,
+          fill: false,
+          borderColor: 'rgba(75, 192, 192, 1)',
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          tension: 0.1
+        }
+      ]
+    };
+  };
+
 
   const filteredUsers = users.filter(user => {
     const searchLower = userSearch.toLowerCase();
@@ -372,12 +524,23 @@ const OrganizerDashboard = () => {
     .filter(payment => payment.status.toLowerCase() === 'paid')
     .reduce((total, payment) => total + parseFloat(payment.emiAmount || 0), 0);
 
+  const filteredPaymentDetailsForLineData = getFilteredPaymentDetails();
+
   const lineData = {
-    labels: paymentDetails.map(payment => new Date(payment.dueDate).toLocaleDateString()),
+    labels: filteredPaymentDetailsForLineData.map(payment => {
+      if (timeFilter === 'daily') {
+        return new Date(payment.dueDate).getHours();
+      } else if (timeFilter === 'weekly') {
+        return new Date(payment.dueDate).toLocaleDateString('en-IN', { weekday: 'short' });
+      } else if (timeFilter === 'yearly') {
+        return new Date(payment.dueDate).toLocaleDateString('en-IN', { month: 'short' });
+      }
+      return formatDate(payment.dueDate);
+    }),
     datasets: [
       {
         label: 'Total Amount Borrowed Over Time',
-        data: paymentDetails.map(payment => payment.emiAmount),
+        data: filteredPaymentDetailsForLineData.map(payment => payment.emiAmount),
         fill: false,
         borderColor: 'rgba(75, 192, 192, 1)',
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
@@ -471,6 +634,10 @@ const OrganizerDashboard = () => {
                   <h2 className="organizer-analytics-title">{t('dashboard.analytics')}</h2>
                   <p className="organizer-analytics-subtitle">{t('dashboard.organizer_analytics_subtitle')}</p>
                 </div>
+                <div className="time-filter">
+                  <label htmlFor="timeFilter">{t('dashboard.time_filter')}</label>
+                  {renderTimeFilterOptions()}
+                </div>
               </div>
 
               <div className="organizer-analytics-layout">
@@ -479,20 +646,16 @@ const OrganizerDashboard = () => {
                   <div className="organizer-analytics-card organizer-timeline-card">
                     <h3>
                       <span className="organizer-card-title">{t('dashboard.loan_disbursement_timeline')}</span>
-                      <span className="organizer-card-subtitle">{t('dashboard.disbursement_subtitle')}</span>
+                      <span className="organizer-card-subtitle">
+                        {timeFilter === 'daily' && t('dashboard.showing_hourly_data')}
+                        {timeFilter === 'weekly' && t('dashboard.showing_daily_data')}
+                        {timeFilter === 'monthly' && t('dashboard.showing_daily_data')}
+                        {timeFilter === 'yearly' && t('dashboard.showing_monthly_data')}
+                      </span>
                     </h3>
                     <div className="organizer-chart-container large">
                       <Line 
-                        data={{
-                          labels: users.map(user => new Date(user.createdAt).toLocaleDateString()),
-                          datasets: [{
-                            label: t('dashboard.loan_amounts'),
-                            data: users.map(user => user.amountBorrowed),
-                            borderColor: '#4F46E5',
-                            backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                            fill: true
-                          }]
-                        }}
+                        data={generateLineChartData()}
                         options={{
                           responsive: true,
                           maintainAspectRatio: false,
@@ -501,6 +664,18 @@ const OrganizerDashboard = () => {
                               beginAtZero: true,
                               ticks: {
                                 callback: value => formatCurrency(value)
+                              }
+                            }
+                          },
+                          plugins: {
+                            legend: {
+                              display: true
+                            },
+                            tooltip: {
+                              callbacks: {
+                                label: function(context) {
+                                  return `Amount: ${formatCurrency(context.raw)}`;
+                                }
                               }
                             }
                           }
@@ -520,10 +695,10 @@ const OrganizerDashboard = () => {
                           labels: [t('dashboard.paid'), t('dashboard.pending'), t('dashboard.overdue')],
                           datasets: [{
                             data: [
-                              paymentDetails.filter(p => p.status.toLowerCase() === 'paid').length,
-                              paymentDetails.filter(p => p.status.toLowerCase() === 'pending').length,
+                              paymentDetails.filter(p => p.status?.toLowerCase() === 'paid').length,
+                              paymentDetails.filter(p => p.status?.toLowerCase() === 'pending').length,
                               paymentDetails.filter(p => 
-                                p.status.toLowerCase() === 'pending' && 
+                                p.status?.toLowerCase() === 'pending' && 
                                 new Date(p.dueDate) < new Date()
                               ).length
                             ],
@@ -713,11 +888,11 @@ const OrganizerDashboard = () => {
                         <tr key={index}>
                           <td>{payment.sno}</td>
                           <td>{payment.userName}</td>
-                          <td>{new Date(payment.dueDate).toLocaleDateString()}</td>
+                          <td>{formatDate(payment.dueDate)}</td>
                           <td>{formatCurrency(payment.emiAmount)}</td>
                           <td>
                             {payment.paymentDate 
-                              ? new Date(payment.paymentDate).toLocaleDateString() 
+                              ? formatDate(payment.paymentDate) 
                               : '-'}
                           </td>
                           <td>{formatCurrency(payment.balance)}</td>
