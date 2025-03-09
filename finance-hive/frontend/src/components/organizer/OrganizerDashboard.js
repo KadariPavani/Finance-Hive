@@ -549,6 +549,44 @@ const totalUsers = users.length; // Add this line
     });
   };
 
+  // First, add a helper function to filter payments by time period
+const getFilteredPaymentsByDate = (payments, timeFilter) => {
+  const now = new Date();
+  const startOfDay = new Date(now.setHours(0, 0, 0, 0));
+  const endOfDay = new Date(now.setHours(23, 59, 59, 999));
+
+  return payments.filter(payment => {
+    if (!payment.dueDate) return false;
+    const paymentDate = new Date(payment.dueDate);
+
+    switch (timeFilter) {
+      case 'daily':
+        // Compare exact day
+        return paymentDate >= startOfDay && paymentDate <= endOfDay;
+      
+      case 'weekly':
+        // Get start and end of current week
+        const weekStart = new Date(now);
+        weekStart.setDate(now.getDate() - now.getDay());
+        weekStart.setHours(0, 0, 0, 0);
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
+        weekEnd.setHours(23, 59, 59, 999);
+        return paymentDate >= weekStart && paymentDate <= weekEnd;
+      
+      case 'monthly':
+        return paymentDate.getMonth() === now.getMonth() && 
+               paymentDate.getFullYear() === now.getFullYear();
+      
+      case 'yearly':
+        return paymentDate.getFullYear() === now.getFullYear();
+      
+      default:
+        return true;
+    }
+  });
+};
+
   return (
     <div className="organizer-dashboard">
       <Navigation organizerDetails={organizerDetails} onLogout={handleLogout} toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
@@ -671,37 +709,56 @@ const totalUsers = users.length; // Add this line
 
                 <div className="organizer-analytics-secondary">
                   <div className="organizer-analytics-card organizer-status-card">
-                    <h3>{t('dashboard.payment_overview')}</h3>
+                    <h3>{t('dashboard.payment_overview')} - {timeFilter}</h3>
                     <div className="organizer-status-overview">
                       <Doughnut
                         data={{
                           labels: [t('dashboard.paid'), t('dashboard.pending'), t('dashboard.overdue')],
                           datasets: [{
-                            data: [
-                              paymentDetails.filter(p => p.status?.toLowerCase() === 'paid').length,
-                              paymentDetails.filter(p => p.status?.toLowerCase() === 'pending').length,
-                              paymentDetails.filter(p =>
-                                p.status?.toLowerCase() === 'pending' &&
-                                new Date(p.dueDate) < new Date()
-                              ).length
-                            ],
+                            data: (() => {
+                              const filteredPayments = getFilteredPaymentsByDate(paymentDetails, timeFilter);
+                              return [
+                                filteredPayments.filter(p => p.status?.toLowerCase() === 'paid').length,
+                                filteredPayments.filter(p => 
+                                  p.status?.toLowerCase() === 'pending' && 
+                                  new Date(p.dueDate) >= new Date()
+                                ).length,
+                                filteredPayments.filter(p => 
+                                  p.status?.toLowerCase() === 'pending' && 
+                                  new Date(p.dueDate) < new Date()
+                                ).length
+                              ];
+                            })(),
                             backgroundColor: ['#10B981', '#F59E0B', '#EF4444']
                           }]
                         }}
                         options={{
                           responsive: true,
-                          maintainAspectRatio: false
+                          maintainAspectRatio: false,
+                          plugins: {
+                            legend: {
+                              position: 'bottom'
+                            },
+                            title: {
+                              display: true,
+                              text: `${timeFilter.charAt(0).toUpperCase() + timeFilter.slice(1)} Overview`
+                            }
+                          }
                         }}
                       />
                     </div>
                   </div>
 
                   <div className="organizer-analytics-card organizer-collection-card">
-                    <h3>{t('dashboard.collection_efficiency')}</h3>
+                    <h3>{t('dashboard.collection_efficiency')} - {timeFilter}</h3>
                     <div className="organizer-collection-progress">
                       {(() => {
-                        const totalDue = paymentDetails.length;
-                        const collected = paymentDetails.filter(p => p.status.toLowerCase() === 'paid').length;
+                        const filteredPayments = getFilteredPaymentsByDate(paymentDetails, timeFilter);
+                        const totalDue = filteredPayments.length;
+                        const collected = filteredPayments.filter(p => 
+                          p.status.toLowerCase() === 'paid' || 
+                          (p.status.toLowerCase() === 'pending' && new Date(p.dueDate) >= new Date())
+                        ).length;
                         const efficiency = totalDue ? (collected / totalDue) * 100 : 0;
 
                         return (
@@ -711,6 +768,12 @@ const totalUsers = users.length; // Add this line
                             </div>
                             <div className="organizer-progress-label">
                               {t('dashboard.collection_rate')}
+                              <br />
+                              {collected} / {totalDue} {t('dashboard.payments')}
+                              <br />
+                              <small>
+                                {timeFilter.charAt(0).toUpperCase() + timeFilter.slice(1)} View
+                              </small>
                             </div>
                           </>
                         );
