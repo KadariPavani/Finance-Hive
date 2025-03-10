@@ -15,6 +15,103 @@ const transporter = nodemailer.createTransport({
   }
 });
 // Create or Fetch the Payment Schedule for a User
+// exports.createPaymentSchedule = async (req, res) => {
+//   try {
+//     const { userId } = req.params;
+//     const userPayment = await UserPayment.findById(userId);
+    
+//     if (!userPayment) {
+//       return res.status(404).json({ message: "User payment details not found" });
+//     }
+
+//     // Get today's date
+//     const today = new Date();
+    
+//     // Calculate first payment date (next month)
+//     const firstPaymentDate = new Date(today);
+//     firstPaymentDate.setMonth(today.getMonth() + 1);
+    
+//     // Calculate EMI and loan details
+//     const principal = parseFloat(userPayment.amountBorrowed);
+//     const tenure = parseInt(userPayment.tenure);
+//     const interestRate = parseFloat(userPayment.interest);
+//     const monthlyInterestRate = (interestRate / 12) / 100;
+
+//     // Calculate EMI using the formula: EMI = P * r * (1 + r)^n / ((1 + r)^n - 1)
+//     const emi = (principal * monthlyInterestRate * Math.pow(1 + monthlyInterestRate, tenure)) / 
+//                 (Math.pow(1 + monthlyInterestRate, tenure) - 1);
+
+//     let remainingPrincipal = principal;
+    
+//     // Generate payment schedule
+//     const schedule = Array.from({ length: tenure }, (_, index) => {
+//       // Calculate payment date
+//       const paymentDate = new Date(firstPaymentDate);
+//       paymentDate.setMonth(firstPaymentDate.getMonth() + index);
+
+//       // Calculate interest for this month
+//       const interestPayment = remainingPrincipal * monthlyInterestRate;
+      
+//       // Calculate principal for this month
+//       const principalPayment = emi - interestPayment;
+      
+//       // Update remaining principal
+//       remainingPrincipal = Math.max(0, remainingPrincipal - principalPayment);
+
+//       // Handle month overflow
+//       const targetDay = firstPaymentDate.getDate();
+//       const lastDayOfMonth = new Date(paymentDate.getFullYear(), paymentDate.getMonth() + 1, 0).getDate();
+//       if (targetDay > lastDayOfMonth) {
+//         paymentDate.setDate(lastDayOfMonth);
+//       }
+
+//       return {
+//         serialNo: index + 1,
+//         paymentDate: paymentDate,
+//         emiAmount: Math.round(emi),
+//         principal: Math.round(principalPayment),
+//         interest: Math.round(interestPayment),
+//         balance: Math.max(0, Math.round(remainingPrincipal)),
+//         status: 'PENDING'
+//       };
+//     });
+
+//     // Verify total EMI matches loan amount plus interest
+//     const totalEMI = schedule.reduce((sum, payment) => sum + payment.emiAmount, 0);
+//     const expectedTotal = principal * (1 + (interestRate * tenure / 1200));
+    
+//     if (Math.abs(totalEMI - expectedTotal) > tenure) { // Allow small rounding differences
+//       console.error('EMI calculation error:', {
+//         totalEMI,
+//         expectedTotal,
+//         difference: totalEMI - expectedTotal
+//       });
+//       throw new Error('EMI calculation validation failed');
+//     }
+
+//     // Save payment schedule to the database
+//     userPayment.paymentSchedule = schedule;
+//     userPayment.monthlyEMI = Math.round(emi);
+//     await userPayment.save();
+
+//     res.status(200).json({
+//       message: "Payment schedule created successfully",
+//       schedule,
+//       firstPaymentDate,
+//       monthlyEMI: Math.round(emi),
+//       totalAmount: totalEMI,
+//       totalInterest: totalEMI - principal
+//     });
+
+//   } catch (error) {
+//     console.error("Error creating payment schedule:", error);
+//     res.status(500).json({ 
+//       message: "Error creating payment schedule",
+//       error: error.message 
+//     });
+//   }
+// };
+
 exports.createPaymentSchedule = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -24,38 +121,13 @@ exports.createPaymentSchedule = async (req, res) => {
       return res.status(404).json({ message: "User payment details not found" });
     }
 
-    // Get today's date
-    const today = new Date();
-    
-    // Calculate next month's date with same day
-    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, today.getDate());
-
-    // If today is the last day of the month and next month has fewer days,
-    // set to the last day of next month
-    if (nextMonth.getMonth() !== (today.getMonth() + 1) % 12) {
-      nextMonth.setDate(0); // Set to last day of next month
-    }
-
-    // Generate payment schedule starting from next month
-    const schedule = Array.from({ length: userPayment.tenure }, (_, index) => {
-      const paymentDate = new Date(nextMonth);
-      paymentDate.setMonth(nextMonth.getMonth() + index);
-
-      // Handle month overflow (e.g., Jan 31 -> Feb 28/29)
-      if (paymentDate.getDate() !== nextMonth.getDate()) {
-        paymentDate.setDate(0); // Set to last day of the month
-      }
-      
-      const emi = calculateEMI(userPayment.amountBorrowed, userPayment.interest, userPayment.tenure);
-      
-      return {
-        serialNo: index + 1,
-        paymentDate: paymentDate,
-        emiAmount: emi,
-        status: 'PENDING',
-        balance: calculateBalance(userPayment.amountBorrowed, index + 1, userPayment.interest, userPayment.tenure)
-      };
-    });
+    const startDate = new Date();
+    const schedule = generatePaymentSchedule(
+      userPayment.amountBorrowed,
+      userPayment.tenure,
+      userPayment.interest,
+      startDate
+    );
 
     // Save payment schedule to the database
     userPayment.paymentSchedule = schedule;
@@ -65,19 +137,13 @@ exports.createPaymentSchedule = async (req, res) => {
     res.status(200).json({
       message: "Payment schedule created successfully",
       schedule,
-      firstPaymentDate: nextMonth,
       monthlyEMI: schedule[0].emiAmount
     });
-
   } catch (error) {
     console.error("Error creating payment schedule:", error);
-    res.status(500).json({ 
-      message: "Error creating payment schedule",
-      error: error.message 
-    });
+    res.status(500).json({ message: "Error creating payment schedule" });
   }
 };
-
 exports.updatePaymentDetails = async (req, res) => {
   try {
     const { userId, serialNo } = req.params;
