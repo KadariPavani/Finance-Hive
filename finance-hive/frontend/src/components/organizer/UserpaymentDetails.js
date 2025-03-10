@@ -34,9 +34,33 @@ const UserPaymentDetails = () => {
       const response = await api.get(`/user/${userId}`);
       if (!response.data) throw new Error('Invalid server response');
 
-      setUserData(response.data);
-      setPaymentSchedule(response.data.paymentSchedule || []);
-      setError(null); // Clear any existing errors
+      // Sort payment schedule by date
+      const sortedSchedule = response.data.paymentSchedule?.sort((a, b) => {
+        return new Date(a.paymentDate) - new Date(b.paymentDate);
+      }) || [];
+
+      // Get today's date and next month's date (same day)
+      const today = new Date();
+      const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, today.getDate());
+
+      // Ensure first payment is next month (same day as today)
+      if (sortedSchedule.length > 0) {
+        const firstPaymentDate = new Date(sortedSchedule[0].paymentDate);
+        if (firstPaymentDate < nextMonth) {
+          sortedSchedule.forEach((payment, index) => {
+            const paymentDate = new Date(nextMonth);
+            paymentDate.setMonth(nextMonth.getMonth() + index);
+            payment.paymentDate = paymentDate.toISOString();
+          });
+        }
+      }
+
+      setUserData({
+        ...response.data,
+        paymentSchedule: sortedSchedule
+      });
+      setPaymentSchedule(sortedSchedule);
+      setError(null);
     } catch (error) {
       console.error('Error fetching user data:', error);
       setError(error.response?.data?.message || 'Failed to load payment details');
@@ -65,6 +89,18 @@ const UserPaymentDetails = () => {
 
         const currentIndex = paymentSchedule.findIndex(p => p.serialNo === serialNo);
         
+        // Ensure payment date is next month or later
+        const today = new Date();
+        const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, today.getDate());
+        const paymentDate = new Date(paymentSchedule[currentIndex].paymentDate);
+        
+        if (paymentDate < nextMonth) {
+          setIsSuccess(false);
+          setModalMessage('Payments can only start from next month');
+          setShowModal(true);
+          return;
+        }
+
         // Calculate total paid amount
         const paidAmount = paymentSchedule
           .slice(0, currentIndex)

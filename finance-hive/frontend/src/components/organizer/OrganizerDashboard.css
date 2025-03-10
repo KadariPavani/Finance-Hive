@@ -761,3 +761,28 @@
     padding: 5px 10px;
   }
 }
+
+.analytics-card {
+  position: relative;
+}
+
+.monthly-insight {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  font-size: 0.875rem;
+}
+
+.trend-up {
+  color: #10B981;
+}
+
+.trend-down {
+  color: #EF4444;
+}
+
+.monthly-insight small {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}

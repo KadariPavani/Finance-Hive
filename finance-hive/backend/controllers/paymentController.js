@@ -24,13 +24,38 @@ exports.createPaymentSchedule = async (req, res) => {
       return res.status(404).json({ message: "User payment details not found" });
     }
 
-    const startDate = new Date();
-    const schedule = generatePaymentSchedule(
-      userPayment.amountBorrowed,
-      userPayment.tenure,
-      userPayment.interest,
-      startDate
-    );
+    // Get today's date
+    const today = new Date();
+    
+    // Calculate next month's date with same day
+    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, today.getDate());
+
+    // If today is the last day of the month and next month has fewer days,
+    // set to the last day of next month
+    if (nextMonth.getMonth() !== (today.getMonth() + 1) % 12) {
+      nextMonth.setDate(0); // Set to last day of next month
+    }
+
+    // Generate payment schedule starting from next month
+    const schedule = Array.from({ length: userPayment.tenure }, (_, index) => {
+      const paymentDate = new Date(nextMonth);
+      paymentDate.setMonth(nextMonth.getMonth() + index);
+
+      // Handle month overflow (e.g., Jan 31 -> Feb 28/29)
+      if (paymentDate.getDate() !== nextMonth.getDate()) {
+        paymentDate.setDate(0); // Set to last day of the month
+      }
+      
+      const emi = calculateEMI(userPayment.amountBorrowed, userPayment.interest, userPayment.tenure);
+      
+      return {
+        serialNo: index + 1,
+        paymentDate: paymentDate,
+        emiAmount: emi,
+        status: 'PENDING',
+        balance: calculateBalance(userPayment.amountBorrowed, index + 1, userPayment.interest, userPayment.tenure)
+      };
+    });
 
     // Save payment schedule to the database
     userPayment.paymentSchedule = schedule;
@@ -40,270 +65,18 @@ exports.createPaymentSchedule = async (req, res) => {
     res.status(200).json({
       message: "Payment schedule created successfully",
       schedule,
+      firstPaymentDate: nextMonth,
       monthlyEMI: schedule[0].emiAmount
     });
+
   } catch (error) {
     console.error("Error creating payment schedule:", error);
-    res.status(500).json({ message: "Error creating payment schedule" });
+    res.status(500).json({ 
+      message: "Error creating payment schedule",
+      error: error.message 
+    });
   }
 };
-
-// Update Payment Details (EMI and Status)
-// exports.updatePaymentDetails = async (req, res) => {
-//   try {
-//     const { userId, serialNo } = req.params;
-//     const { emiAmount, status } = req.body;
-
-//     if (!mongoose.Types.ObjectId.isValid(userId)) {
-//       return res.status(400).json({ message: 'Invalid user ID' });
-//     }
-
-//     const userPayment = await UserPayment.findById(userId);
-//     if (!userPayment) {
-//       return res.status(404).json({ message: "User payment details not found" });
-//     }
-
-//     // Find the payment by serialNo
-//     const payment = userPayment.paymentSchedule.find(
-//       p => p.serialNo === Number(serialNo)
-//     );
-
-//     if (!payment) {
-//       return res.status(404).json({ message: "Payment schedule entry not found" });
-//     }
-
-//     // Update the EMI amount if provided
-//     if (emiAmount) {
-//       const newEmiAmount = Number(emiAmount);
-//       const difference = newEmiAmount - payment.emiAmount;
-
-//       // Update the current payment's EMI
-//       payment.emiAmount = newEmiAmount;
-
-//       // Adjust the last payment's EMI to maintain the total balance
-//       const lastPayment = userPayment.paymentSchedule[userPayment.paymentSchedule.length - 1];
-//       lastPayment.emiAmount -= difference;
-//     }
-
-//     let receipt = null;
-
-//     // Update the status if provided
-//     if (status) {
-//       payment.status = status;
-
-//       if (status === 'PAID') {
-//         payment.paidDate = new Date();
-
-//         // Generate receipt
-//         receipt = {
-//           receiptNumber: `RCPT-${Date.now()}-${payment.serialNo}`,
-//           paymentDate: new Date(),
-//           amount: payment.emiAmount,
-//           serialNo: payment.serialNo
-//         };
-
-//         // Add receipt to user's receipts
-//         userPayment.receipts.push(receipt);
-
-//         // Send notifications
-//         await Promise.all([
-//           createNotification(
-//             userPayment._id,
-//             'Payment Receipt Generated',
-//             `Payment of ${formatCurrency(payment.emiAmount)} for EMI ${payment.serialNo} is completed.`,
-//             'PAYMENT',
-//             { receipt }
-//           ),
-//           sendPaymentEmail(userPayment, payment, receipt),
-//           sendPaymentSMS(userPayment, payment, receipt)
-//         ]);
-
-//         // Lock the payment to prevent further edits
-//         payment.locked = true;
-//       } else {
-//         payment.paidDate = null;
-//         payment.locked = false; // Unlock the payment if status is changed from PAID
-//       }
-//     }
-
-//     await userPayment.save();
-
-//     res.json({
-//       schedule: userPayment.paymentSchedule,
-//       amountBorrowed: userPayment.amountBorrowed,
-//       receipt
-//     });
-
-//   } catch (error) {
-//     console.error('Update error:', error);
-//     res.status(500).json({
-//       message: 'Error updating payment',
-//       error: error.message
-//     });
-//   }
-// };
-
-// exports.updatePaymentDetails = async (req, res) => {
-//   try {
-//     const { userId, serialNo } = req.params;
-//     const { emiAmount, status } = req.body;
-
-//     const userPayment = await UserPayment.findById(userId);
-//     if (!userPayment) {
-//       return res.status(404).json({ message: "User payment details not found" });
-//     }
-
-//     const currentIndex = userPayment.paymentSchedule.findIndex(
-//       p => p.serialNo === Number(serialNo)
-//     );
-
-//     if (currentIndex === -1) {
-//       return res.status(404).json({ message: "Payment schedule entry not found" });
-//     }
-
-//     const payment = userPayment.paymentSchedule[currentIndex];
-
-//     // Check if payment is locked
-//     if (payment.locked) {
-//       return res.status(400).json({ message: "Cannot modify a locked payment" });
-//     }
-
-//     let receipt = null;
-
-//     // Handle EMI amount update
-//     if (emiAmount !== undefined) {
-//       const newEmiAmount = Number(parseFloat(emiAmount).toFixed(2));
-      
-//       // Validate EMI amount
-//       if (isNaN(newEmiAmount) || newEmiAmount < 0) {
-//         return res.status(400).json({ message: "Invalid EMI amount" });
-//       }
-
-//       // Calculate total paid amount up to current payment
-//       const paidAmount = userPayment.paymentSchedule
-//         .slice(0, currentIndex)
-//         .reduce((acc, p) => acc + (p.status === 'PAID' ? Number(p.emiAmount) : 0), 0);
-      
-//       const totalRemainingAmount = Number((userPayment.amountBorrowed - paidAmount).toFixed(2));
-
-//       // Update current payment
-//       payment.emiAmount = newEmiAmount;
-
-//       // Calculate remaining amount after current payment
-//       const remainingAfterCurrent = Number((totalRemainingAmount - newEmiAmount).toFixed(2));
-
-//       // Update remaining payments
-//       if (currentIndex < userPayment.paymentSchedule.length - 1) {
-//         const remainingPayments = userPayment.paymentSchedule.length - currentIndex - 1;
-        
-//         if (remainingPayments > 0) {
-//           let remainingBalance = remainingAfterCurrent;
-
-//           // Update subsequent payments
-//           for (let i = currentIndex + 1; i < userPayment.paymentSchedule.length; i++) {
-//             const currentPayment = userPayment.paymentSchedule[i];
-            
-//             if (i === userPayment.paymentSchedule.length - 1) {
-//               currentPayment.emiAmount = Number(remainingBalance.toFixed(2));
-//             } else {
-//               const equalShare = Number((remainingBalance / (userPayment.paymentSchedule.length - i)).toFixed(2));
-//               currentPayment.emiAmount = equalShare;
-//               remainingBalance -= equalShare;
-//             }
-
-//             // Update balance and check if payment should be marked as paid
-//             currentPayment.balance = Number(remainingBalance.toFixed(2));
-            
-//             // Auto-mark as paid if amount and balance are 0
-//             if (currentPayment.emiAmount === 0 && currentPayment.balance === 0) {
-//               currentPayment.status = 'PAID';
-//               currentPayment.paidDate = new Date();
-//               currentPayment.locked = true;
-//             }
-//           }
-//         }
-//       }
-
-//       // Recalculate balances and check for auto-paid status
-//       let runningBalance = userPayment.amountBorrowed;
-//       for (let i = 0; i < userPayment.paymentSchedule.length; i++) {
-//         const currentPayment = userPayment.paymentSchedule[i];
-//         runningBalance = Number((runningBalance - currentPayment.emiAmount).toFixed(2));
-//         currentPayment.balance = Math.max(0, runningBalance);
-
-//         // Auto-mark as paid if amount and balance are 0
-//         if (currentPayment.emiAmount === 0 && currentPayment.balance === 0 && !currentPayment.locked) {
-//           currentPayment.status = 'PAID';
-//           currentPayment.paidDate = new Date();
-//           currentPayment.locked = true;
-
-//           // Generate receipt for auto-paid payments
-//           const autoReceipt = {
-//             receiptNumber: `RCPT-${Date.now()}-${currentPayment.serialNo}`,
-//             paymentDate: new Date(),
-//             amount: 0,
-//             serialNo: currentPayment.serialNo
-//           };
-//           userPayment.receipts.push(autoReceipt);
-//         }
-//       }
-//     }
-
-//     // Handle manual status update
-//     if (status) {
-//       payment.status = status;
-
-//       if (status === 'PAID') {
-//         payment.paidDate = new Date();
-//         payment.locked = true;
-
-//         // Generate receipt for manual payment
-//         receipt = {
-//           receiptNumber: `RCPT-${Date.now()}-${payment.serialNo}`,
-//           paymentDate: new Date(),
-//           amount: payment.emiAmount,
-//           serialNo: payment.serialNo
-//         };
-
-//         userPayment.receipts.push(receipt);
-
-//         try {
-//           await Promise.all([
-//             createNotification(
-//               userPayment._id,
-//               'Payment Receipt Generated',
-//               `Payment of ${payment.emiAmount} for EMI ${payment.serialNo} is completed.`,
-//               'PAYMENT',
-//               { receipt }
-//             ),
-//             sendPaymentEmail(userPayment, payment, receipt)
-//           ]);
-//         } catch (error) {
-//           console.error('Notification/Email error:', error);
-//         }
-//       } else {
-//         payment.paidDate = null;
-//         payment.locked = false;
-//       }
-//     }
-
-//     await userPayment.save();
-
-//     res.json({
-//       message: "Payment details updated successfully",
-//       schedule: userPayment.paymentSchedule,
-//       amountBorrowed: userPayment.amountBorrowed,
-//       receipt
-//     });
-
-//   } catch (error) {
-//     console.error('Update error:', error);
-//     res.status(500).json({
-//       message: 'Error updating payment',
-//       error: error.message
-//     });
-//   }
-// };
 
 exports.updatePaymentDetails = async (req, res) => {
   try {
@@ -514,43 +287,6 @@ const sendPaymentSMS = async (user, payment, receipt) => {
     to: user.mobileNumber
   });
 };
-// const updatePaymentDetails = async (req, res) => {
-//   try {
-//     const { userId, serialNo } = req.params;
-//     const { emiAmount, status } = req.body;
-
-//     // Your logic to update payment
-//     const updatedPayment = await UserPayment.findOneAndUpdate(
-//       { userId: mongoose.Types.ObjectId(userId), "payments.serialNo": serialNo },
-//       {
-//         $set: {
-//           "payments.$.emiAmount": emiAmount,
-//           "payments.$.status": status,
-//         },
-//       },
-//       { new: true }
-//     );
-
-//     if (!updatedPayment) {
-//       return res.status(404).send({ message: 'Payment not found or unable to update.' });
-//     }
-
-//     res.status(200).send(updatedPayment);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send({ message: 'Error updating payment details' });
-//   }
-// };
-
-
-
-
-
-
-
-
-
-
 
 exports.getAllUsersWithPayments = async (req, res) => {
   try {

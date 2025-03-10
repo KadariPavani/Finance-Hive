@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import "./OrganizerDashboard.css";
-import { User, Phone, Mail, DollarSign, Calendar, Percent, Shield, Coins, CheckCircle, CreditCard , TrendingUp} from 'lucide-react';
+import { User, Phone, Mail, DollarSign, Calendar, Percent, Shield, Coins, CheckCircle, CreditCard, TrendingUp } from 'lucide-react';
 import Navigation from "../Navigation/Navigation";
 import { useTranslation } from 'react-i18next';
 import OrganizerSidebar from '../sidebar/OrganizerSidebar';
@@ -424,36 +424,36 @@ const OrganizerDashboard = () => {
       );
     })
     .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
-// Calculate Totals
-const totalAmountBorrowed = users.reduce((total, user) => total + parseFloat(user.amountBorrowed || 0), 0);
+  // Calculate Totals
+  const totalAmountBorrowed = users.reduce((total, user) => total + parseFloat(user.amountBorrowed || 0), 0);
 
-// Total Interest Money (total interest users are supposed to pay)
-const totalInterestMoney = users.reduce((total, user) => {
-  const amountBorrowed = parseFloat(user.amountBorrowed || 0);
-  const interest = parseFloat(user.interest || 0);
-  const tenure = parseFloat(user.tenure || 0); // Assuming tenure is in months
-  return total + (amountBorrowed * interest * tenure) / 1200; // Updated formula
-}, 0);
+  // Total Interest Money (total interest users are supposed to pay)
+  const totalInterestMoney = users.reduce((total, user) => {
+    const amountBorrowed = parseFloat(user.amountBorrowed || 0);
+    const interest = parseFloat(user.interest || 0);
+    const tenure = parseFloat(user.tenure || 0); // Assuming tenure is in months
+    return total + (amountBorrowed * interest * tenure) / 1200; // Updated formula
+  }, 0);
 
-// Total Interest Profit (organizer's profit from interest)
-const totalInterestProfit = totalInterestMoney; // Same as totalInterestMoney
+  // Total Interest Profit (organizer's profit from interest)
+  const totalInterestProfit = totalInterestMoney; // Same as totalInterestMoney
 
-// Total Amount Paid (sum of all paid EMIs)
-const totalAmountPaid = paymentDetails
-  .filter(payment => payment.status.toLowerCase() === 'paid')
-  .reduce((total, payment) => total + parseFloat(payment.emiAmount || 0), 0);
+  // Total Amount Paid (sum of all paid EMIs)
+  const totalAmountPaid = paymentDetails
+    .filter(payment => payment.status.toLowerCase() === 'paid')
+    .reduce((total, payment) => total + parseFloat(payment.emiAmount || 0), 0);
 
-// Total Amount Collected (total amount the organizer is supposed to collect)
-const totalAmountCollected = totalAmountBorrowed + totalInterestMoney;
+  // Total Amount Collected (total amount the organizer is supposed to collect)
+  const totalAmountCollected = totalAmountBorrowed + totalInterestMoney;
 
-// Total Payments Collected (sum of all paid EMIs)
-const totalPaymentsCollected = paymentDetails
-  .filter(payment => payment.status.toLowerCase() === 'paid')
-  .reduce((total, payment) => total + parseFloat(payment.emiAmount || 0), 0);
-// Calculate Profit Percentage
-const profitPercentage = ((totalAmountCollected - totalAmountBorrowed) / totalAmountBorrowed) * 100;
-// Total Users
-const totalUsers = users.length; // Add this line
+  // Total Payments Collected (sum of all paid EMIs)
+  const totalPaymentsCollected = paymentDetails
+    .filter(payment => payment.status.toLowerCase() === 'paid')
+    .reduce((total, payment) => total + parseFloat(payment.emiAmount || 0), 0);
+  // Calculate Profit Percentage
+  const profitPercentage = ((totalAmountCollected - totalAmountBorrowed) / totalAmountBorrowed) * 100;
+  // Total Users
+  const totalUsers = users.length; // Add this line
   const filteredPaymentDetailsForLineData = getFilteredPaymentDetails();
 
   const lineData = {
@@ -550,42 +550,42 @@ const totalUsers = users.length; // Add this line
   };
 
   // First, add a helper function to filter payments by time period
-const getFilteredPaymentsByDate = (payments, timeFilter) => {
-  const now = new Date();
-  const startOfDay = new Date(now.setHours(0, 0, 0, 0));
-  const endOfDay = new Date(now.setHours(23, 59, 59, 999));
+  const getFilteredPaymentsByDate = (payments, timeFilter) => {
+    const now = new Date();
+    const startOfDay = new Date(now.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(now.setHours(23, 59, 59, 999));
 
-  return payments.filter(payment => {
-    if (!payment.dueDate) return false;
-    const paymentDate = new Date(payment.dueDate);
+    return payments.filter(payment => {
+      if (!payment.dueDate) return false;
+      const paymentDate = new Date(payment.dueDate);
 
-    switch (timeFilter) {
-      case 'daily':
-        // Compare exact day
-        return paymentDate >= startOfDay && paymentDate <= endOfDay;
-      
-      case 'weekly':
-        // Get start and end of current week
-        const weekStart = new Date(now);
-        weekStart.setDate(now.getDate() - now.getDay());
-        weekStart.setHours(0, 0, 0, 0);
-        const weekEnd = new Date(weekStart);
-        weekEnd.setDate(weekStart.getDate() + 6);
-        weekEnd.setHours(23, 59, 59, 999);
-        return paymentDate >= weekStart && paymentDate <= weekEnd;
-      
-      case 'monthly':
-        return paymentDate.getMonth() === now.getMonth() && 
-               paymentDate.getFullYear() === now.getFullYear();
-      
-      case 'yearly':
-        return paymentDate.getFullYear() === now.getFullYear();
-      
-      default:
-        return true;
-    }
-  });
-};
+      switch (timeFilter) {
+        case 'daily':
+          // Compare exact day
+          return paymentDate >= startOfDay && paymentDate <= endOfDay;
+
+        case 'weekly':
+          // Get start and end of current week
+          const weekStart = new Date(now);
+          weekStart.setDate(now.getDate() - now.getDay());
+          weekStart.setHours(0, 0, 0, 0);
+          const weekEnd = new Date(weekStart);
+          weekEnd.setDate(weekStart.getDate() + 6);
+          weekEnd.setHours(23, 59, 59, 999);
+          return paymentDate >= weekStart && paymentDate <= weekEnd;
+
+        case 'monthly':
+          return paymentDate.getMonth() === now.getMonth() &&
+            paymentDate.getFullYear() === now.getFullYear();
+
+        case 'yearly':
+          return paymentDate.getFullYear() === now.getFullYear();
+
+        default:
+          return true;
+      }
+    });
+  };
 
   return (
     <div className="organizer-dashboard">
@@ -595,62 +595,62 @@ const getFilteredPaymentsByDate = (payments, timeFilter) => {
         <main className="dashboard-main">
           <div className="analytics-section" id="analytics-section">
             <div className="organizer-analytics-dashboard">
-            <div className="analytics-grid">
-      {/* Total Amount Borrowed */}
-      <div className="analytics-card">
-        <div className="analytics-icon">
-          <DollarSign size={24} />
-        </div>
-        <h3>Total Amount Borrowed</h3>
-        <p>{formatCurrency(totalAmountBorrowed)}</p>
-      </div>
+              <div className="analytics-grid">
+                {/* Total Amount Borrowed */}
+                <div className="analytics-card">
+                  <div className="analytics-icon">
+                    <DollarSign size={24} />
+                  </div>
+                  <h3>Total Amount Borrowed</h3>
+                  <p>{formatCurrency(totalAmountBorrowed)}</p>
+                </div>
 
-      {/* Total Interest Money */}
-      <div className="analytics-card">
-        <div className="analytics-icon">
-          <Percent size={24} />
-        </div>
-        <h3>Total Interest Money</h3>
-        <p>{formatCurrency(totalInterestMoney)}</p>
-      </div>
+                {/* Total Interest Money */}
+                <div className="analytics-card">
+                  <div className="analytics-icon">
+                    <Percent size={24} />
+                  </div>
+                  <h3>Total Interest Money</h3>
+                  <p>{formatCurrency(totalInterestMoney)}</p>
+                </div>
 
-      {/* Total Users */}
-      <div className="analytics-card">
-        <div className="analytics-icon">
-          <User size={24} />
-        </div>
-        <h3>Total Users</h3>
-        <p>{totalUsers}</p>
-      </div>
+                {/* Total Users */}
+                <div className="analytics-card">
+                  <div className="analytics-icon">
+                    <User size={24} />
+                  </div>
+                  <h3>Total Users</h3>
+                  <p>{totalUsers}</p>
+                </div>
 
-      {/* Profit Percentage */}
-      <div className="analytics-card">
-        <div className="analytics-icon">
-          <TrendingUp size={24} /> {/* Use an appropriate icon */}
-        </div>
-        <h3>Profit Percentage</h3>
-        <p>{profitPercentage.toFixed(2)}%</p>
-      </div>
+                {/* Profit Percentage */}
+                <div className="analytics-card">
+                  <div className="analytics-icon">
+                    <TrendingUp size={24} /> {/* Use an appropriate icon */}
+                  </div>
+                  <h3>Profit Percentage</h3>
+                  <p>{profitPercentage.toFixed(2)}%</p>
+                </div>
 
-      {/* Total Amount Collected */}
-      <div className="analytics-card">
-        <div className="analytics-icon">
-          <Coins size={24} />
-        </div>
-        <h3>Total Amount Collected</h3>
-        <p>{formatCurrency(totalAmountCollected)}</p>
-      </div>
+                {/* Total Amount Collected */}
+                <div className="analytics-card">
+                  <div className="analytics-icon">
+                    <Coins size={24} />
+                  </div>
+                  <h3>Total Amount Collected</h3>
+                  <p>{formatCurrency(totalAmountCollected)}</p>
+                </div>
 
-      {/* Total Payments Collected */}
-      <div className="analytics-card">
-        <div className="analytics-icon">
-          <CheckCircle size={24} />
-        </div>
-        <h3>Total Payments Collected</h3>
-        <p>{formatCurrency(totalPaymentsCollected)}</p>
-      </div>
-    </div>
-  
+                {/* Total Payments Collected */}
+                <div className="analytics-card">
+                  <div className="analytics-icon">
+                    <CheckCircle size={24} />
+                  </div>
+                  <h3>Total Payments Collected</h3>
+                  <p>{formatCurrency(totalPaymentsCollected)}</p>
+                </div>
+              </div>
+
               <div className="organizer-analytics-header">
                 <div className="organizer-analytics-title-section">
                   <h2 className="organizer-analytics-title">{t('dashboard.analytics')}</h2>
@@ -705,7 +705,7 @@ const getFilteredPaymentsByDate = (payments, timeFilter) => {
                     </div>
                   </div>
                 </div>
-                
+
 
                 <div className="organizer-analytics-secondary">
                   <div className="organizer-analytics-card organizer-status-card">
@@ -719,12 +719,12 @@ const getFilteredPaymentsByDate = (payments, timeFilter) => {
                               const filteredPayments = getFilteredPaymentsByDate(paymentDetails, timeFilter);
                               return [
                                 filteredPayments.filter(p => p.status?.toLowerCase() === 'paid').length,
-                                filteredPayments.filter(p => 
-                                  p.status?.toLowerCase() === 'pending' && 
+                                filteredPayments.filter(p =>
+                                  p.status?.toLowerCase() === 'pending' &&
                                   new Date(p.dueDate) >= new Date()
                                 ).length,
-                                filteredPayments.filter(p => 
-                                  p.status?.toLowerCase() === 'pending' && 
+                                filteredPayments.filter(p =>
+                                  p.status?.toLowerCase() === 'pending' &&
                                   new Date(p.dueDate) < new Date()
                                 ).length
                               ];
@@ -755,10 +755,7 @@ const getFilteredPaymentsByDate = (payments, timeFilter) => {
                       {(() => {
                         const filteredPayments = getFilteredPaymentsByDate(paymentDetails, timeFilter);
                         const totalDue = filteredPayments.length;
-                        const collected = filteredPayments.filter(p => 
-                          p.status.toLowerCase() === 'paid' || 
-                          (p.status.toLowerCase() === 'pending' && new Date(p.dueDate) >= new Date())
-                        ).length;
+                        const collected = filteredPayments.filter(p => p.status.toLowerCase() === 'paid').length; // Only count 'paid' payments
                         const efficiency = totalDue ? (collected / totalDue) * 100 : 0;
 
                         return (
@@ -872,72 +869,72 @@ const getFilteredPaymentsByDate = (payments, timeFilter) => {
               </div>
             </div>
             <div className="users-section" id="users-section">
-            <h2>{t("dashboard.your_users")}</h2>
-            <div className="search-bar">
-              <input
-                type="text"
-                placeholder={t("dashboard.search_users")}
-                value={userSearch}
-                onChange={handleUserSearchChange}
-              />
-            </div>
-            {error ? (
-              <div className="error">{error}</div>
-            ) : (
-              <>
-                <div className="users-grid">
-                  {currentUsers.map((user) => (
-                    <div key={user._id} className="user-card" onClick={() => handleUserClick(user)}>
-                      <div className="user-card-header">
-                        <h3>{user.name}</h3>
-                      </div>
-
-                      <div className="user-card-body">
-                        <p><Phone size={16} /> {user.mobileNumber}</p>
-                        <p><Mail size={16} /> {user.email}</p>
-                        <p><DollarSign size={16} /> {formatCurrency(user.amountBorrowed)}</p>
-                        <div className="user-card-footer">
-                          <span><Calendar size={14} /> {user.tenure} {t("dashboard.months")}</span>
-                          <span><Percent size={14} /> {user.interest}%</span>
-                          <span><Shield size={14} /> {user.surityGiven}</span>
+              <h2>{t("dashboard.your_users")}</h2>
+              <div className="search-bar">
+                <input
+                  type="text"
+                  placeholder={t("dashboard.search_users")}
+                  value={userSearch}
+                  onChange={handleUserSearchChange}
+                />
+              </div>
+              {error ? (
+                <div className="error">{error}</div>
+              ) : (
+                <>
+                  <div className="users-grid">
+                    {currentUsers.map((user) => (
+                      <div key={user._id} className="user-card" onClick={() => handleUserClick(user)}>
+                        <div className="user-card-header">
+                          <h3>{user.name}</h3>
                         </div>
-                        <button
-                          className="view-details-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleUserClick(user);
-                          }}
-                        >
-                          View Details
-                        </button>
+
+                        <div className="user-card-body">
+                          <p><Phone size={16} /> {user.mobileNumber}</p>
+                          <p><Mail size={16} /> {user.email}</p>
+                          <p><DollarSign size={16} /> {formatCurrency(user.amountBorrowed)}</p>
+                          <div className="user-card-footer">
+                            <span><Calendar size={14} /> {user.tenure} {t("dashboard.months")}</span>
+                            <span><Percent size={14} /> {user.interest}%</span>
+                            <span><Shield size={14} /> {user.surityGiven}</span>
+                          </div>
+                          <button
+                            className="view-details-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleUserClick(user);
+                            }}
+                          >
+                            View Details
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="pagination">
-                  <button onClick={handlePreviousPage} disabled={currentPage === 1} className="page-btn">
-                    Previous
-                  </button>
-                  {Array.from({ length: Math.ceil(filteredUsers.length / usersPerPage) }, (_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => paginate(index + 1)}
-                      className={`page-btn ${currentPage === index + 1 ? 'active' : ''}`}
-                    >
-                      {index + 1}
+                    ))}
+                  </div>
+                  <div className="pagination">
+                    <button onClick={handlePreviousPage} disabled={currentPage === 1} className="page-btn">
+                      Previous
                     </button>
-                  ))}
-                  <button
-                    onClick={handleNextPage}
-                    disabled={currentPage === Math.ceil(filteredUsers.length / usersPerPage)}
-                    className="page-btn"
-                  >
-                    Next
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
+                    {Array.from({ length: Math.ceil(filteredUsers.length / usersPerPage) }, (_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => paginate(index + 1)}
+                        className={`page-btn ${currentPage === index + 1 ? 'active' : ''}`}
+                      >
+                        {index + 1}
+                      </button>
+                    ))}
+                    <button
+                      onClick={handleNextPage}
+                      disabled={currentPage === Math.ceil(filteredUsers.length / usersPerPage)}
+                      className="page-btn"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
 
             <div className="bottom-analytics-container">
               <div className="payment-details-section">
@@ -1015,7 +1012,7 @@ const getFilteredPaymentsByDate = (payments, timeFilter) => {
                 </div>
               </div>
             </div>
-            
+
           </div>
 
 
