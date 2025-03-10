@@ -47,13 +47,3 @@
 
 
 
-
- ### Contact Us
- 
- ##### Pavani Borusu (Senior Developer Intern)
- - Email : pavaniborusu923@gmail.com
- - Github : [@Borusu Pavani](https://github.com/Pavni7)
-
- ##### Pavani Kadari (Junior Developer Intern)   
-  * Email : kadaripavani1@gmail.com
-  * Github : [@KadariPavani](https://github.com/KadariPavani)
