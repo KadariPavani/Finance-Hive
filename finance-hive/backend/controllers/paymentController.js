@@ -14,103 +14,6 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS
   }
 });
-// Create or Fetch the Payment Schedule for a User
-// exports.createPaymentSchedule = async (req, res) => {
-//   try {
-//     const { userId } = req.params;
-//     const userPayment = await UserPayment.findById(userId);
-    
-//     if (!userPayment) {
-//       return res.status(404).json({ message: "User payment details not found" });
-//     }
-
-//     // Get today's date
-//     const today = new Date();
-    
-//     // Calculate first payment date (next month)
-//     const firstPaymentDate = new Date(today);
-//     firstPaymentDate.setMonth(today.getMonth() + 1);
-    
-//     // Calculate EMI and loan details
-//     const principal = parseFloat(userPayment.amountBorrowed);
-//     const tenure = parseInt(userPayment.tenure);
-//     const interestRate = parseFloat(userPayment.interest);
-//     const monthlyInterestRate = (interestRate / 12) / 100;
-
-//     // Calculate EMI using the formula: EMI = P * r * (1 + r)^n / ((1 + r)^n - 1)
-//     const emi = (principal * monthlyInterestRate * Math.pow(1 + monthlyInterestRate, tenure)) / 
-//                 (Math.pow(1 + monthlyInterestRate, tenure) - 1);
-
-//     let remainingPrincipal = principal;
-    
-//     // Generate payment schedule
-//     const schedule = Array.from({ length: tenure }, (_, index) => {
-//       // Calculate payment date
-//       const paymentDate = new Date(firstPaymentDate);
-//       paymentDate.setMonth(firstPaymentDate.getMonth() + index);
-
-//       // Calculate interest for this month
-//       const interestPayment = remainingPrincipal * monthlyInterestRate;
-      
-//       // Calculate principal for this month
-//       const principalPayment = emi - interestPayment;
-      
-//       // Update remaining principal
-//       remainingPrincipal = Math.max(0, remainingPrincipal - principalPayment);
-
-//       // Handle month overflow
-//       const targetDay = firstPaymentDate.getDate();
-//       const lastDayOfMonth = new Date(paymentDate.getFullYear(), paymentDate.getMonth() + 1, 0).getDate();
-//       if (targetDay > lastDayOfMonth) {
-//         paymentDate.setDate(lastDayOfMonth);
-//       }
-
-//       return {
-//         serialNo: index + 1,
-//         paymentDate: paymentDate,
-//         emiAmount: Math.round(emi),
-//         principal: Math.round(principalPayment),
-//         interest: Math.round(interestPayment),
-//         balance: Math.max(0, Math.round(remainingPrincipal)),
-//         status: 'PENDING'
-//       };
-//     });
-
-//     // Verify total EMI matches loan amount plus interest
-//     const totalEMI = schedule.reduce((sum, payment) => sum + payment.emiAmount, 0);
-//     const expectedTotal = principal * (1 + (interestRate * tenure / 1200));
-    
-//     if (Math.abs(totalEMI - expectedTotal) > tenure) { // Allow small rounding differences
-//       console.error('EMI calculation error:', {
-//         totalEMI,
-//         expectedTotal,
-//         difference: totalEMI - expectedTotal
-//       });
-//       throw new Error('EMI calculation validation failed');
-//     }
-
-//     // Save payment schedule to the database
-//     userPayment.paymentSchedule = schedule;
-//     userPayment.monthlyEMI = Math.round(emi);
-//     await userPayment.save();
-
-//     res.status(200).json({
-//       message: "Payment schedule created successfully",
-//       schedule,
-//       firstPaymentDate,
-//       monthlyEMI: Math.round(emi),
-//       totalAmount: totalEMI,
-//       totalInterest: totalEMI - principal
-//     });
-
-//   } catch (error) {
-//     console.error("Error creating payment schedule:", error);
-//     res.status(500).json({ 
-//       message: "Error creating payment schedule",
-//       error: error.message 
-//     });
-//   }
-// };
 
 exports.createPaymentSchedule = async (req, res) => {
   try {
@@ -222,19 +125,46 @@ exports.updatePaymentDetails = async (req, res) => {
         }
       }
 
-      // Recalculate balances and auto-mark as paid if applicable
+      // Recalculate balances and handle auto-payment logic
       let runningBalance = totalAmountWithInterest;
+      let previousPaidWithBalance = false;
+
+      // First pass: Reset all auto-paid entries after current payment
+      for (let i = currentIndex + 1; i < userPayment.paymentSchedule.length; i++) {
+        const payment = userPayment.paymentSchedule[i];
+        if (payment.locked && payment.emiAmount === 0) {
+          payment.status = 'PENDING';
+          payment.locked = false;
+          payment.paidDate = null;
+        }
+      }
+
+      // Second pass: Recalculate balances and auto-payments
       for (const p of userPayment.paymentSchedule) {
+        // Calculate new balance after current payment
         runningBalance = Number((runningBalance - p.emiAmount).toFixed(2));
         p.balance = Math.max(0, runningBalance);
 
-        // Auto-mark as paid if amount and balance are 0
-        if (p.emiAmount === 0 && p.balance === 0 && !p.locked && p.status !== 'PAID') {
-          p.status = 'PAID';
-          p.paidDate = new Date();
-          p.locked = true;
-          // No receipt generation for auto-paid entries
+        // Check if previous payment was properly paid
+        if (previousPaidWithBalance) {
+          if (p.balance === 0 && !p.locked) {
+            // Only auto-mark as paid if not manually paid before
+            p.emiAmount = 0;
+            p.status = 'PAID';
+            p.paidDate = new Date();
+            p.locked = true;
+          } else {
+            // Break the chain if balance is not zero
+            previousPaidWithBalance = false;
+          }
         }
+
+        // Update flag for next iteration - only set true if current payment meets all conditions
+        previousPaidWithBalance = (
+          p.status === 'PAID' && 
+          p.emiAmount > 0 && 
+          p.balance === 0
+        );
       }
 
       // Verify total amount consistency
@@ -249,31 +179,48 @@ exports.updatePaymentDetails = async (req, res) => {
     }
 
     // Handle manual status update (with receipt generation)
-    if (status && !payment.locked && payment.emiAmount > 0) {
+    if (status && !payment.locked) {
       payment.status = status;
+      
       if (status === 'PAID') {
         payment.paidDate = new Date();
         payment.locked = true;
 
-        const receipt = {
-          receiptNumber: `RCPT-${Date.now()}-${payment.serialNo}`,
-          paymentDate: new Date(),
-          amount: payment.emiAmount,
-          serialNo: payment.serialNo
-        };
+        // Only generate receipt if amount is greater than 0
+        if (payment.emiAmount > 0) {
+          const receipt = {
+            receiptNumber: `RCPT-${Date.now()}-${payment.serialNo}`,
+            paymentDate: new Date(),
+            amount: payment.emiAmount,
+            serialNo: payment.serialNo
+          };
 
-        userPayment.receipts.push(receipt);
+          userPayment.receipts.push(receipt);
 
-        await Promise.all([
-          createNotification(
-            userPayment._id,
-            'Payment Receipt Generated',
-            `Payment of ${formatCurrency(payment.emiAmount)} for EMI ${payment.serialNo} is completed.`,
-            'PAYMENT',
-            { receipt }
-          ),
-          sendPaymentEmail(userPayment, payment, receipt)
-        ]);
+          await Promise.all([
+            createNotification(
+              userPayment._id,
+              'Payment Receipt Generated',
+              `Payment of ${formatCurrency(payment.emiAmount)} for EMI ${payment.serialNo} is completed.`,
+              'PAYMENT',
+              { receipt }
+            ),
+            sendPaymentEmail(userPayment, payment, receipt)
+          ]);
+        }
+
+        // Automatically mark subsequent zero-amount payments as PAID
+        for (let i = currentIndex + 1; i < userPayment.paymentSchedule.length; i++) {
+          const nextPayment = userPayment.paymentSchedule[i];
+          if (nextPayment.emiAmount === 0 && nextPayment.balance === 0 && nextPayment.status === 'PENDING') {
+            nextPayment.status = 'PAID';
+            nextPayment.paidDate = new Date();
+            nextPayment.locked = true;
+            // No receipt generation for zero-amount payments
+          } else {
+            break; // Stop if we encounter a non-zero payment
+          }
+        }
       }
     }
 
@@ -534,6 +481,44 @@ exports.getMonthAnalytics = async (req, res) => {
         console.error('Error fetching month analytics:', error);
         res.status(500).json({ message: 'Error fetching month analytics', error: error.message });
     }
+};
+
+// Add this new endpoint
+exports.bulkUpdatePayments = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { startIndex, markAsPaid } = req.body;
+
+    const userPayment = await UserPayment.findById(userId);
+    if (!userPayment) {
+      return res.status(404).json({ message: "User payment details not found" });
+    }
+
+    // Update all remaining payments that have zero amount
+    for (let i = startIndex; i < userPayment.paymentSchedule.length; i++) {
+      const payment = userPayment.paymentSchedule[i];
+      if (payment.emiAmount === 0 && payment.balance === 0 && payment.status === 'PENDING') {
+        payment.status = 'PAID';
+        payment.paidDate = new Date();
+        payment.locked = true;
+        // No receipt generation for these automatic updates
+      }
+    }
+
+    await userPayment.save();
+
+    res.json({
+      message: "Payments updated successfully",
+      schedule: userPayment.paymentSchedule
+    });
+
+  } catch (error) {
+    console.error('Bulk update error:', error);
+    res.status(500).json({
+      message: 'Error updating payments',
+      error: error.message
+    });
+  }
 };
 
 

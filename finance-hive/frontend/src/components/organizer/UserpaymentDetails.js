@@ -130,6 +130,7 @@ const UserPaymentDetails = () => {
 
         if (response.data && response.data.schedule) {
           setPaymentSchedule(response.data.schedule);
+          
           setIsSuccess(true);
           setModalMessage('Payment amount updated successfully');
           setShowModal(true);
@@ -175,6 +176,36 @@ const UserPaymentDetails = () => {
       ...receipt,
       user: userData,
     });
+  };
+
+  const handleStatusChange = async (payment, newStatus) => {
+    try {
+      if (newStatus === 'PAID') {
+        const currentIndex = paymentSchedule.findIndex(p => p.serialNo === payment.serialNo);
+        
+        // First update the current payment
+        const response = await api.patch(`/payment/${userId}/${payment.serialNo}`, {
+          status: newStatus,
+          autoUpdateZeroPayments: true // Add this flag to handle zero-amount payments
+        });
+
+        if (response.data && response.data.schedule) {
+          setPaymentSchedule(response.data.schedule);
+          setIsSuccess(true);
+          setModalMessage('Payment status updated successfully');
+          setShowModal(true);
+          await fetchUserData();
+        }
+      } else {
+        // For non-PAID status changes
+        handlePaymentUpdate(payment.serialNo, 'status', newStatus);
+      }
+    } catch (error) {
+      console.error('Status update error:', error);
+      setIsSuccess(false);
+      setModalMessage(error.response?.data?.message || 'Update failed');
+      setShowModal(true);
+    }
   };
 
   const formatDate = useCallback(
@@ -315,11 +346,7 @@ const UserPaymentDetails = () => {
                       <div className="payment-status-container">
                         <select
                           value={payment.status}
-                          onChange={(e) => {
-                            if (e.target.value === 'PAID') {
-                              handlePaymentUpdate(payment.serialNo, 'status', e.target.value);
-                            }
-                          }}
+                          onChange={(e) => handleStatusChange(payment, e.target.value)}
                           className={`payment-status-select ${payment.status.toLowerCase()}`}
                           disabled={updateInProgress[payment.serialNo]}
                         >
