@@ -1,0 +1,168 @@
+.title-section {
+    text-align: center;
+    padding: var(--spacing-xl) var(--spacing-md); /* Reduced padding for smaller screens */
+    background: linear-gradient(135deg, var(--background-color), #f5f5f7);
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    animation: zoomIn 1.2s ease-out;
+  }
+  
+  .title-section::before {
+    content: '';
+    position: absolute;
+    top: -30%;
+    left: -30%;
+    /* width: 160%; */
+    height: 160%;
+    background: radial-gradient(circle, rgba(58, 55, 104, 0.05), transparent);
+    animation: pulseBackground 10s ease-in-out infinite;
+    z-index: -1;
+  }
+  
+  @keyframes pulseBackground {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 0.6;
+    }
+    50% {
+      transform: scale(1.1);
+      opacity: 0.4;
+    }
+  }
+  
+  @keyframes zoomIn {
+    from {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  .title-decoration {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--spacing-sm); /* Slightly reduced spacing */
+    opacity: 0;
+    animation: fadeInSlide 1s 0.5s ease forwards;
+  }
+  
+  @keyframes fadeInSlide {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .section-title {
+    font-size: var(--font-size-xl); /* Smaller font size for mobile */
+    font-weight: 700;
+    text-transform: uppercase;
+    margin: 0 var(--spacing-sm);
+    color: #2E2C50;
+    letter-spacing: 0.8px; /* Slightly reduced letter spacing */
+    animation: fadeInScale 1.2s ease-out;
+  }
+  
+  @keyframes fadeInScale {
+    from {
+      transform: scale(0.9);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  .section-subtitle {
+    font-size: var(--font-size-sm); /* Smaller font size for readability */
+    color: #5D5F7A;
+    max-width: 90%; /* Ensure it fits smaller screens */
+    margin: var(--spacing-xs) auto;
+    line-height: 1.5; /* Adjusted for better readability */
+    font-style: italic;
+    text-align: center;
+    animation: fadeUp 1.5s ease-out;
+  }
+  
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Media query for smaller screens */
+  @media (max-width: var(--breakpoint-lg)) {
+    .title-section {
+      padding: var(--spacing-lg) var(--spacing-md); /* Further reduce padding for compactness */
+    }
+  
+    .section-title {
+      font-size: var(--font-size-lg); /* Reduced title size for smaller screens */
+      margin: 0 var(--spacing-xs);
+    }
+  
+    .section-subtitle {
+      font-size: var(--font-size-sm); /* Compact font size for subtitles */
+      line-height: 1.4; /* Adjust line height for readability */
+    }
+  
+    .title-decoration {
+      margin-bottom: var(--spacing-xs); /* Adjust spacing for smaller screens */
+    }
+  }
+  
+  @media (max-width: var(--breakpoint-md)) {
+    .title-section {
+      padding: var(--spacing-md) var(--spacing-sm); /* Further reduce padding for compactness */
+    }
+  
+    .section-title {
+      font-size: var(--font-size-md); /* Reduced title size for smaller screens */
+      margin: 0 var(--spacing-xs);
+    }
+  
+    .section-subtitle {
+      font-size: var(--font-size-xs); /* Compact font size for subtitles */
+      line-height: 1.4; /* Adjust line height for readability */
+    }
+  
+    .title-decoration {
+      margin-bottom: var(--spacing-xs); /* Adjust spacing for smaller screens */
+    }
+  }
+  
+  @media (max-width: var(--breakpoint-sm)) {
+    .title-section {
+      padding: var(--spacing-sm) var(--spacing-xs); /* Further reduce padding for compactness */
+    }
+  
+    .section-title {
+      font-size: var(--font-size-sm); /* Reduced title size for smaller screens */
+      margin: 0 var(--spacing-xs);
+    }
+  
+    .section-subtitle {
+      font-size: var(--font-size-xs); /* Compact font size for subtitles */
+      line-height: 1.4; /* Adjust line height for readability */
+    }
+  
+    .title-decoration {
+      margin-bottom: var(--spacing-xs); /* Adjust spacing for smaller screens */
+    }
+  }

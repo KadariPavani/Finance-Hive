@@ -1,0 +1,59 @@
+.edit-savings-layout {
+    display: flex;
+    min-height: 100vh;
+    background: #f8f9fa;
+  }
+  
+  .edit-savings-main {
+    flex: 1;
+    padding: 2rem;
+    margin-left: 60px;
+    margin-top: 60px;
+  }
+  
+  .edit-savings-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .edit-savings-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .edit-savings-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .back-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    background: #f0f2f5;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #374151;
+  }

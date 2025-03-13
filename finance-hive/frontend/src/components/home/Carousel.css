@@ -1,0 +1,165 @@
+.carousel-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.carousel-background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.9); /* Darken the background image */
+}
+
+.carousel-text-box-container {
+  position: absolute;
+  top: 40%;
+  left: 10%;
+  color: #fff;
+  z-index: 2;
+  text-align: left;
+  max-width: 80%;
+  padding: 20px; /* Add padding for better spacing */
+  border-radius: 10px; /* Rounded corners for a modern look */
+}
+
+.carousel-title {
+  font-size: 4rem; /* Larger font size for larger screens */
+  margin-bottom: 1rem;
+  font-weight: bold; /* Make the heading bold */
+  text-transform: uppercase; /* Uppercase text for a modern look */
+  letter-spacing: 2px; /* Add spacing between letters */
+  color: #fff;
+}
+
+.carousel-description {
+  font-size: 2rem; /* Larger font size for larger screens */
+  white-space: normal; /* Allow text to wrap to the next line */
+  overflow: visible; /* Ensure text is not hidden */
+  line-height: 1.5; /* Improve line spacing for readability */
+  animation: fadeIn 1s ease-in-out;
+}
+
+.carousel-indicators-container {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  z-index: 2;
+}
+
+.carousel-indicator-button {
+  width: 12px;
+  height: 12px;
+  border: none;
+  border-radius: 50%;
+  background: #ccc;
+  cursor: pointer;
+  transition: background 0.3s ease; /* Smooth transition for active state */
+}
+
+.carousel-indicator-button.active-indicator {
+  background: #fff;
+}
+
+/* Typing Animation */
+@keyframes typing {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+/* Cursor Blinking Animation */
+@keyframes blink-caret {
+  from, to {
+    border-color: transparent;
+  }
+  50% {
+    border-color: #fff;
+  }
+}
+
+/* Fade-in Animation */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Wave Animation */
+@keyframes wave {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(-10px);
+  }
+  50% {
+    transform: translateY(0);
+  }
+  75% {
+    transform: translateY(10px);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .carousel-title {
+    font-size: 3.5rem; /* Slightly smaller for medium-large screens */
+  }
+
+  .carousel-description {
+    font-size: 1.8rem; /* Slightly smaller for medium-large screens */
+  }
+}
+
+@media (max-width: 768px) {
+  .carousel-text-box-container {
+    top: 50%; /* Center vertically */
+    left: 50%; /* Center horizontally */
+    transform: translate(-50%, -50%); /* Center the text box */
+    text-align: center; /* Center align text */
+    max-width: 90%; /* Adjust width for smaller screens */
+  }
+
+  .carousel-title {
+    font-size: 2.5rem; /* Smaller font size for tablets */
+  }
+
+  .carousel-description {
+    font-size: 1.5rem; /* Smaller font size for tablets */
+  }
+}
+
+@media (max-width: 480px) {
+  .carousel-text-box-container {
+    top: 50%; /* Center vertically */
+    left: 50%; /* Center horizontally */
+    transform: translate(-50%, -50%); /* Center the text box */
+    text-align: center; /* Center align text */
+    max-width: 90%; /* Adjust width for smaller screens */
+  }
+
+  .carousel-title {
+    font-size: 2rem; /* Smaller font size for mobile */
+  }
+
+  .carousel-description {
+    font-size: 1.2rem; /* Smaller font size for mobile */
+  }
+}

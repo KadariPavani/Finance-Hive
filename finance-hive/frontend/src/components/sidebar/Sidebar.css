@@ -1,0 +1,278 @@
+/* Sidebar Defaults */
+.dashboard-sidebar {
+  position: fixed;
+  left: 0;
+  top: 64px; /* Push below the navbar */
+  height: calc(100vh - 64px); /* Full height minus navbar */
+  width: 250px;
+  background: linear-gradient(180deg, #f0f4f8, #e0e7ff); /* Light gradient background */
+  box-shadow: 2px 0 15px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+  z-index: 999;
+  backdrop-filter: blur(10px); /* Added blur effect */
+  overflow-x: hidden; /* Hide horizontal overflow */
+}
+
+/* Collapsed sidebar style for desktop/tablet */
+.dashboard-sidebar.desktop-collapsed {
+  width: 70px;
+}
+
+/* Expanded sidebar style for desktop/tablet */
+.dashboard-sidebar.desktop-expanded {
+  width: 250px;
+}
+
+/* Mobile sidebar: hidden by default */
+.dashboard-sidebar.mobile-closed {
+  transform: translateX(-100%);
+}
+
+/* Mobile sidebar: visible when open */
+.dashboard-sidebar.mobile-open {
+  transform: translateX(0);
+}
+
+/* Sidebar Content */
+.sidebar-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, #f2f4fd 20%, #efecfe 50%);
+  overflow-y: auto;
+  box-shadow: 15px 15px 15px rgba(0, 0, 0, 0.06);
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.sidebar-content::-webkit-scrollbar {
+  display: none;
+}
+
+/* Sidebar navigation */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Sidebar buttons */
+.sidebar-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  font-weight: 500;
+  position: relative;
+  background: rgba(255, 255, 255, 0.2); /* Semi-transparent background for glass effect */
+  overflow: hidden;
+  backdrop-filter: blur(10px); /* Blur effect for glass effect */
+
+}
+
+.sidebar-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, #2563eb08, #2563eb15);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.sidebar-btn:hover::before {
+  opacity: 1;
+}
+
+.sidebar-btn:hover {
+  color: #2563eb;
+  transform: translateX(5px);
+}
+
+.sidebar-btn.active {
+  background: #2563eb;
+  color: white;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+}
+
+/* Sidebar Icons */
+.sidebar-icon {
+  width: 22px;
+  height: 22px;
+  position: relative;
+  z-index: 1;
+}
+
+/* User Profile */
+.user-profile {
+  margin-top: auto;
+  padding: 20px;
+  /* background: linear-gradient(135deg, #e9eaf5 0%, #d9d9eb 100%); */
+  border-top: 1.5px solid #e2e8f0;
+  transition: opacity 0.3s ease, height 0.3s ease; /* Added transitions */
+  overflow: hidden;
+}
+
+.user-profile.collapsed .user-info {
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.user-profile.expanded {
+  height: auto; /* Adjust as needed */
+}
+
+.user-profile.mobile {
+  height: auto; /* Ensure the user profile is always visible on mobile */
+}
+
+.user-profile.mobile .user-info {
+  opacity: 1; /* Ensure user info is visible on mobile */
+  height: auto;
+  overflow: visible;
+}
+
+.user-avatar {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(45deg, #2563eb, #3b82f6);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  color: #7a4cd8;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+}
+
+.user-info {
+  padding: 0 4px;
+}
+
+.user-name {
+  color: #1e293b;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.user-email {
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* Logout Button */
+.logout {
+  margin-top: 16px;
+  color: #ef4444;
+  background: #fef2f2;
+  border: 1.5px solid #fecaca;
+}
+
+.logout:hover {
+  background: #fee2e2;
+  border-color: #ef4444;
+  transform: translateX(5px);
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+  .dashboard-sidebar {
+    top: 64px; /* Adjust based on your navbar height */
+    width: 100%;
+    height: calc(100vh - 64px); /* Full height minus navbar */
+    overflow-y: auto;
+    transform: translateX(-100%); /* Hide sidebar by default on mobile */
+    position: fixed;
+    z-index: 1002; /* Ensure it's above other content */
+  }
+
+  .dashboard-sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  .user-profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+    border-top: 1px solid #eee;
+    margin-top: 0; /* Ensure it's not pushed to the bottom */
+    height: auto; /* Make sure the height adjusts to content */
+  }
+
+  .user-profile.collapsed .user-info {
+    opacity: 1; /* Always show user info on mobile */
+    height: auto;
+    overflow: visible; /* Ensure content is visible */
+  }
+
+  .user-profile.expanded .user-info {
+    opacity: 1;
+    height: auto;
+    overflow: visible; /* Ensure content is visible */
+  }
+}
+
+/* General styling for the text */
+.dashboard-sidebar span {
+  display: block; /* Make sure the spans are block-level elements */
+}
+
+/* Hide text in collapsed state on desktop */
+.dashboard-sidebar.desktop-collapsed span {
+  display: none;
+}
+
+/* Show text in expanded state on desktop */
+.dashboard-sidebar.desktop-expanded span {
+  display: block;
+}
+
+/* Styles for the close button */
+.sidebar-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 1002;
+}
+
+/* Add this new class for clickable items */
+.sidebar-item {
+  width: 100%;
+  cursor: pointer;
+}
+
+/* Ensure proper touch area on mobile */
+@media (max-width: 767px) {
+  .sidebar-item {
+    padding: 12px 0;
+  }
+}
+
+/* Add this new utility class */
+.sidebar-item {
+  width: 100%;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .sidebar-item {
+    /* Ensure the entire item is clickable */
+    display: block;
+    width: 100%;
+  }
+}

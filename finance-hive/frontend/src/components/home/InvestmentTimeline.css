@@ -1,0 +1,207 @@
+/* General Styles */
+.investment-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: Arial, sans-serif;
+}
+
+.investment-container h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 50px;
+  font-size: 32px;
+  font-weight: normal;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  animation: fadeIn 1.5s ease-in-out;
+}
+
+/* Timeline Layout */
+.investment-timeline {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+  margin-top: 60px;
+  opacity: 0;
+  animation: slideUp 1s ease-in-out forwards;
+}
+
+/* Connecting Lines */
+.investment-timeline::before {
+  content: '';
+  position: absolute;
+  top: 45px;
+  left: 50px;
+  right: 50px;
+  height: 2px;
+  background: repeating-linear-gradient(
+      to right,
+      rgba(204, 204, 204, 0.7) 0,
+      rgba(204, 204, 204, 0.7) 10px,
+      transparent 10px,
+      transparent 20px
+  );
+  z-index: 1;
+}
+
+/* Timeline Items */
+.investment-timeline-item {
+  flex: 1;
+  text-align: center;
+  padding: 0 15px;
+  position: relative;
+  z-index: 2;
+  transition: transform 0.3s ease-in-out;
+}
+
+.investment-timeline-item:hover {
+  transform: scale(1.1);
+}
+
+/* Circle Styles */
+.investment-circle {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  position: relative;
+  animation: pulse 2s ease-in-out 1;
+}
+
+.investment-circle span {
+  color: white;
+  font-size: 36px;
+  font-weight: bold;
+}
+
+/* Glowing Effects */
+.investment-circle::before {
+  content: '';
+  position: absolute;
+  width: 110%;
+  height: 110%;
+  border-radius: 50%;
+  background: radial-gradient(rgba(255, 255, 255, 0.3), transparent);
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.investment-circle:hover::before {
+  opacity: 1;
+}
+
+/* Circle Colors */
+.investment-circle-1 {
+  background-color: #f6b93b;
+  box-shadow: 0 0 10px #f6b93b;
+}
+
+.investment-circle-2 {
+  background-color: #00b5c3;
+  box-shadow: 0 0 10px #00b5c3;
+}
+
+.investment-circle-3 {
+  background-color: #6c5ce7;
+  box-shadow: 0 0 10px #6c5ce7;
+}
+
+.investment-circle-4 {
+  background-color: #e17055;
+  box-shadow: 0 0 10px #e17055;
+}
+
+/* Text Styles */
+.investment-timeline-item h2 {
+  margin-bottom: 10px;
+  color: #333;
+  font-size: 18px;
+  text-transform: uppercase;
+}
+
+.investment-timeline-item p {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0 auto;
+  max-width: 200px;
+}
+
+@media (max-width: 768px) {
+  /* For mobile */
+  .investment-timeline {
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+
+  .investment-timeline::before {
+    display: none;
+  }
+
+  .investment-timeline-item {
+    margin-bottom: 40px;
+  }
+
+  .investment-timeline-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    width: 2px;
+    height: 40px;
+    background: #ccc;
+    top: 100%;
+    transform: translateX(-50%);
+  }
+
+  .investment-circle {
+    width: 70px;
+    height: 70px;
+  }
+
+  .investment-circle span {
+    font-size: 28px;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  }
+}

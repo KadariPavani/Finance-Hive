@@ -1,0 +1,355 @@
+.calendar-page {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 1200px) {
+    .calendar-page {
+        grid-template-columns: minmax(auto, 800px) 1fr;
+    }
+}
+
+.calendar-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 0.5rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.calendar-header button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.calendar-header button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background-color: #eee;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.calendar-weekday {
+    background-color: #f8f9fa;
+    padding: 0.75rem;
+    text-align: center;
+    font-weight: 600;
+    border-bottom: 1px solid #eee;
+}
+
+.calendar-day {
+    position: relative;
+    min-height: 80px;
+    padding: 0.5rem;
+    background: white;
+    border: 1px solid #eee;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.calendar-day:hover {
+    background-color: #f8f9fa;
+}
+
+.calendar-day.different-month {
+    background-color: #f8f9fa;
+    color: #aaa;
+}
+
+.calendar-day.different-month:hover {
+    background-color: #e9ecef;
+}
+
+.calendar-day.selected {
+    background-color: #e3f2fd;
+    border-color: #2196f3;
+}
+
+.day-number {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.day-summary {
+    margin-top: 1rem;
+    font-size: 0.75rem;
+}
+
+.payment-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.dot.paid {
+    background-color: #4caf50;
+}
+
+.dot.pending {
+    background-color: #ff9800;
+}
+
+.amount {
+    color: #1976d2;
+    font-weight: 500;
+}
+
+.day-analytics {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.analytics-card {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.analytics-card h4 {
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.analytics-card .amount {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1976d2;
+    margin-bottom: 0.25rem;
+}
+
+.payments-list {
+    margin-top: 2rem;
+}
+
+.table-container {
+    overflow-x: auto;
+    margin-top: 1rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.status {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+.status.paid {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status.pending {
+    background-color: #fff3e0;
+    color: #ef6c00;
+}
+
+.loading {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.no-payments, .no-data {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+.nav-button {
+    background: none;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    padding: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.nav-button:hover {
+    background-color: #f8f9fa;
+    border-color: #ddd;
+}
+
+.filter-container {
+    margin: 1rem 0;
+}
+
+.status-filter {
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    font-size: 0.9rem;
+    width: 200px;
+    background-color: white;
+}
+
+.calendar-day.has-paid {
+    background-color: #e8f5e9;
+}
+
+.calendar-day.has-pending {
+    background-color: #fff3e0;
+}
+
+.paid-count {
+    color: #2e7d32;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.pending-count {
+    color: #ed6c02;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.calendar-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.calendar-navigation {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.month-year-selector {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.year-select {
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    font-size: 1rem;
+    background-color: white;
+}
+
+.month-year-selector h2 {
+    margin: 0;
+    min-width: 120px;
+}
+
+/* Add styles for the current day */
+.calendar-day.today {
+    border: 2px solid #2196f3;
+}
+
+/* Add styles for days with payments */
+.calendar-day.has-payments {
+    position: relative;
+}
+
+.calendar-day.has-payments::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: #2196f3;
+}
+
+/* Status indicators */
+.calendar-day.has-paid::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #4caf50;
+}
+
+.calendar-day.has-pending::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    right: 16px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #ff9800;
+} 

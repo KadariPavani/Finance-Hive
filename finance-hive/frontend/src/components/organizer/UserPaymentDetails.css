@@ -1,0 +1,366 @@
+.user-payment-details {
+  padding: 2rem;
+  width: 100%;
+}
+
+.payment-details-container {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  position: relative;
+}
+
+.back-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.back-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.payment-schedule-table {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 2rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+th, td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+th {
+  background-color: #f8fafc;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.payment-row:hover {
+  background-color: #f8fafc;
+}
+
+.payment-row-paid {
+  background-color: #f0fdf4;
+}
+
+.payment-row-overdue {
+  background-color: #fef2f2;
+}
+
+.payment-status-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.payment-status-select {
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+  background-color: white;
+  cursor: pointer;
+}
+
+.payment-status-paid {
+  color: #16a34a;
+  border-color: #16a34a;
+}
+
+.payment-status-overdue {
+  color: #dc2626;
+  border-color: #dc2626;
+}
+
+.payment-status-pending {
+  color: #ca8a04;
+  border-color: #ca8a04;
+}
+
+.payment-status-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.payment-status-loader {
+  animation: spin 1s linear infinite;
+}
+
+.download-button {
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.download-button:hover:not(:disabled) {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.download-button-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.download-loader {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.loading-content {
+  text-align: center;
+}
+
+.loading-spinner {
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+.error-message {
+  background-color: #fef2f2;
+  color: #dc2626;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.total-balance {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.emi-amount-cell {
+  position: relative;
+  min-width: 150px;
+}
+
+.emi-amount-cell input {
+  width: 100px;
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.emi-update-loader {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  animation: spin 1s linear infinite;
+}
+
+.payment-status-select {
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.payment-status-select.pending {
+  background-color: #ffd70033;
+  border: 1px solid #ffd700;
+}
+
+.payment-status-select.paid {
+  background-color: #90EE9033;
+  border: 1px solid #90EE90;
+}
+
+.payment-status-select.overdue {
+  background-color: #ff000033;
+  border: 1px solid #ff0000;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.balance-updating {
+  position: relative;
+  background-color: #f8f9fa;
+}
+
+.balance-updating::after {
+  content: "";
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  border: 2px solid #ddd;
+  border-top-color: #007bff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+.balance-updating-indicator {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ddd;
+  border-top-color: #007bff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.total-balance h3 {
+  font-size: 1.4rem;
+  color: #2c3e50;
+  margin: 0;
+  padding: 12px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.payment-row td:nth-child(4) {
+  font-weight: 600;
+  color: #2d3436;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+/* Add to UserPaymentDetails.css */
+.receipts-section {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.receipts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.receipt-card {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.receipt-header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.receipt-number {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.receipt-date {
+  color: #7f8c8d;
+}
+
+.receipt-body p {
+  margin: 0.3rem 0;
+  color: #34495e;
+}
+
+/* UserPaymentDetails.css */
+.download-btn {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.3s;
+}
+
+.download-btn:hover {
+  background: #45a049;
+}
+
+.receipt-card {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  position: relative;
+  border: 1px solid #e0e0e0;
+}
+
+.receipt-number {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.receipt-date {
+  color: #7f8c8d;
+  font-size: 0.9em;
+}
+
+.emi-input-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.remaining-balance-hint {
+  font-size: 0.8em;
+  color: #666;
+  margin-top: 2px;
+}
+
+.editable-amount {
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.editable-amount:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}

@@ -1,0 +1,76 @@
+.landing-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* height: 40vh; */
+  background-color: var(--light-background-color);
+  padding-top: 20px; /* Add padding to the top to account for the fixed navbar */
+}
+
+.card {
+  text-align: center;
+}
+
+.card h3 {
+  font-size: 60px; /* Large font size for "Welcome" style */
+  font-family: "Dancing Script", cursive;
+  color: hsl(244deg 74.04% 31.58%);
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.card p {
+  font-size: 18px; /* Slightly larger for secondary text */
+  font-family: "Georgia", serif; /* Classic serif font */
+  color: var(--light-primary-color);
+  margin-top: var(--spacing-sm);
+}
+
+.card p:first-of-type {
+  margin-top: var(--spacing-md); /* Add spacing for first paragraph */
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .landing-page {
+    height: auto;
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+  .card h3 {
+    font-size: 40px;
+  }
+  .card p {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 992px) {
+  .landing-page {
+    height: auto;
+    padding: var(--spacing-md) var(--spacing-sm);
+  }
+  .card h3 {
+    font-size: 30px;
+  }
+  .card p {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .card h3 {
+    font-size: 24px;
+  }
+  .card p {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .card h3 {
+    font-size: 20px;
+  }
+  .card p {
+    font-size: 10px;
+  }
+}

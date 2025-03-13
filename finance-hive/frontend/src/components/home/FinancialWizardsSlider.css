@@ -1,0 +1,350 @@
+/*=================FINANCIAL WIZARDS STYLES=====================*/
+/* .wizard-slider-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background-color: #f8f5ff;
+  position: relative;
+  overflow: hidden;
+}
+
+.wizard-slider {
+  display: flex;
+  align-items: center;
+  max-width: 1000px;
+  position: relative;
+  width: 100%;
+}
+
+.wizard-slider-wrapper {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  transition: transform 0.3s ease-in-out;
+  width: 100%;
+  overflow: hidden;
+}
+
+.wizard-slider-box {
+  text-align: center;
+  padding: 20px;
+  border: 1px solid #504C70;
+  background-color: #fff;
+  border-radius: 8px;
+  position: relative;
+  transition: transform 0.5s ease, box-shadow 0.5s ease, background-color 0.5s ease;
+}
+
+.wizard-slider-box:hover {
+  transform: scale(1.15); 
+  background-color: #ffffff; 
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6); 
+}
+
+.wizard-icon {
+  font-size: 40px;
+  color: #504C70;
+  margin-bottom: 10px;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.wizard-title {
+  font-size: 15px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.wizard-underline {
+  width: 40px;
+  height: 3px;
+  background-color: #504C70;
+  margin: 0 auto 10px;
+}
+
+.wizard-description {
+  font-size: 12px;
+  color: #666;
+}
+
+.wizard-slider-arrow {
+  background: none;
+  border: none;
+  font-size: 40px;
+  cursor: pointer;
+  color: #333;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  transition: color 0.3s ease;
+}
+
+.wizard-slider-arrow:hover {
+  color: #504C70; 
+}
+
+.wizard-slider-arrow.left {
+  left: -40px;
+}
+
+.wizard-slider-arrow.right {
+  right: -40px;
+}
+
+.wizard-slider-box {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: slideUp 0.5s forwards ease-in-out;
+}
+
+@keyframes slideUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 1204px) {
+  .wizard-slider-wrapper {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .wizard-slider-arrow.left {
+    left: -20px;
+  }
+
+  .wizard-slider-arrow.right {
+    right: -20px;
+  }
+}
+
+@media (max-width: 988px) {
+  .wizard-slider-wrapper {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .wizard-slider-arrow.left {
+    left: -20px;
+  }
+
+  .wizard-slider-arrow.right {
+    right: -20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .wizard-slider-wrapper {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.wizard-slider-container {
+  animation: fadeIn 1s ease-in-out;
+} *//* Container for the financial wizards section *//* Financial Wizards Container */
+.financial-wizards-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 60px 20px;
+  position: relative;
+  transition: background-color 0.3s ease;
+  z-index: 1;
+}
+
+/* Header of the financial wizards section */
+.financial-wizards-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  animation: fadeInUp 1s ease-out;
+  z-index: 2;
+}
+
+.financial-wizards-header h2 {
+  font-size: 3rem;
+  color: #2D3748;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  transition: color 0.3s ease;
+}
+
+.financial-wizards-header h2:hover {
+  color: #3182ce;
+}
+
+/* Navigation arrows styling */
+.navigation-arrows {
+  display: flex;
+  gap: 16px;
+}
+
+.arrow-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid #e2e8f0;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #131414;
+  font-size: 1.5rem;
+  transform-origin: center;
+  z-index: 3;
+}
+
+.arrow-btn:hover {
+  background: #3182ce;
+  color: #fff;
+  transform: scale(1.2) rotate(20deg);
+  animation: bounce 0.6s ease infinite;
+}
+
+.arrow-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(66, 153, 225, 0.5);
+}
+
+/* Card container with glowing effect */
+.financial-wizards-wrapper {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  position: relative;
+  animation: fadeInGlow 1s ease-out;
+  z-index: 2;
+}
+
+/* Ensure cards are visible and slide correctly */
+.financial-wizard-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 36px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  opacity: 1; /* Ensure visibility */
+  transform: translateX(0); /* Ensure visible position */
+  position: relative;
+  z-index: 2;
+}
+
+/* Hover effect: pop-out effect */
+.financial-wizard-card:hover {
+  transform: scale(1.05) translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+  filter: brightness(1.1);
+  z-index: 4;
+}
+
+.financial-wizard-card:active {
+  transform: scale(1) translateY(2px);
+}
+
+.wizard-text {
+  color: #4a5568;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 24px;
+  flex-grow: 1;
+  font-family: 'Roboto', sans-serif;
+}
+
+.wizard-author {
+  color: #2d3748;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: color 0.3s ease;
+}
+
+.wizard-author:hover {
+  color: #3182ce;
+}
+
+/* Responsive styles */
+@media (max-width: 1200px) {
+  .financial-wizards-wrapper {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .financial-wizards-wrapper {
+    grid-template-columns: 1fr;
+  }
+
+  .financial-wizards-header {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+
+  .financial-wizards-header h2 {
+    font-size: 2.5rem;
+  }
+}
+
+/* Keyframe animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Glow animation for the whole wrapper */
+@keyframes fadeInGlow {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* New animation for arrow hover (bounce effect) */
+@keyframes bounce {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.1) rotate(10deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(0deg);
+  }
+  75% {
+    transform: scale(1.1) rotate(-10deg);
+  }
+  100% {
+    transform: scale(1.2) rotate(20deg);
+  }
+}

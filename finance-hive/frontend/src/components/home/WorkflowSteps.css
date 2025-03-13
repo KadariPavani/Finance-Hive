@@ -1,0 +1,157 @@
+.workflow-wrapper {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.workflow-heading {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+}
+
+.workflow-slider {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.workflow-track {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+}
+
+.workflow-step {
+  flex: 0 0 100%;
+  padding: 1.5rem;
+  box-sizing: border-box;
+}
+
+.workflow-card {
+  background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
+  border: 2px solid #e6f0ff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 300px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.workflow-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.workflow-step-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.workflow-icon-box {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+/* Color variations for different steps */
+.workflow-step:nth-child(1) .workflow-icon-box { background-color: #3B82F6; }
+.workflow-step:nth-child(2) .workflow-icon-box { background-color: #10B981; }
+.workflow-step:nth-child(3) .workflow-icon-box { background-color: #8B5CF6; }
+.workflow-step:nth-child(4) .workflow-icon-box { background-color: #F97316; }
+.workflow-step:nth-child(5) .workflow-icon-box { background-color: #EC4899; }
+
+.workflow-step-icon {
+  width: 32px;
+  height: 32px;
+  color: white;
+}
+
+.workflow-step-number {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1F2937;
+}
+
+.workflow-arrow-icon {
+  width: 24px;
+  height: 24px;
+  color: #9CA3AF;
+}
+
+.workflow-step-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1F2937;
+  margin-bottom: 0.5rem;
+}
+
+.workflow-step-description {
+  color: #6B7280;
+  line-height: 1.5;
+}
+
+.workflow-navigation-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.workflow-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #E5E7EB;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  padding: 0;
+}
+
+.workflow-dot.active {
+  width: 24px;
+  border-radius: 6px;
+  background-color: #3B82F6;
+}
+
+@media (max-width: 768px) {
+  .workflow-wrapper {
+      padding: 1rem;
+  }
+
+  .workflow-card {
+      height: auto;
+      min-height: 300px;
+  }
+  
+  .workflow-step-title {
+      font-size: 1.25rem;
+  }
+  
+  .workflow-step-description {
+      font-size: 0.875rem;
+  }
+
+  .workflow-icon-box {
+      width: 48px;
+      height: 48px;
+  }
+
+  .workflow-step-icon {
+      width: 24px;
+      height: 24px;
+  }
+}

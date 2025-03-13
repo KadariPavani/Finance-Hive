@@ -1,0 +1,137 @@
+.dashboard-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: linear-gradient(135deg, #e0e3fa 0%, #efecfe 50%);
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+  z-index: 1000;
+}
+
+.nav__logo_sub {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.nav__logo_sub img {
+  height: 45px;
+  width: auto;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.nav__logo_sub h3 {
+  color: #2563eb;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
+}
+
+.company-logo {
+  height: 100%;
+  width: auto;
+}
+
+.nav-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.nav-icon-btn {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-icon-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, #2563eb08, #2563eb15);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.nav-icon-btn:hover::before {
+  opacity: 1;
+}
+
+.nav-icon-btn:hover {
+  transform: translateY(-2px);
+  border-color: #2563eb40;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+}
+
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  color: #1e293b;
+  position: relative;
+  z-index: 1;
+}
+
+.notification-badge {
+  position: absolute;
+  top: 1px;
+  right: 3px;
+  background: #ef4444;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+}
+
+.logout-btn:hover {
+  background: #fef2f2;
+  border-color: #ef4444;
+}
+
+.logout-btn:hover .nav-icon {
+  color: #ef4444;
+}
+
+/* Mobile Styles */
+@media (max-width: 767px) {
+  .nav-actions {
+      gap: 8px; /* Reduce gap for smaller screens */
+  }
+
+  /* Hide all action buttons except the menu button */
+  .nav-actions > *:not(:first-child) {
+      display: none;
+  }
+
+  .nav__logo_sub h3 {
+      font-size: 1.2rem; /* Smaller font size for the logo text on mobile */
+  }
+
+  .dashboard-nav {
+      padding: 0 16px; /* Reduce padding on mobile */
+  }
+}

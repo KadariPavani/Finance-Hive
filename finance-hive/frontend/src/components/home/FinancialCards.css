@@ -1,0 +1,245 @@
+/* 
+.financial-cards-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px; 
+}
+
+.financial-cards-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.financial-card-item {
+  margin-top: 0;
+  border-radius: 15px; 
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); 
+  text-align: center;
+  flex: 1 1 calc(25% - 20px);
+  min-width: 220px;
+  max-width: 300px;
+  box-sizing: border-box;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.financial-card-item:hover {
+  background-color: #f0f8ff; 
+  box-shadow: 0 10px 20px #00504C70; 
+  transform: translateY(-10px); 
+}
+
+.financial-card-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.5);
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.financial-card-item:hover::before {
+  opacity: 0.1;
+}
+
+.financial-card-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #504C70; 
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.financial-card-title::after {
+  content: '';
+  display: block;
+  width: 50px;
+  height: 3px;
+  background-color: #504C70; 
+  margin: 10px auto; 
+}
+
+.financial-card-description {
+  font-size: 13px;
+  color: #6c757d;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.financial-card-item:hover .financial-card-description {
+  color: #504C70; 
+
+@media (max-width: 768px) {
+  .financial-cards-list {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .financial-card-item {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .financial-cards-list {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .financial-card-item {
+    flex: 1 1 calc(50% - 20px);
+    max-width: 45%;
+  }
+} */ 
+/* General container styling */
+/* General container styling */
+.financial-cards-container {
+  padding: 4rem 2rem;
+  background: linear-gradient(135deg, #f8f9fa, #ffffff);
+  position: relative;
+  overflow: hidden;
+}
+
+.financial-cards-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  list-style: none;
+  padding: 0;
+  margin: 0 auto;
+  max-width: 1200px;
+  justify-content: center;
+  opacity: 0;
+  animation: fadeIn 1s ease-out forwards; /* Animation on page load */
+}
+
+/* Card item */
+.financial-card-item {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  padding: 2rem;
+  flex: 1 1 calc(25% - 2rem);
+  min-width: 250px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hover Effect */
+.financial-card-item:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Glow Animation */
+.financial-card-item:hover .financial-card-icon {
+  animation: glowing 1.5s infinite;
+}
+
+@keyframes glowing {
+  0% {
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.9);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  }
+}
+
+/* Icon Styling */
+.financial-card-icon {
+  font-size: 2.5rem;
+  color: #fff;
+  width: 80px;
+  height: 80px;
+  line-height: 80px;
+  margin: 0 auto 1.5rem;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.financial-card-icon:hover {
+  transform: scale(1.1);
+}
+
+/* Title Styling */
+.financial-card-title {
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-bottom: 0.8rem;
+  color: #343a40;
+}
+
+/* Description Styling */
+.financial-card-description {
+  font-size: 1rem;
+  color: #6c757d;
+  line-height: 1.6;
+}
+
+/* Card Background Animation */
+.financial-card-item:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+  transform: skewX(-45deg);
+  transition: left 0.5s ease;
+}
+
+.financial-card-item:hover:before {
+  left: 100%;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .financial-card-item {
+    flex: 1 1 calc(33.33% - 2rem);
+  }
+}
+
+@media (max-width: 768px) {
+  .financial-card-item {
+    flex: 1 1 calc(50% - 1rem);
+  }
+}
+
+@media (max-width: 576px) {
+  .financial-card-item {
+    flex: 1 1 100%;
+  }
+}
+
+/* Animation when the page is loaded */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
