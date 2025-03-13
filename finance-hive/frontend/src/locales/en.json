@@ -9,7 +9,6 @@
     "loan_details": "Loan Details",
     "amount_borrowed": "Amount Borrowed:",
     "tenure": "Tenure:",
-    "interest": "Interest Rate:",
     "next_payment": "Next Payment:",
     "payment_schedule": "Payment Schedule",
     "payment_date": "Payment Date",
@@ -89,7 +88,6 @@
     "timeline_subtitle": "Scheduled vs Actual Payments",
     "scheduled_payments": "Scheduled Payments",
     "actual_payments": "Actual Payments",
-    "payment_status": "Payment Status",
     "paid": "Paid",
     "pending": "Pending",
     "overdue": "Overdue",
@@ -107,7 +105,114 @@
     "credit_neutral": "Neutral Credit Impact",
     "credit_negative": "Negative Credit Impact",
     "payment_health": "Payment Health",
-    "on_time_payments": "On-Time Payments"
+    "on_time_payments": "On-Time Payments",
+    "organizer": {
+      "title": "Organizer Dashboard",
+      "analytics": "Analytics Dashboard",
+      "time_filter": "Time Period",
+      "daily": "Daily View",
+      "weekly": "Weekly View",
+      "monthly": "Monthly View",
+      "yearly": "Yearly View",
+      "metrics": {
+        "total_borrowed": "Total Amount Borrowed",
+        "total_interest": "Total Interest Money",
+        "total_users": "Total Users",
+        "profit_percentage": "Profit Percentage",
+        "total_collected": "Total Amount Collected",
+        "payments_collected": "Total Payments Collected",
+        "dashboard.time_filter": "Time filter"
+      },
+      "charts": {
+        "loan_disbursement": "Loan Disbursement Timeline",
+        "payment_overview": "Payment Overview",
+        "collection_efficiency": "Collection Efficiency",
+        "monthly_trends": "Monthly Collection Trends",
+        "business_insights": "Business Insights"
+      },
+      "showing_data": {
+        "hourly": "Showing Hourly Data",
+        "daily": "Showing Daily Data",
+        "monthly": "Showing Monthly Data",
+        "yearly": "Showing Yearly Data"
+      },
+      "status": {
+        "paid": "Paid",
+        "pending": "Pending",
+        "overdue": "Overdue"
+      },
+      "collection": {
+        "rate": "Collection Rate",
+        "payments": "Payments",
+        "efficiency": "Efficiency"
+      },
+      "trends": {
+        "expected": "Expected Amount",
+        "collected": "Collected Amount"
+      },
+      "insights": {
+        "new_users": "New Users This Month",
+        "total_disbursed": "Total Amount Disbursed",
+        "avg_loan": "Average Loan Size",
+        "across_users": "Across All Users",
+        "this_month": "this month",
+        "collected": "collected"
+      }
+    },
+    "viewing": "Viewing",
+    "analytics_data": "Analytics Data",
+    "loan_disbursement_timeline": "Loan Disbursement Timeline",
+    "showing_hourly_data": "Showing Hourly Data",
+    "showing_daily_data": "Showing Daily Data",
+    "showing_monthly_data": "Showing Monthly Data",
+    "payment_overview": "Payment Overview",
+    "collection_efficiency": "Collection Efficiency",
+    "collection_rate": "Collection Rate",
+    "payments": "Payments",
+    "monthly_collection_trends": "Monthly Collection Trends",
+    "expected_amount": "Expected Amount",
+    "collected_amount": "Collected Amount",
+    "business_insights": "Business Insights",
+    "total_disbursed": "Total Disbursed",
+    "avg_loan_size": "Average Loan Size",
+    "across_all_users": "Across All Users",
+    "this_month": "this month",
+    "collected": "collected",
+    "recent_payments": "Recent Payments",
+    "search_payments": "Search payments...",
+    "user_progress": "User Progress",
+    "time_filter": "Time Filter",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "time_periods": {
+      "today": "Today",
+      "this_week": "This Week",
+      "this_month": "This Month",
+      "this_year": "This Year"
+    },
+
+    "payment_status": {
+      "paid": "Paid",
+      "pending": "Pending",
+      "overdue": "Overdue"
+    },
+    "collection": {
+      "title": "Collection Efficiency",
+      "rate": "Collection Rate",
+      "total": "Total Collected",
+      "expected": "Expected Collection",
+      "efficiency": "Collection Efficiency",
+      "progress": "Progress"
+    },
+    "trends": {
+      "title": "Collection Trends",
+      "expected": "Expected Amount",
+      "collected": "Collected Amount",
+      "monthly": "Monthly View",
+      "comparison": "Expected vs Collected"
+    }
   },
   "notifications": {
     "title": "Notifications",

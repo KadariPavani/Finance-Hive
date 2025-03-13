@@ -107,7 +107,7 @@ const AdminDashboard = () => {
   const handleDelete = async (id, userName) => {
     // Show confirmation dialog
     const isConfirmed = window.confirm(`Are you sure you want to delete ${userName}? This action cannot be undone.`);
-    
+
     if (isConfirmed) {
       try {
         const token = localStorage.getItem('token');
@@ -137,13 +137,13 @@ const AdminDashboard = () => {
 
   const getFilteredUsers = () => {
     return users.filter(user => {
-      const matchesSearch = 
+      const matchesSearch =
         user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.role?.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesFilter = 
-        activeFilter === 'all' || 
+      const matchesFilter =
+        activeFilter === 'all' ||
         user.role?.toLowerCase() === activeFilter.toLowerCase();
 
       return matchesSearch && matchesFilter;
@@ -342,7 +342,7 @@ const AdminDashboard = () => {
         borderColor: 'rgba(0, 0, 0, 0.1)',
         borderWidth: 1,
         callbacks: {
-          label: function(context) {
+          label: function (context) {
             const label = context.label || '';
             const value = context.raw;
             const total = context.dataset.data.reduce((acc, curr) => acc + curr, 0);
@@ -373,7 +373,7 @@ const AdminDashboard = () => {
         </div>
         <div className="admin-dashboard__nav-right">
           <div className="admin-dashboard__nav-actions">
-          {/* <CustomButton 
+            {/* <CustomButton 
               className="approach-btn" 
               onClick={() => navigate('/approach')} 
               withGlobalLoading
@@ -410,7 +410,7 @@ const AdminDashboard = () => {
             <FontAwesomeIcon icon={faSignOutAlt} />
             <span>Logout</span>
           </button> */}
-          <button 
+          <button
             className="admin-dashboard__hamburger"
             onClick={toggleSidebar}
             aria-label="Toggle menu"
@@ -450,7 +450,7 @@ const AdminDashboard = () => {
 
         {/* Main Content */}
         <main className="admin-dashboard__main">
-          <LandingPage /> 
+          <LandingPage />
           {/* <div className="admin-dashboard__header">
             <h1>Dashboard Overview</h1>
             <div className="admin-dashboard__actions">
@@ -495,50 +495,123 @@ const AdminDashboard = () => {
               </div>
             </div>
           </div>
+          <div className="analytics-grid">
+              <div className="analytics-card growth-card">
+                <div className="analytics-icon growth-icon">
+                  <FontAwesomeIcon icon={faChartPie} />
+                </div>
+                <div className="analytics-content">
+                  <h3>User Composition</h3>
+                  <div className="composition-rings">
+                    <div className="ring ring-admin">
+                      <div className="ring-inner">
+                        <span className="ring-label">Admins</span>
+                        <span className="ring-value">{((stats.admins / (stats.admins + stats.organizers + stats.users)) * 100).toFixed(1)}%</span>
+                      </div>
+                    </div>
+                    <div className="ring ring-organizer">
+                      <div className="ring-inner">
+                        <span className="ring-label">Organizers</span>
+                        <span className="ring-value">{((stats.organizers / (stats.admins + stats.organizers + stats.users)) * 100).toFixed(1)}%</span>
+                      </div>
+                    </div>
+                    <div className="ring ring-user">
+                      <div className="ring-inner">
+                        <span className="ring-label">Users</span>
+                        <span className="ring-value">{((stats.users / (stats.admins + stats.organizers + stats.users)) * 100).toFixed(1)}%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          <div className="modern-analytics">
+            <div className="analytics-card total-users">
+              <div className="analytics-icon">
+                <FontAwesomeIcon icon={faUsers} />
+              </div>
+              <div className="analytics-content">
+                <div className="analytics-header">
+                  <h3>Total Users Distribution</h3>
+                  <div className="analytics-percentage">
+                    +{((stats.users / (stats.admins + stats.organizers + stats.users)) * 100).toFixed(1)}%
+                  </div>
+                </div>
+                <div className="analytics-metrics">
+                  <div className="metric">
+                    <div className="metric-bar admin-bar" style={{ width: `${(stats.admins / (stats.admins + stats.organizers + stats.users)) * 100}%` }}>
+                      <span className="metric-label">Admins</span>
+                      <span className="metric-value">{stats.admins}</span>
+                    </div>
+                  </div>
+                  <div className="metric">
+                    <div className="metric-bar organizer-bar" style={{ width: `${(stats.organizers / (stats.admins + stats.organizers + stats.users)) * 100}%` }}>
+                      <span className="metric-label">Organizers</span>
+                      <span className="metric-value">{stats.organizers}</span>
+                    </div>
+                  </div>
+                  <div className="metric">
+                    <div className="metric-bar user-bar" style={{ width: `${(stats.users / (stats.admins + stats.organizers + stats.users)) * 100}%` }}>
+                      <span className="metric-label">Users</span>
+                      <span className="metric-value">{stats.users}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+          </div>
+
+            </div>
 
           {/* Analytics Charts Section */}
-          <div className="analytics-charts">
-            <div className="chart-wrapper">
-              <div className="chart-header">
-                <h3>User Distribution</h3>
-                <select className="time-filter">
-                  <option value="weekly">This Week</option>
-                  <option value="monthly">This Month</option>
-                  <option value="yearly">This Year</option>
-                </select>
-              </div>
-              <div className="chart-container">
-                <Bar data={barChartData} options={barChartOptions} />
-              </div>
-            </div>
 
-            <div className="chart-wrapper">
-              <div className="chart-header">
-                <h3>User Composition</h3>
-              </div>
-              <div className="chart-container">
-                <Pie data={pieChartData} options={pieChartOptions} />
-              </div>
-            </div>
-          </div>
+          {/* <div className="analytics-card trend-card">
+                <div className="analytics-icon trend-icon">
+                  <FontAwesomeIcon icon={faUsersGear} />
+                </div>
+                <div className="analytics-content">
+                  <h3>User Activity</h3>
+                  <div className="trend-metrics">
+                    <div className="trend-item">
+                      <div className="trend-info">
+                        <span className="trend-label">Active Users</span>
+                        <span className="trend-value">{stats.users + stats.organizers}</span>
+                      </div>
+                      <div className="trend-progress">
+                        <div className="progress-bar" style={{ width: '75%' }}></div>
+                      </div>
+                    </div>
+                    <div className="trend-item">
+                      <div className="trend-info">
+                        <span className="trend-label">Admin Coverage</span>
+                        <span className="trend-value">{stats.admins}</span>
+                      </div>
+                      <div className="trend-progress">
+                        <div className="progress-bar" style={{ width: '60%' }}></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div> */}
 
           {/* Users Management Section */}
           <div className="users-section">
             <div className="section-header">
               <div className="filter-buttons">
-                <button 
+                <button
                   className={`filter-btn ${activeFilter === 'all' ? 'active' : ''}`}
                   onClick={() => handleFilterChange('all')}
                 >
                   All Users
                 </button>
-                <button 
+                <button
                   className={`filter-btn ${activeFilter === 'admin' ? 'active' : ''}`}
                   onClick={() => handleFilterChange('admin')}
                 >
                   Admins
                 </button>
-                <button 
+                <button
                   className={`filter-btn ${activeFilter === 'organizer' ? 'active' : ''}`}
                   onClick={() => handleFilterChange('organizer')}
                 >
@@ -570,8 +643,8 @@ const AdminDashboard = () => {
                     <p className="email">Email: {user.email}</p>
                     <p className="mobile">Mobile: {user.mobileNumber}</p>
                   </div>
-                  <button 
-                    className="delete-btn" 
+                  <button
+                    className="delete-btn"
                     onClick={() => handleDelete(user._id, user.name)}
                     title="Delete user"
                   >
@@ -590,11 +663,11 @@ const AdminDashboard = () => {
         </main>
       </div>
 
-      <Modal 
-        show={showModal} 
-        message={modalMessage} 
-        onClose={() => setShowModal(false)} 
-        isError={isError} 
+      <Modal
+        show={showModal}
+        message={modalMessage}
+        onClose={() => setShowModal(false)}
+        isError={isError}
       />
     </div>
   );

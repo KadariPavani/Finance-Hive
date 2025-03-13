@@ -49,7 +49,7 @@ const OrganizerDashboard = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 4;
-  const [timeFilter, setTimeFilter] = useState('daily');
+  const [timeFilter, setTimeFilter] = useState('monthly');
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -390,12 +390,19 @@ const OrganizerDashboard = () => {
 
   const renderTimeFilterOptions = () => {
     return (
-      <select id="timeFilter" value={timeFilter} onChange={handleTimeFilterChange}>
-        <option value="daily">{t('dashboard.daily')}</option>
-        <option value="weekly">{t('dashboard.weekly')}</option>
-        <option value="monthly">{t('dashboard.monthly')}</option>
-        <option value="yearly">{t('dashboard.yearly')}</option>
-      </select>
+      <div className="time-filter">
+        <label htmlFor="timeFilter">{t('dashboard.time_filter')}</label>
+        <select
+          id="timeFilter"
+          value={timeFilter}
+          onChange={handleTimeFilterChange}
+        >
+          <option value="monthly">{t('dashboard.monthly')}</option>
+          <option value="yearly">{t('dashboard.yearly')}</option>
+          <option value="weekly">{t('dashboard.weekly')}</option>
+          <option value="daily">{t('dashboard.daily')}</option>
+        </select>
+      </div>
     );
   };
 
@@ -604,6 +611,93 @@ const OrganizerDashboard = () => {
     });
   };
 
+  // Add this helper function before the return statement
+  const renderPaginationButtons = () => {
+    const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+
+    let buttons = [];
+
+    // Add Previous button
+    buttons.push(
+      <button
+        key="prev"
+        onClick={handlePreviousPage}
+        disabled={currentPage === 1}
+        className="page-btn"
+      >
+        Previous
+      </button>
+    );
+
+    // Calculate range of pages to show
+    let startPage = Math.max(1, currentPage - 1);
+    let endPage = Math.min(startPage + 2, totalPages);
+
+    // Adjust startPage if we're at the end
+    if (endPage === totalPages) {
+      startPage = Math.max(1, endPage - 2);
+    }
+
+    // Add first page and dots if necessary
+    if (startPage > 1) {
+      buttons.push(
+        <button
+          key={1}
+          onClick={() => paginate(1)}
+          className={`page-btn ${currentPage === 1 ? 'active' : ''}`}
+        >
+          1
+        </button>
+      );
+      if (startPage > 2) {
+        buttons.push(<span key="dots1" className="pagination-dots">...</span>);
+      }
+    }
+
+    // Add page numbers
+    for (let i = startPage; i <= endPage; i++) {
+      buttons.push(
+        <button
+          key={i}
+          onClick={() => paginate(i)}
+          className={`page-btn ${currentPage === i ? 'active' : ''}`}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    // Add last page and dots if necessary
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        buttons.push(<span key="dots2" className="pagination-dots">...</span>);
+      }
+      buttons.push(
+        <button
+          key={totalPages}
+          onClick={() => paginate(totalPages)}
+          className={`page-btn ${currentPage === totalPages ? 'active' : ''}`}
+        >
+          {totalPages}
+        </button>
+      );
+    }
+
+    // Add Next button
+    buttons.push(
+      <button
+        key="next"
+        onClick={handleNextPage}
+        disabled={currentPage === totalPages}
+        className="page-btn"
+      >
+        Next
+      </button>
+    );
+
+    return buttons;
+  };
+
   return (
     <div className="organizer-dashboard">
       <Navigation organizerDetails={organizerDetails} onLogout={handleLogout} toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
@@ -669,14 +763,13 @@ const OrganizerDashboard = () => {
               </div>
 
               <div className="organizer-analytics-header">
-                <div className="organizer-analytics-title-section">
-                  <h2 className="organizer-analytics-title">{t('dashboard.analytics')}</h2>
-                  <p className="organizer-analytics-subtitle">{t('dashboard.organizer_analytics_subtitle')}</p>
+                <div className="analytics-title-section">
+                  <h2 className="analytics-title">{t('dashboard.analytics')}</h2>
+                  <p className="analytics-subtitle">
+                    {t('dashboard.viewing')} {timeFilter} {t('dashboard.analytics_data')}
+                  </p>
                 </div>
-                <div className="time-filter">
-                  <label htmlFor="timeFilter">{t('dashboard.time_filter')}</label>
-                  {renderTimeFilterOptions()}
-                </div>
+                {renderTimeFilterOptions()}
               </div>
 
               <div className="organizer-analytics-layout">
@@ -846,7 +939,7 @@ const OrganizerDashboard = () => {
                     </div>
                   </div>
 
-                  <div className="organizer-analytics-card organizer-insights-card">
+                  {/* <div className="organizer-analytics-card organizer-insights-card">
                     <h3>{t('dashboard.business_insights')}</h3>
                     <div className="organizer-insights-grid">
                       {[
@@ -881,7 +974,7 @@ const OrganizerDashboard = () => {
                         </div>
                       ))}
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>
@@ -929,25 +1022,7 @@ const OrganizerDashboard = () => {
                     ))}
                   </div>
                   <div className="pagination">
-                    <button onClick={handlePreviousPage} disabled={currentPage === 1} className="page-btn">
-                      Previous
-                    </button>
-                    {Array.from({ length: Math.ceil(filteredUsers.length / usersPerPage) }, (_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => paginate(index + 1)}
-                        className={`page-btn ${currentPage === index + 1 ? 'active' : ''}`}
-                      >
-                        {index + 1}
-                      </button>
-                    ))}
-                    <button
-                      onClick={handleNextPage}
-                      disabled={currentPage === Math.ceil(filteredUsers.length / usersPerPage)}
-                      className="page-btn"
-                    >
-                      Next
-                    </button>
+                    {renderPaginationButtons()}
                   </div>
                 </>
               )}

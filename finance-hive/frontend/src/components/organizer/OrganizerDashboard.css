@@ -54,9 +54,12 @@
 /* Organizer Analytics Dashboard */
 .organizer-analytics-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 0 16px;
 }
 
 .organizer-analytics-title-section {}
@@ -440,9 +443,7 @@
 }
 
 /* Users Section */
-.users-section {
-  padding: 20px;
-}
+
 
 .users-section h2 {
   font-size: 20px;
@@ -492,6 +493,7 @@
   border: 1px solid rgba(79, 70, 229, 0.1);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease-in-out;
+  min-height: 200px;
   cursor: pointer;
   position: relative;
   overflow: hidden;
@@ -554,7 +556,7 @@
 
 .user-card h3::after {
   content: '';
-  display: block;
+  /* display: block; */
   width: 40px;
   height: 3px;
   background: linear-gradient(90deg, rgba(79, 70, 229, 1), rgba(124, 58, 237, 1));
@@ -671,22 +673,20 @@
 /* Pagination Styles */
 .pagination {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  margin-top: 24px;
-  flex-wrap: wrap;
-  padding: 10px;
+  margin-top: 20px;
 }
 
 .page-btn {
-  padding: 8px 16px;
-  background: var(--white);
-  border: 1px solid var(--primary);
-  border-radius: var(--border-radius);
-  color: var(--primary);
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  background-color: white;
+  color: #4a5568;
+  border-radius: 6px;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.2s ease;
   font-size: 14px;
   min-width: 40px;
   display: flex;
@@ -695,20 +695,27 @@
 }
 
 .page-btn:hover:not(:disabled) {
-  background: var(--primary);
-  color: var(--white);
+  background-color: #edf2f7;
+  border-color: #cbd5e0;
 }
 
 .page-btn.active {
-  background: var(--primary);
-  color: var(--white);
-  border-color: var(--primary);
+  background-color: #4F46E5;
+  color: white;
+  border-color: #4F46E5;
 }
 
 .page-btn:disabled {
-  opacity: 0.5;
+  background-color: #f7fafc;
+  color: #a0aec0;
   cursor: not-allowed;
-  background: var(--gray-100);
+}
+
+.pagination-dots {
+  color: #4a5568;
+  font-weight: bold;
+  letter-spacing: 2px;
+  margin: 0 4px;
 }
 
 .loading {
@@ -894,6 +901,24 @@
   .organizer-chart-container {
     height: 250px !important;
   }
+
+  .organizer-analytics-header {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0 12px;
+  }
+
+  .time-filter {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 10px;
+  }
+
+  .time-filter select {
+    width: 100%;
+    margin-top: 8px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1017,6 +1042,41 @@
   .user-progress-section {
     padding: 10px;
   }
+
+  .page-btn {
+    padding: 6px 10px;
+    min-width: 32px;
+    font-size: 12px;
+  }
+
+  .pagination {
+    gap: 4px;
+  }
+
+  .organizer-analytics-header {
+    padding: 0 8px;
+  }
+
+  .time-filter {
+    padding: 8px;
+  }
+
+  .time-filter label {
+    font-size: 13px;
+  }
+
+  .time-filter select {
+    font-size: 13px;
+    padding: 6px 28px 6px 10px;
+  }
+
+  .analytics-title {
+    font-size: 18px;
+  }
+
+  .analytics-subtitle {
+    font-size: 12px;
+  }
 }
 
 /* Chart Responsiveness Fix */
@@ -1041,4 +1101,107 @@
 canvas {
   max-width: 100%;
   height: auto !important;
+}
+
+/* Time Filter Styles */
+.time-filter {
+  display: flex;
+  align-items: center;
+  background: white;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-width: 200px;
+  gap: 12px;
+}
+
+.time-filter label {
+  font-weight: 500;
+  color: #4b5563;
+  white-space: nowrap;
+}
+
+.time-filter select {
+  flex: 1;
+  padding: 8px 32px 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background-color: white;
+  color: #374151;
+  font-size: 14px;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px;
+}
+
+/* Time Period Badge */
+.time-period-badge {
+  background-color: var(--gray-100);
+  color: var(--gray-700);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Analytics Card Header */
+.analytics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.analytics-title-section {
+  flex: 1;
+}
+
+.analytics-title {
+  color: var(--gray-900);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.analytics-subtitle {
+  color: var(--gray-600);
+  font-size: 0.875rem;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .time-filter {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px;
+  }
+
+  .time-filter select {
+    width: 100%;
+  }
+
+  .analytics-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 480px) {
+  .time-filter {
+    padding: 8px;
+  }
+
+  .time-filter label {
+    font-size: 13px;
+  }
+
+  .time-filter select {
+    font-size: 13px;
+    padding: 6px 10px;
+  }
 }
