@@ -18,6 +18,8 @@ const UserDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [nextPayment, setNextPayment] = useState(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const sidebarClass = isSidebarOpen ? 'dashboard-sidebar mobile-open' : 'dashboard-sidebar mobile-closed'; // Dynamic class for sidebar
+
     const [analyticsData, setAnalyticsData] = useState({
         paymentStatus: {},
         paymentTimeline: {},
@@ -32,6 +34,19 @@ const UserDashboard = () => {
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);
     };
+
+    // Ensure the sidebar is closed on mobile when navigating
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth > 768) {
+                setIsSidebarOpen(false);
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
 
     const calculateNextPayment = (paymentSchedule) => {
         if (!paymentSchedule || paymentSchedule.length === 0) return null;
@@ -359,7 +374,9 @@ const UserDashboard = () => {
                 onLogout={handleLogout}
                 isSidebarOpen={isSidebarOpen}
                 toggleSidebar={toggleSidebar}
+                className={sidebarClass} // Pass the dynamic class to Sidebar
             />
+
             <main className="dashboard-main">
                 <div className="user-dashboard-container">
                     <div className="user-dashboard-header">
@@ -367,6 +384,7 @@ const UserDashboard = () => {
                         <LandingPage />
 
                     </div>
+
 
                     <div className="stats-container">
                         <div className="stat-card primary">
@@ -524,7 +542,6 @@ const UserDashboard = () => {
                         </div>
                     )}
 
-                    {/* Analytics Dashboard */}
                     <div className="analytics-dashboard">
                         <div className="analytics-header">
                             <div className="analytics-title-section">
@@ -534,121 +551,54 @@ const UserDashboard = () => {
                         </div>
 
                         <div className="analytics-layout">
-                            <div className="analytics-main">
-                                <div className="analytics-card timeline-card">
-                                    <h3>
-                                        <span className="card-title">{t('dashboard.payment_timeline')}</span>
-                                        <span className="card-subtitle">{t('dashboard.timeline_subtitle')}</span>
-                                    </h3>
-                                    <div className="chart-container large">
-                                        <Line
-                                            data={analyticsData.paymentTimeline}
-                                            options={{
-                                                responsive: true,
-                                                maintainAspectRatio: false,
-                                                plugins: {
-                                                    legend: {
-                                                        position: 'top',
-                                                        align: 'end'
-                                                    },
-                                                    tooltip: {
-                                                        mode: 'index',
-                                                        intersect: false,
-                                                        callbacks: {
-                                                            label: (context) => `${context.dataset.label}: ₹${context.parsed.y.toLocaleString()}`
-                                                        }
-                                                    }
+                            {/* Div 1: Payment Timeline */}
+                            <div className="div1 analytics-card timeline-card">
+                                <h3>
+                                    <span className="card-title">{t('dashboard.payment_timeline')}</span>
+                                    <span className="card-subtitle">{t('dashboard.timeline_subtitle')}</span>
+                                </h3>
+                                <div className="chart-container large">
+                                    <Line
+                                        data={analyticsData.paymentTimeline}
+                                        options={{
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            plugins: {
+                                                legend: {
+                                                    position: 'top',
+                                                    align: 'end'
                                                 },
-                                                scales: {
-                                                    x: {
-                                                        type: 'time',
-                                                        time: {
-                                                            unit: 'month',
-                                                            displayFormats: {
-                                                                month: 'MMM YYYY'
-                                                            }
-                                                        },
-                                                        grid: { display: false }
-                                                    },
-                                                    y: {
-                                                        beginAtZero: true,
-                                                        ticks: {
-                                                            callback: value => `₹${value.toLocaleString()}`
-                                                        }
+                                                tooltip: {
+                                                    mode: 'index',
+                                                    intersect: false,
+                                                    callbacks: {
+                                                        label: (context) => `${context.dataset.label}: ₹${context.parsed.y.toLocaleString()}`
                                                     }
                                                 }
-                                            }}
-                                        />
-                                    </div>
+                                            },
+                                            scales: {
+                                                x: {
+                                                    type: 'time',
+                                                    time: {
+                                                        unit: 'month',
+                                                        displayFormats: {
+                                                            month: 'MMM YYYY'
+                                                        }
+                                                    },
+                                                    grid: { display: false }
+                                                },
+                                                y: {
+                                                    beginAtZero: true,
+                                                    ticks: {
+                                                        callback: value => `₹${value.toLocaleString()}`
+                                                    }
+                                                }
+                                            }
+                                        }}
+                                    />
                                 </div>
-                            </div>
-
-                            <div className="analytics-secondary">
-                                <div className="analytics-card status-card">
-                                    <h3>{t('dashboard.payment_status')}</h3>
-                                    <div className="status-overview">
-                                        {['PAID', 'PENDING', 'OVERDUE'].map(status => (
-                                            <div className={`status-item ${status.toLowerCase()}`} key={status}>
-                                                <div className="status-count">{analyticsData.paymentStatus.datasets[0].data[['PAID', 'PENDING', 'OVERDUE'].indexOf(status)]}</div>
-                                                <div className="status-label">{t(`dashboard.${status.toLowerCase()}`)}</div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div className="analytics-card progress-card">
-                                    <h3>{t('dashboard.completion_progress')}</h3>
-                                    <div className="progress-container">
-                                        <div className="progress-bar">
-                                            <div
-                                                className="progress-fill"
-                                                style={{ width: `${analyticsData.completionProgress.percentage}%` }}
-                                            />
-                                        </div>
-                                        <div className="progress-label">
-                                            <span className="progress-percentage">{analyticsData.completionProgress.percentage}%</span>
-                                            <span className="progress-text">{t('dashboard.completed')}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="analytics-bottom">
-                                {/* <div className="analytics-card health-card">
-                                    <h3>{t('dashboard.payment_health')}</h3>
-                                    <div className="health-score">
-                                        <div className="score-circle">
-                                            <svg viewBox="0 0 36 36">
-                                                <path
-                                                    d="M18 2.0845
-                                                        a 15.9155 15.9155 0 0 1 0 31.831
-                                                        a 15.9155 15.9155 0 0 1 0 -31.831"
-                                                    fill="none"
-                                                    stroke="#E5E7EB"
-                                                    strokeWidth="3"
-                                                />
-                                                <path
-                                                    d="M18 2.0845
-                                                        a 15.9155 15.9155 0 0 1 0 31.831
-                                                        a 15.9155 15.9155 0 0 1 0 -31.831"
-                                                    fill="none"
-                                                    stroke={`${analyticsData.paymentHealth.score > 75 ? '#10B981' : '#F59E0B'}`}
-                                                    strokeWidth="3"
-                                                    strokeDasharray={`${analyticsData.paymentHealth.score}, 100`}
-                                                />
-                                            </svg>
-                                            <div className="score-value">{analyticsData.paymentHealth.score}</div>
-                                        </div>
-                                        <div className="score-details">
-                                            <div className="score-stat">
-                                                <span className="stat-label">{t('dashboard.on_time_payments')}</span>
-                                                <span className="stat-value">{analyticsData.paymentHealth.onTime} / {analyticsData.paymentHealth.total}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div> */}
-
-                                <div className="analytics-card trends-card">
+                                {/* Div 2: Monthly Trends */}
+                                <div className="div2 analytics-card trends-card">
                                     <h3>{t('dashboard.monthly_trends')}</h3>
                                     <div className="chart-container">
                                         <Bar
@@ -682,29 +632,49 @@ const UserDashboard = () => {
                                 </div>
                             </div>
 
-                            <div className="analytics-card loan-insights-card">
-                                <h3>{t('dashboard.loan_insights')}</h3>
-                                <div className="loan-insights">
-                                    <div className="insight-metrics">
-                                        {/* Payment Streak */}
-                                        <div className="insight-metric">
-                                            <div className="metric-icon streak">
-                                                <FaFire className="icon" />
-                                            </div>
-                                            <div className="metric-details">
-                                                <div className="metric-value">
-                                                    {analyticsData.loanInsights.currentStreak}
-                                                </div>
-                                                <div className="metric-label">
-                                                    {t('dashboard.payment_streak')}
-                                                </div>
-                                                <div className="metric-subtitle">
-                                                    {t('dashboard.best_streak')}: {analyticsData.loanInsights.bestStreak}
+
+
+                            {/* Div 3: Payment Status */}
+                            <div className="div3 analytics-card status-card">
+                                <h3>{t('dashboard.payment_status')}</h3>
+                                <div className="status-overview">
+                                    {['PAID', 'PENDING', 'OVERDUE'].map(status => (
+                                        <div className={`status-item ${status.toLowerCase()}`} key={status}>
+                                            <div className="status-count">{analyticsData.paymentStatus.datasets[0].data[['PAID', 'PENDING', 'OVERDUE'].indexOf(status)]}</div>
+                                            <div className="status-label">{t(`dashboard.${status.toLowerCase()}`)}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Div 4: Completion Progress */}
+                            <div className="div4 analytics-card progress-card">
+                                <h3>{t('dashboard.completion_progress')}</h3>
+                                <div className="circular-progress-container">
+                                    <div className="circular-progress">
+                                        <div className="circular-progress-inner">
+                                            <div
+                                                className="circular-progress-circle"
+                                                style={{ '--progress': `${analyticsData.completionProgress.percentage}` }}
+                                            >
+                                                <div className="circular-progress-value">
+                                                    <span className="progress-percentage" style={{ fontSize: '20px' }}>
+                                                        {analyticsData.completionProgress.percentage}%
+                                                    </span>
+
+                                                    <span className="progress-text">{t('dashboard.completed')}</span>
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
 
-                                        {/* Early Payments */}
+                            {/* 
+                            <div className="div5 analytics-card loan-insights-card">
+                                <h3>{t('dashboard.loan_insights')}</h3>
+                                <div className="loan-insights">
+                                    <div className="insight-metrics">
                                         <div className="insight-metric">
                                             <div className="metric-icon early">
                                                 <FaClock className="icon" />
@@ -724,7 +694,6 @@ const UserDashboard = () => {
                                             </div>
                                         </div>
 
-                                        {/* Payment Consistency */}
                                         <div className="insight-metric">
                                             <div className="metric-icon consistency">
                                                 <FaChartLine className="icon" />
@@ -745,7 +714,7 @@ const UserDashboard = () => {
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </div>

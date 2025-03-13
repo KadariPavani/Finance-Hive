@@ -1,84 +1,68 @@
-/* Combined CSS (General Layout, Sidebar, User Dashboard) */
-
 /* General Dashboard Layout */
 .dashboard-layout {
   display: flex;
+  flex-direction: column;
   min-height: 100vh;
   background-color: #f5f7fa;
-  overflow-x: hidden; /* Prevent horizontal overflow */
+  overflow-x: hidden;
 }
 
 .dashboard-main {
   flex: 1;
-  padding: 20px;
-  margin-top: 64px; /* Push content below the fixed navbar */
+  padding: 15px;
+  margin-top: 64px;
   transition: margin-left 0.3s ease, width 0.3s ease;
-  overflow-x: hidden; /* Prevent horizontal overflow */
-}
-
-/* Adjust margin and width for desktop screens when sidebar is expanded */
-@media (min-width: 769px) {
-  .dashboard-main {
-    margin-left: 70px; /* Default margin when sidebar is collapsed */
-  }
-
-  .dashboard-main.expanded {
-    margin-left: 250px; /* Margin when sidebar is expanded */
-  }
-}
-
-/* Ensure no margin on mobile */
-@media (max-width: 768px) {
-  .dashboard-main {
-    margin-left: 0; /* No margin on mobile */
-    padding: 15px; /* Reduce padding for smaller screens */
-  }
-
-  .dashboard-main.collapsed {
-    margin-left: 0; /* Ensure no margin when collapsed on mobile */
-  }
+  overflow-x: auto;
 }
 
 /* Sidebar Defaults */
 .dashboard-sidebar {
   position: fixed;
   left: 0;
-  top: 64px; /* Push below the navbar */
-  height: calc(100vh - 64px); /* Full height minus navbar */
+  top: 64px;
+  height: calc(100vh - 64px);
   width: 70px;
   background-color: white;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   transition: width 0.3s ease, transform 0.3s ease;
   z-index: 1001;
-  overflow-x: hidden; /* Hide horizontal overflow */
+  overflow-x: hidden;
 }
 
-/* Hover state for desktop sidebar expansion */
+/* Mobile Sidebar Adjustments */
+@media (max-width: 768px) {
+  .dashboard-sidebar {
+    width: 100%;
+    height: calc(100vh - 64px);
+    transform: translateX(-100%);
+  }
+
+  .dashboard-sidebar.mobile-open {
+    transform: translateX(0);
+  }
+}
+
+/* Sidebar Hover and Expanded States */
 .dashboard-sidebar:hover {
   width: 250px;
 }
 
-/* Expand the main content when sidebar is hovered (desktop) */
 .dashboard-layout:has(.dashboard-sidebar:hover) .dashboard-main {
   margin-left: 250px;
 }
 
-/* Collapsed sidebar style for desktop/tablet */
 .dashboard-sidebar.desktop-collapsed {
   width: 70px;
 }
 
-/* Expanded sidebar style for desktop/tablet */
 .dashboard-sidebar.desktop-expanded {
   width: 250px;
 }
 
-/* Mobile sidebar: hidden by default */
 .dashboard-sidebar.mobile-closed {
   transform: translateX(-100%);
 }
 
-/* Mobile sidebar: visible when open */
 .dashboard-sidebar.mobile-open {
   transform: translateX(0);
 }
@@ -97,7 +81,7 @@
   display: none;
 }
 
-/* Sidebar navigation */
+/* Sidebar Navigation */
 .sidebar-nav {
   display: flex;
   flex-direction: column;
@@ -105,7 +89,6 @@
   padding-top: 10px;
 }
 
-/* Sidebar buttons */
 .sidebar-btn {
   display: flex;
   align-items: center;
@@ -126,7 +109,6 @@
   background: #f0f0f0;
 }
 
-/* Sidebar Icons */
 .sidebar-icon {
   font-size: 24px;
   min-width: 30px;
@@ -153,15 +135,15 @@
 }
 
 .user-profile.expanded {
-  height: auto; /* Adjust as needed */
+  height: auto;
 }
 
 .user-profile.mobile {
-  height: auto; /* Ensure the user profile is always visible on mobile */
+  height: auto;
 }
 
 .user-profile.mobile .user-info {
-  opacity: 1; /* Ensure user info is visible on mobile */
+  opacity: 1;
   height: auto;
   overflow: visible;
 }
@@ -194,7 +176,7 @@
 
 /* Logout Button */
 .logout {
-  margin-top: 10px; /* added a margin top to the button */
+  margin-top: 10px;
   color: #dc2626;
 }
 
@@ -205,13 +187,13 @@
 /* Mobile Styles */
 @media (max-width: 768px) {
   .dashboard-sidebar {
-    top: 64px; /* Adjust based on your navbar height */
+    top: 64px;
     width: 100%;
-    height: calc(100vh - 64px); /* Full height minus navbar */
+    height: calc(100vh - 64px);
     overflow-y: auto;
-    transform: translateX(-100%); /* Hide sidebar by default on mobile */
+    transform: translateX(-100%);
     position: fixed;
-    z-index: 1002; /* Ensure it's above other content */
+    z-index: 1002;
   }
 
   .dashboard-sidebar.mobile-open {
@@ -224,39 +206,37 @@
     align-items: center;
     padding: 16px;
     border-top: 1px solid #eee;
-    margin-top: 0; /* Ensure it's not pushed to the bottom */
-    height: auto; /* Make sure the height adjusts to content */
+    margin-top: 0;
+    height: auto;
   }
 
   .user-profile.collapsed .user-info {
-    opacity: 1; /* Always show user info on mobile */
+    opacity: 1;
     height: auto;
-    overflow: visible; /* Ensure content is visible */
+    overflow: visible;
   }
 
   .user-profile.expanded .user-info {
     opacity: 1;
     height: auto;
-    overflow: visible; /* Ensure content is visible */
+    overflow: visible;
   }
 }
 
-/* General styling for the text */
+/* Sidebar Text Visibility */
 .dashboard-sidebar span {
-  display: block; /* Make sure the spans are block-level elements */
+  display: block;
 }
 
-/* Hide text in collapsed state on desktop */
 .dashboard-sidebar.desktop-collapsed span {
   display: none;
 }
 
-/* Show text in expanded state on desktop */
 .dashboard-sidebar.desktop-expanded span {
   display: block;
 }
 
-/* Styles for the close button */
+/* Close Button */
 .sidebar-close-btn {
   position: absolute;
   top: 15px;
@@ -269,10 +249,11 @@
 
 /* User Dashboard Specific Styles */
 .user-dashboard-container {
-  max-width: 1600px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 32px;
+  padding: 16px;
   background: linear-gradient(135deg, #f6f8ff 0%, #f0f3ff 100%);
+  overflow-x: hidden;
 }
 
 .user-dashboard-header {
@@ -293,85 +274,218 @@
   margin-bottom: 16px;
 }
 
-/* Stats Cards with Modern Design */
+/* Enhanced Stat Cards */
 .stats-container {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  gap: 24px;
   margin-bottom: 32px;
 }
 
 .stat-card {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  background: linear-gradient(145deg, #ffffff, #f6f7ff);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.05),
+    -5px -5px 15px rgba(255, 255, 255, 0.8);
   transition: all 0.3s ease;
-  border: 1px solid #f0f0f0;
 }
 
 .stat-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.08),
+    -8px -8px 20px rgba(255, 255, 255, 0.9);
 }
 
 .stat-card-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
 .stat-card-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
-}
-
-.stat-card-title {
-  font-size: 14px;
-  color: #64748b;
-  font-weight: 500;
-  margin: 0;
-}
-
-.stat-card-value {
   font-size: 24px;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 8px 0;
+  transition: all 0.3s ease;
 }
 
-.stat-card-trend {
-  font-size: 13px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+.stat-card:hover .stat-card-icon {
+  transform: scale(1.1);
 }
 
-/* Different color schemes for stat cards */
 .stat-card.primary .stat-card-icon {
-  background: #eff6ff;
-  color: #2563eb;
+  background: linear-gradient(135deg, #4f46e5, #2563eb);
+  color: white;
 }
 
 .stat-card.success .stat-card-icon {
-  background: #f0fdf4;
-  color: #16a34a;
+  background: linear-gradient(135deg, #059669, #10b981);
+  color: white;
 }
 
 .stat-card.warning .stat-card-icon {
-  background: #fef3c7;
-  color: #d97706;
+  background: linear-gradient(135deg, #d97706, #f59e0b);
+  color: white;
 }
 
 .stat-card.danger .stat-card-icon {
-  background: #fef2f2;
-  color: #dc2626;
+  background: linear-gradient(135deg, #dc2626, #ef4444);
+  color: white;
+}
+
+.stat-card-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 8px 0;
+  letter-spacing: -0.5px;
+}
+
+/* Enhanced Info Cards */
+.user-info-card,
+.user-loan-card {
+  background: white;
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.user-info-card:hover,
+.user-loan-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+.user-info-header h2,
+.user-loan-header h2 {
+  font-size: 22px;
+  color: #1e293b;
+  font-weight: 600;
+  margin-bottom: 24px;
+  position: relative;
+  padding-bottom: 12px;
+}
+
+.user-info-header h2:after,
+.user-loan-header h2:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #4f46e5, #2563eb);
+  border-radius: 2px;
+}
+
+.user-info-item,
+.user-loan-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.user-info-label,
+.user-loan-label {
+  color: #64748b;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.user-info-value,
+.user-loan-value {
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+/* Payment Status Section */
+.status-overview {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 20px 0;
+}
+
+.status-item {
+  text-align: center;
+  padding: 16px;
+  border-radius: 16px;
+  background: linear-gradient(145deg, #ffffff, #f6f7ff);
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.status-item:hover {
+  transform: translateY(-3px);
+}
+
+.status-item.paid {
+  border-left: 4px solid #10b981;
+}
+
+.status-item.pending {
+  border-left: 4px solid #f59e0b;
+}
+
+.status-item.overdue {
+  border-left: 4px solid #ef4444;
+}
+
+.status-count {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.status-label {
+  font-size: 14px;
+  color: #64748b;
+}
+
+/* Completion Progress */
+.progress-container {
+  padding: 24px;
+}
+
+.progress-bar {
+  height: 12px;
+  background: #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4f46e5, #2563eb);
+  border-radius: 6px;
+  transition: width 1s ease-in-out;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.progress-percentage {
+  font-size: 24px;
+  font-weight: 700;
+  color: #2563eb;
+}
+
+.progress-text {
+  color: #64748b;
+  font-size: 14px;
 }
 
 /* Main Content Grid */
@@ -379,6 +493,12 @@
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   gap: 32px;
+}
+
+@media (max-width: 768px) {
+  .user-content-wrapper {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Info and Loan Cards */
@@ -451,16 +571,20 @@
 }
 
 .user-table-wrapper {
-  height: calc(12 * 53px); /* Exactly 12 rows (including header) */
+  height: auto;
   overflow-y: auto;
   border-radius: 12px;
   border: 1px solid #e2e8f0;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .user-payment-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
+  min-width: 800px;
 }
 
 .user-payment-table th {
@@ -509,31 +633,237 @@
   border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
-/* Responsive Design */
+/* Analytics Dashboard Layout */
+.analytics-dashboard {
+  margin-top: 20px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.analytics-header {
+  margin-bottom: 32px;
+}
+
+.analytics-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.analytics-subtitle {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.analytics-layout {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  /* grid-template-rows: repeat(4, 1fr); */
+  gap: 10px;
+}
+
+/* Div 1: Payment Timeline */
+.div1 {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+/* Div 2: Monthly Trends */
+.div2 {
+  grid-column: span 2;
+  grid-row: span 2;
+  grid-column-start: 1;
+  grid-row-start: 3;
+}
+
+/* Div 3: Payment Status */
+.div3 {
+  grid-column-start: 3;
+  grid-row-start: 1;
+}
+
+/* Div 4: Completion Progress */
+.div4 {
+  grid-row: span 2;
+  grid-column-start: 3;
+  grid-row-start: 2;
+}
+
+/* Div 5: Loan Insights */
+.div5 {
+  grid-column-start: 3;
+  grid-row-start: 4;
+}
+
+/* Analytics Card Styles */
+.analytics-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.analytics-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.analytics-card h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+
+
+.chart-container {
+  height: 300px;
+  position: relative;
+  width: 100%;
+  min-height: 200px;
+  max-height: 400px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .analytics-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .div1,
+  .div2,
+  .div3,
+  .div4,
+  .div5 {
+    grid-column: 1;
+    row-gap: 5px;
+    grid-row: auto;
+  }
+}
+
+/* 
+.chart-container {
+  height: 300px;
+  position: relative;
+  width: 100%;
+  min-height: 200px;
+  max-height: 400px;
+  border-radius: 12px;
+  overflow: hidden;
+} */
+
+.trends-card {
+  grid-column: 1 / -1;
+  background: linear-gradient(to bottom right, #ffffff, #f5f3ff);
+  min-height: 300px;
+}
+
+.completion-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.completion-label .percentage {
+  font-size: 32px;
+  font-weight: 700;
+  color: #10b981;
+  line-height: 1;
+}
+
+.completion-label .label {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.timeline-card {
+  background: linear-gradient(to bottom right, #ffffff, #f8fafc);
+  min-height: 300px;
+}
+
+.status-card {
+  background: linear-gradient(to bottom right, #ffffff, #f0fdf4);
+  min-height: 150px;
+}
+
+.completion-card {
+  background: linear-gradient(to bottom right, #ffffff, #eff6ff);
+}
+
+.emi-card {
+  background: linear-gradient(to bottom right, #ffffff, #fef3c7);
+}
+
+/* Responsive Adjustments */
+@media (min-width: 769px) {
+  .dashboard-main {
+    margin-left: 70px;
+  }
+
+  .dashboard-main.expanded {
+    margin-left: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-main {
+    margin-left: 0;
+    padding: 15px;
+  }
+
+  .dashboard-main.collapsed {
+    margin-left: 0;
+  }
+}
+
 @media (max-width: 1200px) {
   .stats-container {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
+@media (max-width: 1024px) {
+  .insight-metrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   .user-dashboard-container {
-    padding: 16px;
+    padding: 8px;
   }
-  
+
   .stats-container {
     grid-template-columns: 1fr;
   }
-  
+
   .user-content-wrapper {
     gap: 24px;
     grid-template-columns: 1fr;
   }
-  
+
   .user-dashboard-header {
     padding: 24px;
   }
-  
+
   .stat-card {
     padding: 20px;
   }
@@ -558,22 +888,12 @@
   .chart-container {
     height: 200px;
   }
-}
 
-@media (max-width: 1024px) {
-  .insight-metrics {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 768px) {
   .insight-metrics {
     grid-template-columns: 1fr;
   }
 
   .indicator {
-    flex-direction: column;
-    align-items: flex-start;
     gap: 8px;
   }
 
@@ -587,487 +907,113 @@
   }
 }
 
-/* Updated Analytics Dashboard Styles */
-.analytics-dashboard {
-  margin-top: 40px;
-  background: #FFFFFF;
-  border-radius: 20px;
-  padding: 32px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+/* Circular Progress Styles */
+.circular-progress-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
 }
 
-.analytics-header {
-  margin-bottom: 32px;
-}
-
-.analytics-title {
-  font-size: 24px;
-  font-weight: 600;
-  color: #111827;
-  margin-bottom: 8px;
-}
-
-.analytics-subtitle {
-  color: #6B7280;
-  font-size: 14px;
-}
-
-.analytics-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
-}
-
-.analytics-card {
-  background: #FFFFFF;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
+.circular-progress {
   position: relative;
-  overflow: hidden;
+  width: 200px;
+  height: 200px;
 }
 
-.analytics-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+.circular-progress-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 
-.analytics-card::before {
+.circular-progress-circle {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: conic-gradient(#4f46e5 calc(var(--progress) * 1%),
+      #e2e8f0 calc(var(--progress) * 1%));
+  box-shadow: 0 0 20px rgba(79, 70, 229, 0.1);
+  transition: all 1.5s ease-in-out;
+}
+
+.circular-progress-circle::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(to right, #2563EB, #10B981);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.analytics-card:hover::before {
-  opacity: 1;
-}
-
-.analytics-card h3 {
-  font-size: 16px;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.chart-container {
-  height: 300px;
-  position: relative;
-}
-
-.trends-card {
-  grid-column: 1 / -1;
-  background: linear-gradient(to bottom right, #FFFFFF, #F5F3FF);
-}
-
-.completion-label {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-}
-
-.completion-label .percentage {
-  font-size: 32px;
-  font-weight: 700;
-  color: #10B981;
-  line-height: 1;
-}
-
-.completion-label .label {
-  font-size: 14px;
-  color: #6B7280;
-  margin-top: 4px;
-}
-
-.timeline-card {
-  background: linear-gradient(to bottom right, #FFFFFF, #F8FAFC);
-}
-
-.status-card {
-  background: linear-gradient(to bottom right, #FFFFFF, #F0FDF4);
-}
-
-.completion-card {
-  background: linear-gradient(to bottom right, #FFFFFF, #EFF6FF);
-}
-
-.emi-card {
-  background: linear-gradient(to bottom right, #FFFFFF, #FEF3C7);
-}
-
-/* Responsive Design */
-@media (max-width: 1024px) {
-  .analytics-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .trends-card {
-    grid-column: auto;
-  }
-
-  .chart-container {
-    height: 250px;
-  }
-}
-
-@media (max-width: 768px) {
-  .analytics-dashboard {
-    padding: 20px;
-  }
-
-  .chart-container {
-    height: 200px;
-  }
-}
-
-/* Enhanced Analytics Dashboard Layout */
-.analytics-layout {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.analytics-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
-}
-
-.analytics-card {
+  width: 85%;
+  height: 85%;
   background: white;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.analytics-card h3 {
+.circular-progress-value {
+  position: relative;
   display: flex;
   flex-direction: column;
-  margin-bottom: 20px;
-}
-
-.card-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #111827;
-}
-
-.card-subtitle {
-  font-size: 13px;
-  color: #6B7280;
-  font-weight: normal;
-  margin-top: 4px;
-}
-
-/* Timeline Card */
-.timeline-card {
-  grid-column: 1 / -1;
-}
-
-/* Status Overview */
-.status-overview {
-  display: flex;
-  justify-content: space-around;
-  padding: 20px 0;
-}
-
-.status-item {
-  text-align: center;
-  padding: 16px;
-  border-radius: 12px;
-  min-width: 120px;
-}
-
-.status-item.paid { background: rgba(16, 185, 129, 0.1); }
-.status-item.pending { background: rgba(245, 158, 11, 0.1); }
-.status-item.overdue { background: rgba(239, 68, 68, 0.1); }
-
-.status-count {
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.status-item.paid .status-count { color: #10B981; }
-.status-item.pending .status-count { color: #F59E0B; }
-.status-item.overdue .status-count { color: #EF4444; }
-
-/* Progress Bar */
-.progress-container {
-  padding: 20px 0;
-}
-.progress-bar {
-  width: 100%;
-  height: 12px;
-  background: #e0e0e0;
-  border-radius: 6px;
-  position: relative;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #4caf50, #2e7d32);
-  border-radius: 6px;
-  transition: width 0.6s ease-in-out;
-}
-
-.progress-label {
-  margin-top: 8px;
-  display: flex;
-  justify-content: space-between;
-  font-size: 14px;
-  font-weight: 500;
-  color: #444;
+  align-items: center;
+  gap: 5px;
+  z-index: 1;
 }
 
 .progress-percentage {
-  font-weight: bold;
-  color: #2e7d32;
+  font-size: 36px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #4f46e5, #2563eb);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1;
 }
 
-
-.score-stat {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.stat-label {
-  font-size: 14px;
-  color: #6B7280;
-}
-
-.stat-value {
+.progress-text {
+  color: #64748b;
   font-size: 18px;
-  font-weight: 600;
-  color: #111827;
-}
-
-@media (max-width: 1024px) {
-  .analytics-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 768px) {
-  .analytics-card {
-    padding: 16px;
-  }
-
-  .status-overview {
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .status-item {
-    width: 100%;
-  }
-}
-
-/* Loan Insights Card */
-.loan-insights-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
-}
-
-.loan-insights {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-/* Metrics Section */
-.insight-metrics {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-
-.insight-metric {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease;
-}
-
-.insight-metric:hover {
-  transform: translateY(-2px);
-}
-
-.metric-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.metric-icon .icon {
-  font-size: 24px;
-}
-
-/* Icon Styles */
-.metric-icon.streak {
-  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
-  color: #D97706;
-}
-
-.metric-icon.early {
-  background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
-  color: #2563EB;
-}
-
-.metric-icon.savings {
-  background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
-  color: #059669;
-}
-
-.metric-details {
-  flex: 1;
-}
-
-.metric-value {
-  font-size: 20px;
-  font-weight: 600;
-  color: #111827;
-  line-height: 1.2;
-}
-
-.metric-label {
-  font-size: 14px;
-  color: #6B7280;
-  margin-top: 2px;
-}
-
-.metric-subtitle {
-  font-size: 12px;
-  color: #9CA3AF;
-  margin-top: 4px;
-}
-
-/* Performance Section */
-.loan-performance {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.performance-header {
-  font-size: 14px;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 16px;
-}
-
-.performance-indicators {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.indicator {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.indicator-label {
-  flex: 1;
-  font-size: 13px;
-  color: #6B7280;
-}
-
-.indicator-bar {
-  width: 120px;
-  height: 8px;
-  background: #E5E7EB;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.indicator-fill {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 0.3s ease;
-}
-
-.indicator-value {
-  min-width: 45px;
-  font-size: 13px;
   font-weight: 500;
-  color: #374151;
-  text-align: right;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.credit-impact {
-  min-width: 165px;
-  text-align: right;
+/* Add hover animation */
+.circular-progress:hover .circular-progress-circle {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(79, 70, 229, 0.2);
 }
 
-.impact-badge {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 500;
-}
+/* Add pulse animation */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4);
+  }
 
-.impact-badge.positive {
-  background: rgba(16, 185, 129, 0.1);
-  color: #059669;
-}
+  70% {
+    box-shadow: 0 0 0 10px rgba(79, 70, 229, 0);
+  }
 
-.impact-badge.neutral {
-  background: rgba(245, 158, 11, 0.1);
-  color: #D97706;
-}
-
-.impact-badge.negative {
-  background: rgba(239, 68, 68, 0.1);
-  color: #DC2626;
-}
-
-/* Responsive Design */
-@media (max-width: 1024px) {
-  .insight-metrics {
-    grid-template-columns: repeat(2, 1fr);
+  100% {
+    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
   }
 }
 
+.circular-progress-circle {
+  animation: pulse 2s infinite;
+}
+
+/* Responsive adjustments */
 @media (max-width: 768px) {
-  .insight-metrics {
-    grid-template-columns: 1fr;
+  .circular-progress {
+    width: 150px;
+    height: 150px;
   }
 
-  .indicator {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+  .progress-percentage {
+    font-size: 28px;
   }
 
-  .indicator-bar {
-    width: 100%;
-  }
-
-  .credit-impact {
-    width: 100%;
-    text-align: left;
+  .progress-text {
+    font-size: 12px;
   }
 }

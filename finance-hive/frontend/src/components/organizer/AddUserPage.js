@@ -172,7 +172,7 @@ const AddUserPage = () => {
             });
 
             // Navigate to organizer dashboard after successful addition
-            navigate("/organizer-dashboard");
+            navigate("/organizer");
         } catch (error) {
             setIsSuccess(false);
             setModalMessage(error.response?.data?.message || t("dashboard.failed_to_add_user"));
