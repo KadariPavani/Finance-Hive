@@ -66,6 +66,22 @@ const OrganizerDashboard = () => {
     fetchInitialData();
   }, []);
 
+  useEffect(() => {
+    const handleResize = () => {
+      // Force chart redraw on window resize
+      const charts = document.querySelectorAll('canvas');
+      charts.forEach(chart => {
+        const chartInstance = ChartJS.getChart(chart);
+        if (chartInstance) {
+          chartInstance.resize();
+        }
+      });
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const fetchOrganizerDetails = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -271,7 +287,8 @@ const OrganizerDashboard = () => {
   };
 
   const handleSearchChange = (e) => {
-    setSearch(e.target.value.toLowerCase());
+    const searchValue = e.target.value.toLowerCase();
+    setSearch(searchValue);
   };
 
   const handleUserSearchChange = (e) => {
@@ -414,11 +431,11 @@ const OrganizerDashboard = () => {
     .filter(payment => {
       const searchLower = search.toLowerCase();
       return (
-        payment.sno.toString().includes(searchLower) ||
         payment.userName.toLowerCase().includes(searchLower) ||
+        payment.sno.toString().includes(searchLower) ||
         new Date(payment.dueDate).toLocaleDateString().includes(searchLower) ||
         payment.emiAmount.toString().includes(searchLower) ||
-        (payment.paymentDate ? new Date(payment.paymentDate).toLocaleDateString() : true) ||
+        (payment.paymentDate && new Date(payment.paymentDate).toLocaleDateString().includes(searchLower)) ||
         payment.balance.toString().includes(searchLower) ||
         payment.status.toLowerCase().includes(searchLower)
       );
