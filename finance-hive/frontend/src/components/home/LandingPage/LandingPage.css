@@ -37,9 +37,9 @@ body {
     padding: var(--spacing-lg);
     /* max-width: 800px; */
     width: 100%;
-    background-color: white;
+    /* background-color: white; */
     border-radius: 8px;
-    box-shadow: 0 4px 20px rgb(239 236 254);
+    /* box-shadow: 0 4px 20px rgb(239 236 254); */
     /* border-bottom: 3px solid hsl(260.73deg 86.39% 62.55%); */
 }
 .card h3 {

@@ -1,3 +1,4 @@
+/* Base container styling */
 .approach-page-container {
   padding: 2rem;
   background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
@@ -6,12 +7,12 @@
   z-index: 1;
 }
 
+/* Header styling */
 .approach-page-header {
   margin-bottom: 2.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: relative;
   padding-bottom: 1rem;
   border-bottom: 2px solid rgba(79, 70, 229, 0.1);
 }
@@ -20,12 +21,12 @@
   font-size: 2.25rem;
   color: #1a1a1a;
   font-weight: 700;
-  position: relative;
   padding-bottom: 0.75rem;
   letter-spacing: -0.5px;
+  position: relative;
 }
 
-/* .approach-page-title::after {
+.approach-page-title::after {
   content: '';
   position: absolute;
   bottom: -1rem;
@@ -35,33 +36,43 @@
   background: linear-gradient(90deg, #4F46E5, #6366F1);
   border-radius: 2px;
 }
- */
+
+/* Table container with horizontal scrolling */
 .approach-responses-wrapper {
   background: white;
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
+  overflow-x: auto;
+  width: 100%;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 
+/* Table styling */
 .approach-data-table {
   width: 100%;
+  min-width: 750px; /* Prevents table from becoming too compressed */
   border-collapse: separate;
   border-spacing: 0;
   background-color: #ffffff;
+  margin-bottom: 0; /* Removes extra space at bottom */
 }
 
 .approach-table-header {
   background: linear-gradient(90deg, #4F46E5, #6366F1);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .approach-table-header th {
   padding: 1.25rem 1.5rem;
   text-align: left;
-  color: #4F46E5;
+  color: #000000;
   font-weight: 500;
   font-size: 0.875rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
 .approach-table-header th:first-child {
@@ -72,28 +83,23 @@
   border-top-right-radius: 16px;
 }
 
+/* Table cells */
 .approach-table-cell {
   padding: 1.25rem 1.5rem;
   color: #4a5568;
   font-size: 0.875rem;
   border-bottom: 1px solid #f0f0f0;
-  transition: all 0.2s ease;
-}
-
-.approach-table-row {
-  transition: all 0.2s ease;
 }
 
 .approach-table-row:hover {
   background-color: #f8fafc;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
 .approach-table-row:last-child .approach-table-cell {
   border-bottom: none;
 }
 
+/* Specific cell styles */
 .approach-message-cell {
   max-width: 300px;
   white-space: nowrap;
@@ -120,6 +126,7 @@
   color: #2d3748;
 }
 
+/* Error alert */
 .approach-error-alert {
   background-color: #FEF2F2;
   border: 1px solid #FEE2E2;
@@ -146,6 +153,7 @@
   font-weight: bold;
 }
 
+/* Back button */
 .approach-back-button {
   position: fixed;
   top: 2rem;
@@ -160,7 +168,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
   color: #4F46E5;
   font-size: 1.25rem;
   z-index: 1000;
@@ -171,21 +178,11 @@
 .approach-back-button:hover {
   background: #4F46E5;
   color: white;
-  transform: rotate(90deg);
   box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
 }
 
-.approach-back-button:active {
-  transform: rotate(90deg) scale(0.95);
-}
-
+/* Responsive adjustments */
 @media (max-width: 1024px) {
-  .approach-data-table {
-    display: block;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  
   .approach-page-container {
     padding: 1.5rem;
   }
@@ -207,7 +204,7 @@
   
   .approach-table-header th,
   .approach-table-cell {
-    padding: 1rem;
+    padding: 1rem 0.75rem;
   }
   
   .approach-back-button {
@@ -217,28 +214,8 @@
     height: 36px;
     font-size: 1rem;
   }
-}
-
-/* Animation for table rows */
-.approach-table-row {
-  animation: approachFadeIn 0.25s ease-out forwards;
-  opacity: 0;
-}
-
-@keyframes approachFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  
+  .approach-message-cell {
+    max-width: 200px;
   }
 }
-
-/* Stagger animation for rows */
-.approach-table-row:nth-child(1) { animation-delay: 0.1s; }
-.approach-table-row:nth-child(2) { animation-delay: 0.2s; }
-.approach-table-row:nth-child(3) { animation-delay: 0.3s; }
-.approach-table-row:nth-child(4) { animation-delay: 0.4s; }
-.approach-table-row:nth-child(5) { animation-delay: 0.5s; }

@@ -84,6 +84,16 @@ const AddUser = ({ role, onUserAdded }) => {
     updateProgress();
   }, [validations]);
 
+  useEffect(() => {
+    const containers = document.querySelectorAll('.input-container');
+    containers.forEach((container, index) => {
+      container.style.setProperty('--index', index + 1);
+      setTimeout(() => {
+        container.classList.add('animate-in');
+      }, 100 * (index + 1));
+    });
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -145,15 +155,15 @@ const AddUser = ({ role, onUserAdded }) => {
   return (
     <div className="user-creation-container">
 
-      
+
       <div className="user-creation-card">
-      <button
-              className="back-button"
-              onClick={() => navigate('/admin')}
-              type="button"
-            >
-              <FaArrowLeft /> Back
-            </button>
+        <button
+          className="back-button"
+          onClick={() => navigate('/admin')}
+          type="button"
+        >
+          <FaArrowLeft /> Back
+        </button>
 
         <div className="form-section">
           <div className="form-header">

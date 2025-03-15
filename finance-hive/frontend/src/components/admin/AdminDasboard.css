@@ -2360,7 +2360,6 @@ body {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 2rem;
-  padding: 1.5rem;
   margin: 1rem 0;
 }
 
@@ -2447,7 +2446,6 @@ body {
 @media (max-width: 1200px) {
   .analytics-grid {
     gap: 1.5rem;
-    padding: 1rem;
   }
   
   .ring {

@@ -391,12 +391,12 @@ const AdminDashboard = () => {
 
   const prepareActivityData = () => {
     if (!loginActivity.users || !loginActivity.organizers) return defaultChartData;
-  
+
     const allDates = [...new Set([
       ...loginActivity.users.map(item => item.date),
       ...loginActivity.organizers.map(item => item.date)
     ])].sort();
-  
+
     return {
       labels: allDates,
       datasets: [
@@ -600,7 +600,7 @@ const AdminDashboard = () => {
                 </div>
               </div> */}
 
-              
+
 
           {/* Users Management Section */}
           <div className="activity-chart-container">
@@ -651,54 +651,78 @@ const AdminDashboard = () => {
                     maintainAspectRatio: false,
                     plugins: {
                       legend: {
-                        position: 'top',
+                        position: window.innerWidth <= 768 ? 'bottom' : 'top',
+                        align: 'end',
                         labels: {
+                          boxWidth: window.innerWidth <= 480 ? 8 : 10,
                           usePointStyle: true,
-                          padding: 20,
+                          pointStyle: 'circle',
+                          padding: window.innerWidth <= 480 ? 10 : 20,
                           font: {
-                            size: 12,
-                            family: "'Poppins', sans-serif"
+                            size: window.innerWidth <= 480 ? 10 : 12,
+                            family: "'Inter', sans-serif"
                           }
                         }
                       },
                       tooltip: {
-                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                        titleColor: '#333',
-                        bodyColor: '#666',
-                        borderColor: 'rgba(0, 0, 0, 0.1)',
+                        backgroundColor: 'white',
+                        titleColor: '#1e293b',
+                        bodyColor: '#475569',
+                        borderColor: '#e2e8f0',
                         borderWidth: 1,
-                        padding: 12,
-                        boxPadding: 6,
-                        usePointStyle: true,
-                        callbacks: {
-                          label: (context) => `${context.dataset.label}: ${context.raw} logins`
+                        padding: window.innerWidth <= 480 ? 8 : 12,
+                        bodyFont: {
+                          size: window.innerWidth <= 480 ? 10 : 12,
+                          family: "'Inter', sans-serif"
+                        },
+                        titleFont: {
+                          size: window.innerWidth <= 480 ? 11 : 13,
+                          family: "'Inter', sans-serif",
+                          weight: '600'
                         }
                       }
                     },
                     scales: {
-                      y: {
-                        beginAtZero: true,
-                        grid: {
-                          color: 'rgba(0, 0, 0, 0.05)',
-                          drawBorder: false
-                        },
-                        ticks: {
-                          font: {
-                            size: 12,
-                            family: "'Poppins', sans-serif"
-                          }
-                        }
-                      },
                       x: {
                         grid: {
                           display: false
                         },
+                        border: {
+                          display: true
+                        },
                         ticks: {
+                          maxRotation: window.innerWidth <= 480 ? 45 : 0,
+                          padding: window.innerWidth <= 480 ? 5 : 8,
                           font: {
-                            size: 12,
-                            family: "'Poppins', sans-serif"
+                            size: window.innerWidth <= 480 ? 9 : 11,
+                            family: "'Inter', sans-serif"
                           }
                         }
+                      },
+                      y: {
+                        border: {
+                          display: true
+                        },
+                        grid: {
+                          display: false
+                        },
+                        ticks: {
+                          padding: window.innerWidth <= 480 ? 5 : 8,
+                          font: {
+                            size: window.innerWidth <= 480 ? 9 : 11,
+                            family: "'Inter', sans-serif"
+                          }
+                        }
+                      }
+                    },
+                    elements: {
+                      line: {
+                        tension: 0.3,
+                        borderWidth: window.innerWidth <= 480 ? 1.5 : 2
+                      },
+                      point: {
+                        radius: window.innerWidth <= 480 ? 2 : 3,
+                        hoverRadius: window.innerWidth <= 480 ? 4 : 5
                       }
                     }
                   }}
