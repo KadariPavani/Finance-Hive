@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './AddUser.css';
-import { FaUser, FaEnvelope, FaPhone, FaLock, FaCheck, FaSpinner, FaTimes } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaPhone, FaLock, FaCheck, FaSpinner, FaTimes, FaArrowLeft } from 'react-icons/fa';
 import Modal from '../Modal/Modal';
 
 const AddUser = ({ role, onUserAdded }) => {
@@ -86,7 +86,7 @@ const AddUser = ({ role, onUserAdded }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!Object.values(validations).every(v => v)) {
       return;
     }
@@ -95,15 +95,15 @@ const AddUser = ({ role, onUserAdded }) => {
       setIsLoading(true);
       const token = localStorage.getItem('token');
       const formattedMobileNumber = `+91${mobileNumber}`;
-      
+
       const response = await axios.post(
         'http://localhost:5000/api/add-user',
-        { 
-          name, 
-          email, 
-          mobileNumber: formattedMobileNumber, 
-          password, 
-          role 
+        {
+          name,
+          email,
+          mobileNumber: formattedMobileNumber,
+          password,
+          role
         },
         {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -113,7 +113,7 @@ const AddUser = ({ role, onUserAdded }) => {
       setModalMessage(response.data.message);
       setIsError(false);
       setShowModal(true);
-      
+
       setName('');
       setEmail('');
       setMobileNumber('');
@@ -128,7 +128,7 @@ const AddUser = ({ role, onUserAdded }) => {
       if (onUserAdded) {
         onUserAdded();
       }
-      
+
       setTimeout(() => {
         navigate('/admin');
       }, 2000);
@@ -144,11 +144,21 @@ const AddUser = ({ role, onUserAdded }) => {
 
   return (
     <div className="user-creation-container">
+
+      
       <div className="user-creation-card">
+      <button
+              className="back-button"
+              onClick={() => navigate('/admin')}
+              type="button"
+            >
+              <FaArrowLeft /> Back
+            </button>
+
         <div className="form-section">
           <div className="form-header">
+
             <h1 className="form-title">Add New {role.charAt(0).toUpperCase() + role.slice(1)}</h1>
-            {/* <p className="form-subtitle">Complete all fields to create the account</p> */}
           </div>
           <div className="progress-container">
             <div className="progress-line">
@@ -173,64 +183,64 @@ const AddUser = ({ role, onUserAdded }) => {
           </div>
 
           <form onSubmit={handleSubmit}>
-            <div className={`input-container ${validations.name ? 'valid' : ''}`} style={{"--index": 1}}>
+            <div className={`input-container ${validations.name ? 'valid' : ''}`} style={{ "--index": 1 }}>
               <FaUser className="input-icon" />
-              <input 
-                type="text" 
+              <input
+                type="text"
                 className="form-input"
-                placeholder="Full Name" 
+                placeholder="Full Name"
                 value={name}
                 onChange={handleNameChange}
-                required 
+                required
               />
               {validations.name ? <FaCheck className="input-status success" /> : null}
             </div>
-            
-            <div className={`input-container ${validations.email ? 'valid' : ''}`} style={{"--index": 2}}>
+
+            <div className={`input-container ${validations.email ? 'valid' : ''}`} style={{ "--index": 2 }}>
               <FaEnvelope className="input-icon" />
-              <input 
-                type="email" 
+              <input
+                type="email"
                 className="form-input"
-                placeholder="Email Address" 
+                placeholder="Email Address"
                 value={email}
                 onChange={handleEmailChange}
-                required 
+                required
               />
               {validations.email ? <FaCheck className="input-status success" /> : null}
             </div>
-            
-            <div className={`input-container ${validations.mobile ? 'valid' : ''}`} style={{"--index": 3}}>
+
+            <div className={`input-container ${validations.mobile ? 'valid' : ''}`} style={{ "--index": 3 }}>
               <FaPhone className="input-icon" />
               <div className="mobile-input-wrapper">
                 <span className="mobile-prefix">+91</span>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   className="form-input mobile-input"
-                  placeholder="Mobile Number" 
+                  placeholder="Mobile Number"
                   value={mobileNumber}
                   onChange={handleMobileChange}
-                  required 
+                  required
                 />
               </div>
               {validations.mobile ? <FaCheck className="input-status success" /> : null}
             </div>
-            
-            <div className={`input-container ${validations.password ? 'valid' : ''}`} style={{"--index": 4}}>
+
+            <div className={`input-container ${validations.password ? 'valid' : ''}`} style={{ "--index": 4 }}>
               <FaLock className="input-icon" />
-              <input 
-                type="password" 
+              <input
+                type="password"
                 className="form-input"
-                placeholder="Create Password (min. 6 characters)" 
+                placeholder="Create Password (min. 6 characters)"
                 value={password}
                 onChange={handlePasswordChange}
-                required 
+                required
               />
               {validations.password ? <FaCheck className="input-status success" /> : null}
             </div>
 
-            <button 
-              className={`submit-button ${Object.values(validations).every(v => v) ? 'enabled' : ''}`} 
-              type="submit" 
+            <button
+              className={`submit-button ${Object.values(validations).every(v => v) ? 'enabled' : ''}`}
+              type="submit"
               disabled={!Object.values(validations).every(v => v) || isLoading}
             >
               {isLoading ? (
@@ -266,7 +276,7 @@ const AddUser = ({ role, onUserAdded }) => {
           </div>
         </div>
       </div>
-      <Modal 
+      <Modal
         show={showModal}
         message={modalMessage}
         onClose={() => setShowModal(false)}

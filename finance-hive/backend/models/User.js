@@ -43,8 +43,15 @@ const userSchema = new mongoose.Schema({
   },
   lastLogin: {
     type: Date,
-    default: null
-  }
+    default: Date.now
+  },
+  loginHistory: [{
+    timestamp: {
+      type: Date,
+      default: Date.now
+    },
+    deviceInfo: String
+  }]
 }, {
   timestamps: true // This adds createdAt and updatedAt fields
 });

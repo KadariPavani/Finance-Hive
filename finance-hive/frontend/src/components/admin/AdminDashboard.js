@@ -390,43 +390,35 @@ const AdminDashboard = () => {
   };
 
   const prepareActivityData = () => {
-    const organizers = {};
-    const users = {};
-
-    loginActivity.forEach(item => {
-      const date = item._id.date;
-      if (item._id.role === 'organizer') {
-        organizers[date] = item.count;
-      } else {
-        users[date] = item.count;
-      }
-    });
-
-    const labels = [...new Set(loginActivity.map(item => item._id.date))];
-
+    if (!loginActivity.users || !loginActivity.organizers) return defaultChartData;
+  
+    const allDates = [...new Set([
+      ...loginActivity.users.map(item => item.date),
+      ...loginActivity.organizers.map(item => item.date)
+    ])].sort();
+  
     return {
-      labels: labels.map(date => {
-        if (timeframe === 'hourly') {
-          return format(parseISO(date), 'HH:mm');
-        }
-        return format(parseISO(date), 'MMM dd');
-      }),
+      labels: allDates,
       datasets: [
         {
-          label: 'Organizers',
-          data: labels.map(date => organizers[date] || 0),
-          borderColor: '#2196f3',
-          backgroundColor: 'rgba(33, 150, 243, 0.1)',
-          tension: 0.4,
-          fill: true
+          label: 'Users',
+          data: allDates.map(date => {
+            const entry = loginActivity.users.find(item => item.date === date);
+            return entry ? entry.count : 0;
+          }),
+          borderColor: '#4CAF50',
+          backgroundColor: 'rgba(76, 175, 80, 0.1)',
+          tension: 0.4
         },
         {
-          label: 'Users',
-          data: labels.map(date => users[date] || 0),
-          borderColor: '#26a69a',
-          backgroundColor: 'rgba(38, 166, 154, 0.1)',
-          tension: 0.4,
-          fill: true
+          label: 'Organizers',
+          data: allDates.map(date => {
+            const entry = loginActivity.organizers.find(item => item.date === date);
+            return entry ? entry.count : 0;
+          }),
+          borderColor: '#2196F3',
+          backgroundColor: 'rgba(33, 150, 243, 0.1)',
+          tension: 0.4
         }
       ]
     };
@@ -542,7 +534,7 @@ const AdminDashboard = () => {
           </div> */}
 
           {/* Stats Cards Section */}
-          <div className="stats-overview">
+          {/* <div className="stats-overview">
             <div className="stat-card primary">
               <div className="stat-icon admin-icon">
                 <FontAwesomeIcon icon={faUserTie} />
@@ -572,75 +564,10 @@ const AdminDashboard = () => {
                 <p className="stat-number">{stats.users}</p>
               </div>
             </div>
-          </div>
-          <div className="analytics-grid">
-            <div className="analytics-card growth-card">
-              <div className="analytics-icon growth-icon">
-                <FontAwesomeIcon icon={faChartPie} />
-              </div>
-              <div className="analytics-content">
-                <h3>User Composition</h3>
-                <div className="composition-rings">
-                  <div className="ring ring-admin">
-                    <div className="ring-inner">
-                      <span className="ring-label">Admins</span>
-                      <span className="ring-value">{((stats.admins / (stats.admins + stats.organizers + stats.users)) * 100).toFixed(1)}%</span>
-                    </div>
-                  </div>
-                  <div className="ring ring-organizer">
-                    <div className="ring-inner">
-                      <span className="ring-label">Organizers</span>
-                      <span className="ring-value">{((stats.organizers / (stats.admins + stats.organizers + stats.users)) * 100).toFixed(1)}%</span>
-                    </div>
-                  </div>
-                  <div className="ring ring-user">
-                    <div className="ring-inner">
-                      <span className="ring-label">Users</span>
-                      <span className="ring-value">{((stats.users / (stats.admins + stats.organizers + stats.users)) * 100).toFixed(1)}%</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="modern-analytics">
-              <div className="analytics-card total-users">
-                <div className="analytics-icon">
-                  <FontAwesomeIcon icon={faUsers} />
-                </div>
-                <div className="analytics-content">
-                  <div className="analytics-header">
-                    <h3>Total Users Distribution</h3>
-                    <div className="analytics-percentage">
-                      +{((stats.users / (stats.admins + stats.organizers + stats.users)) * 100).toFixed(1)}%
-                    </div>
-                  </div>
-                  <div className="analytics-metrics">
-                    <div className="metric">
-                      <div className="metric-bar admin-bar" style={{ width: `${(stats.admins / (stats.admins + stats.organizers + stats.users)) * 100}%` }}>
-                        <span className="metric-label">Admins</span>
-                        <span className="metric-value">{stats.admins}</span>
-                      </div>
-                    </div>
-                    <div className="metric">
-                      <div className="metric-bar organizer-bar" style={{ width: `${(stats.organizers / (stats.admins + stats.organizers + stats.users)) * 100}%` }}>
-                        <span className="metric-label">Organizers</span>
-                        <span className="metric-value">{stats.organizers}</span>
-                      </div>
-                    </div>
-                    <div className="metric">
-                      <div className="metric-bar user-bar" style={{ width: `${(stats.users / (stats.admins + stats.organizers + stats.users)) * 100}%` }}>
-                        <span className="metric-label">Users</span>
-                        <span className="metric-value">{stats.users}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          </div> */}
 
 
-            </div>
 
-          </div>
 
           {/* Analytics Charts Section */}
 
@@ -673,82 +600,19 @@ const AdminDashboard = () => {
                 </div>
               </div> */}
 
+              
+
           {/* Users Management Section */}
-          <div className="users-section">
-            <div className="section-header">
-              <div className="filter-buttons">
-                <button
-                  className={`filter-btn ${activeFilter === 'all' ? 'active' : ''}`}
-                  onClick={() => handleFilterChange('all')}
-                >
-                  All Users
-                </button>
-                <button
-                  className={`filter-btn ${activeFilter === 'admin' ? 'active' : ''}`}
-                  onClick={() => handleFilterChange('admin')}
-                >
-                  Admins
-                </button>
-                <button
-                  className={`filter-btn ${activeFilter === 'organizer' ? 'active' : ''}`}
-                  onClick={() => handleFilterChange('organizer')}
-                >
-                  Organizers
-                </button>
-              </div>
-            </div>
-
-            {/* Add Search Bar Here */}
-            <div className="search-container">
-              <div className="search-wrapper">
-                <FontAwesomeIcon icon={faSearch} className="search-icon" />
-                <input
-                  type="text"
-                  className="search-input"
-                  placeholder="Search users by name, email, or role..."
-                  value={searchTerm}
-                  onChange={handleSearch}
-                />
-              </div>
-            </div>
-
-            <div className="users-grid">
-              {displayedUsers.map((user) => (
-                <div key={user._id} className="user-card">
-                  <div className="user-info">
-                    <h3>{user.name}</h3>
-                    <p className="role">Role: {user.role}</p>
-                    <p className="email">Email: {user.email}</p>
-                    <p className="mobile">Mobile: {user.mobileNumber}</p>
-                  </div>
-                  <button
-                    className="delete-btn"
-                    onClick={() => handleDelete(user._id, user.name)}
-                    title="Delete user"
-                  >
-                    <FiTrash2 />
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            {getFilteredUsers().length > visibleUsers && (
-              <button className="show-more-btn" onClick={handleLoadMore}>
-                Show More
-              </button>
-            )}
-          </div>
-
           <div className="activity-chart-container">
             <div className="activity-chart-header">
               <h3>Login Activity</h3>
               <div className="time-filter-buttons">
-                <button
+                {/* <button
                   className={`time-filter-btn ${timeframe === 'hourly' ? 'active' : ''}`}
                   onClick={() => setTimeframe('hourly')}
                 >
                   Hourly
-                </button>
+                </button> */}
                 <button
                   className={`time-filter-btn ${timeframe === 'daily' ? 'active' : ''}`}
                   onClick={() => setTimeframe('daily')}
@@ -842,6 +706,141 @@ const AdminDashboard = () => {
               )}
             </div>
           </div>
+
+          <div className="analytics-grid">
+            <div className="analytics-card growth-card">
+              <div className="analytics-icon growth-icon">
+                <FontAwesomeIcon icon={faChartPie} />
+              </div>
+              <div className="analytics-content">
+                <h3>User Composition</h3>
+                <div className="composition-rings">
+                  <div className="ring ring-admin">
+                    <div className="ring-inner">
+                      <span className="ring-label">Admins</span>
+                      <span className="ring-value">{((stats.admins / (stats.admins + stats.organizers + stats.users)) * 100).toFixed(1)}%</span>
+                    </div>
+                  </div>
+                  <div className="ring ring-organizer">
+                    <div className="ring-inner">
+                      <span className="ring-label">Organizers</span>
+                      <span className="ring-value">{((stats.organizers / (stats.admins + stats.organizers + stats.users)) * 100).toFixed(1)}%</span>
+                    </div>
+                  </div>
+                  <div className="ring ring-user">
+                    <div className="ring-inner">
+                      <span className="ring-label">Users</span>
+                      <span className="ring-value">{((stats.users / (stats.admins + stats.organizers + stats.users)) * 100).toFixed(1)}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="modern-analytics">
+              <div className="analytics-card total-users">
+                <div className="analytics-icon">
+                  <FontAwesomeIcon icon={faUsers} />
+                </div>
+                <div className="analytics-content">
+                  <div className="analytics-header">
+                    <h3>Total Users Distribution</h3>
+                    <div className="analytics-percentage">
+                      +{((stats.users / (stats.admins + stats.organizers + stats.users)) * 100).toFixed(1)}%
+                    </div>
+                  </div>
+                  <div className="analytics-metrics">
+                    <div className="metric">
+                      <div className="metric-bar admin-bar" style={{ width: `${(stats.admins / (stats.admins + stats.organizers + stats.users)) * 100}%` }}>
+                        <span className="metric-label">Admins</span>
+                        <span className="metric-value">{stats.admins}</span>
+                      </div>
+                    </div>
+                    <div className="metric">
+                      <div className="metric-bar organizer-bar" style={{ width: `${(stats.organizers / (stats.admins + stats.organizers + stats.users)) * 100}%` }}>
+                        <span className="metric-label">Organizers</span>
+                        <span className="metric-value">{stats.organizers}</span>
+                      </div>
+                    </div>
+                    <div className="metric">
+                      <div className="metric-bar user-bar" style={{ width: `${(stats.users / (stats.admins + stats.organizers + stats.users)) * 100}%` }}>
+                        <span className="metric-label">Users</span>
+                        <span className="metric-value">{stats.users}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+            </div>
+
+          </div>
+          <div className="users-section">
+            <div className="section-header">
+              <div className="filter-buttons">
+                <button
+                  className={`filter-btn ${activeFilter === 'all' ? 'active' : ''}`}
+                  onClick={() => handleFilterChange('all')}
+                >
+                  All Users
+                </button>
+                <button
+                  className={`filter-btn ${activeFilter === 'admin' ? 'active' : ''}`}
+                  onClick={() => handleFilterChange('admin')}
+                >
+                  Admins
+                </button>
+                <button
+                  className={`filter-btn ${activeFilter === 'organizer' ? 'active' : ''}`}
+                  onClick={() => handleFilterChange('organizer')}
+                >
+                  Organizers
+                </button>
+              </div>
+            </div>
+
+            {/* Add Search Bar Here */}
+            <div className="search-container">
+              <div className="search-wrapper">
+                <FontAwesomeIcon icon={faSearch} className="search-icon" />
+                <input
+                  type="text"
+                  className="search-input"
+                  placeholder="Search users by name, email, or role..."
+                  value={searchTerm}
+                  onChange={handleSearch}
+                />
+              </div>
+            </div>
+
+            <div className="users-grid">
+              {displayedUsers.map((user) => (
+                <div key={user._id} className="user-card">
+                  <div className="user-info">
+                    <h3>{user.name}</h3>
+                    <p className="role">Role: {user.role}</p>
+                    <p className="email">Email: {user.email}</p>
+                    <p className="mobile">Mobile: {user.mobileNumber}</p>
+                  </div>
+                  <button
+                    className="delete-btn"
+                    onClick={() => handleDelete(user._id, user.name)}
+                    title="Delete user"
+                  >
+                    <FiTrash2 />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {getFilteredUsers().length > visibleUsers && (
+              <button className="show-more-btn" onClick={handleLoadMore}>
+                Show More
+              </button>
+            )}
+          </div>
+
+
         </main>
       </div>
 

@@ -45,6 +45,17 @@ exports.login = async (req, res) => {
           { expiresIn: "1h" }
         );
 
+        // Update login tracking
+        await User.findByIdAndUpdate(user._id, {
+          $set: { lastLogin: new Date() },
+          $push: {
+            loginHistory: {
+              timestamp: new Date(),
+              deviceInfo: req.headers['user-agent']
+            }
+          }
+        });
+
         return res.json({
           token,
           role: user.role,
@@ -666,36 +677,33 @@ exports.getSignupStats = async (req, res) => {
 exports.getLoginActivity = async (req, res) => {
   try {
     const { timeframe } = req.query;
-    let startDate;
-    const endDate = new Date();
+    let startDate = new Date();
 
+    // Set historical range based on timeframe
     switch (timeframe) {
-      case 'hourly':
-        startDate = new Date(endDate - 24 * 60 * 60 * 1000);
-        break;
       case 'daily':
-        startDate = new Date(endDate - 7 * 24 * 60 * 60 * 1000);
+        startDate.setDate(startDate.getDate() - 30);
         break;
       case 'weekly':
-        startDate = new Date(endDate - 30 * 24 * 60 * 60 * 1000);
+        startDate.setMonth(startDate.getMonth() - 6);
         break;
       case 'monthly':
-        startDate = new Date(endDate - 365 * 24 * 60 * 60 * 1000);
+        startDate.setFullYear(startDate.getFullYear() - 1);
         break;
       default:
-        startDate = new Date(endDate - 7 * 24 * 60 * 60 * 1000);
+        startDate.setDate(startDate.getDate() - 30);
     }
 
-    const userActivity = await User.aggregate([
+    const loginStats = await User.aggregate([
+      {
+        $unwind: "$loginHistory"
+      },
       {
         $match: {
-          lastLogin: {
-            $exists: true,
-            $ne: null,
+          "loginHistory.timestamp": {
             $gte: startDate,
-            $lte: endDate
-          },
-          role: { $in: ['user', 'organizer'] }
+            $lte: new Date()
+          }
         }
       },
       {
@@ -703,31 +711,36 @@ exports.getLoginActivity = async (req, res) => {
           _id: {
             date: {
               $dateToString: {
-                format: timeframe === 'hourly' ? '%Y-%m-%d-%H' : '%Y-%m-%d',
-                date: '$lastLogin'
+                format: "%Y-%m-%d",
+                date: "$loginHistory.timestamp"
               }
             },
-            role: '$role'
+            role: "$role"
           },
           count: { $sum: 1 }
         }
       },
-      { $sort: { '_id.date': 1 } }
+      {
+        $sort: { "_id.date": 1 }
+      }
     ]);
 
-    if (!userActivity.length) {
-      return res.json([{
-        _id: { date: new Date().toISOString().split('T')[0], role: 'user' },
-        count: 0
-      }]);
-    }
+    const formattedResponse = {
+      users: [],
+      organizers: []
+    };
 
-    res.json(userActivity);
-  } catch (error) {
-    console.error('Error fetching login activity:', error);
-    res.status(500).json({
-      message: 'Error fetching login activity',
-      error: error.message
+    loginStats.forEach(stat => {
+      const dataset = stat._id.role === 'organizer' ? 'organizers' : 'users';
+      formattedResponse[dataset].push({
+        date: stat._id.date,
+        count: stat.count
+      });
     });
+
+    res.json(formattedResponse);
+  } catch (error) {
+    console.error('Login activity error:', error);
+    res.status(500).json({ message: 'Error fetching login activity' });
   }
 };

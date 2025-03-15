@@ -16,7 +16,8 @@
   left: 0;
   right: 0;
   height: 80px;
-  background: rgba(255, 255, 255, 0.95);
+  background: linear-gradient(135deg, #e0e3fa 0%, #efecfe 50%);
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(20px);
   box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
   display: flex;
@@ -116,7 +117,8 @@
 /* Sidebar Styles */
 .admin-dashboard__sidebar {
   width: 280px;
-  background: rgba(255, 255, 255, 0.9);
+  background: linear-gradient(135deg, #e0e3fa 0%, #efecfe 50%);
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(10px);
   padding: 2rem 1.5rem;
   border-right: 1px solid rgba(0, 0, 0, 0.05);
@@ -1377,11 +1379,13 @@
   }
 
   .admin-dashboard__sidebar {
-    background: rgb(255 255 255);
+    background: linear-gradient(135deg, #e0e3fa 0%, #efecfe 50%);
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
   }
 
   .admin-dashboard__sidebar--visible::before {
-    background: rgb(255 255 255);
+    background: linear-gradient(135deg, #e0e3fa 0%, #efecfe 50%);
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
   }
 }
 
@@ -1884,7 +1888,6 @@ body {
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  padding: 1rem;
 }
 
 .analytics-card {
@@ -1976,50 +1979,65 @@ body {
   gap: 1.5rem;
 }
 
-/* Composition Rings */
 .composition-rings {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  margin: 2rem auto;
   display: flex;
-  justify-content: space-around;
   align-items: center;
-  margin-top: 1.5rem;
+  justify-content: center;
 }
 
 .ring {
+  position: absolute;
   width: 120px;
   height: 120px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  animation: ringPulse 2s infinite;
-}
-
-.ring-inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
+  transition: transform 0.3s ease;
 }
 
 .ring-admin {
   background: linear-gradient(135deg, rgba(133, 97, 225, 0.1), rgba(164, 141, 233, 0.1));
   border: 2px solid #8561e1;
+  transform: translate(-50%, -25%);
+  z-index: 3;
 }
 
 .ring-organizer {
   background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(100, 181, 246, 0.1));
   border: 2px solid #2196f3;
+  transform: translate(50%, -25%);
+  z-index: 2;
 }
 
 .ring-user {
   background: linear-gradient(135deg, rgba(38, 166, 154, 0.1), rgba(77, 182, 172, 0.1));
   border: 2px solid #26a69a;
+  transform: translateY(50%);
+  z-index: 1;
+}
+
+.ring-inner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  border-radius: 50%;
 }
 
 .ring-label {
   font-size: 0.8rem;
   color: #666;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .ring-value {
@@ -2028,6 +2046,58 @@ body {
   color: #333;
 }
 
+/* Responsive styles */
+@media (max-width: 768px) {
+  .composition-rings {
+    width: 250px;
+    height: 250px;
+  }
+
+  .ring {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .composition-rings {
+    width: 200px;
+    height: 200px;
+  }
+
+  .ring {
+    width: 80px;
+    height: 80px;
+  }
+
+  .ring-label {
+    font-size: 0.7rem;
+  }
+
+  .ring-value {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 320px) {
+  .composition-rings {
+    width: 180px;
+    height: 180px;
+  }
+
+  .ring {
+    width: 70px;
+    height: 70px;
+  }
+
+  .ring-label {
+    font-size: 0.65rem;
+  }
+
+  .ring-value {
+    font-size: 0.9rem;
+  }
+}
 /* Trend Card */
 .trend-metrics {
   display: flex;
@@ -2282,5 +2352,189 @@ body {
 
   .activity-chart {
     height: 250px;
+  }
+}
+
+/* Analytics Grid Layout */
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  padding: 1.5rem;
+  margin: 1rem 0;
+}
+
+/* Common Card Styles */
+.analytics-card {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* User Composition Section */
+.growth-card {
+  min-height: 400px;
+}
+
+.composition-rings {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  margin: 1rem auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ring {
+  position: absolute;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ring-admin {
+  transform: translate(-50%, -25%);
+  z-index: 3;
+}
+
+.ring-organizer {
+  transform: translate(50%, -25%);
+  z-index: 2;
+}
+
+.ring-user {
+  transform: translateY(50%);
+  z-index: 1;
+}
+
+/* User Distribution Section */
+.total-users {
+  min-height: 400px;
+}
+
+.analytics-metrics {
+  margin-top: 2rem;
+}
+
+.metric {
+  height: 40px;
+  background: #f8f9fa;
+  border-radius: 20px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.metric-bar {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  color: white;
+  font-weight: 500;
+  min-width: 100px;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 1200px) {
+  .analytics-grid {
+    gap: 1.5rem;
+    padding: 1rem;
+  }
+  
+  .ring {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+@media (max-width: 992px) {
+  .analytics-grid {
+    grid-template-columns: 1fr;
+    max-width: 700px;
+    margin: 1rem auto;
+  }
+
+  .growth-card,
+  .total-users {
+    min-height: 350px;
+  }
+  
+  .composition-rings {
+    height: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .analytics-grid {
+    padding: 1rem 0.5rem;
+  }
+
+  .analytics-card {
+    padding: 1.5rem;
+  }
+  
+  .ring {
+    width: 90px;
+    height: 90px;
+  }
+
+  .composition-rings {
+    height: 220px;
+  }
+}
+
+@media (max-width: 480px) {
+  .analytics-grid {
+    gap: 1rem;
+  }
+
+  .ring {
+    width: 80px;
+    height: 80px;
+  }
+
+  .ring-label {
+    font-size: 0.7rem;
+  }
+
+  .ring-value {
+    font-size: 0.9rem;
+  }
+
+  .metric-bar {
+    padding: 0 0.5rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .analytics-card {
+    padding: 1rem;
+  }
+
+  .ring {
+    width: 70px;
+    height: 70px;
+  }
+
+  .composition-rings {
+    height: 200px;
+  }
+
+  .ring-label {
+    font-size: 0.65rem;
+  }
+
+  .ring-value {
+    font-size: 0.8rem;
   }
 }
