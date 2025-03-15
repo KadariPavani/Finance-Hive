@@ -662,3 +662,72 @@ exports.getSignupStats = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+exports.getLoginActivity = async (req, res) => {
+  try {
+    const { timeframe } = req.query;
+    let startDate;
+    const endDate = new Date();
+
+    switch (timeframe) {
+      case 'hourly':
+        startDate = new Date(endDate - 24 * 60 * 60 * 1000);
+        break;
+      case 'daily':
+        startDate = new Date(endDate - 7 * 24 * 60 * 60 * 1000);
+        break;
+      case 'weekly':
+        startDate = new Date(endDate - 30 * 24 * 60 * 60 * 1000);
+        break;
+      case 'monthly':
+        startDate = new Date(endDate - 365 * 24 * 60 * 60 * 1000);
+        break;
+      default:
+        startDate = new Date(endDate - 7 * 24 * 60 * 60 * 1000);
+    }
+
+    const userActivity = await User.aggregate([
+      {
+        $match: {
+          lastLogin: {
+            $exists: true,
+            $ne: null,
+            $gte: startDate,
+            $lte: endDate
+          },
+          role: { $in: ['user', 'organizer'] }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            date: {
+              $dateToString: {
+                format: timeframe === 'hourly' ? '%Y-%m-%d-%H' : '%Y-%m-%d',
+                date: '$lastLogin'
+              }
+            },
+            role: '$role'
+          },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { '_id.date': 1 } }
+    ]);
+
+    if (!userActivity.length) {
+      return res.json([{
+        _id: { date: new Date().toISOString().split('T')[0], role: 'user' },
+        count: 0
+      }]);
+    }
+
+    res.json(userActivity);
+  } catch (error) {
+    console.error('Error fetching login activity:', error);
+    res.status(500).json({
+      message: 'Error fetching login activity',
+      error: error.message
+    });
+  }
+};

@@ -1,8 +1,8 @@
 const express = require('express');
-const { 
-  login, 
-  seedAdminUser, 
-  protect, 
+const {
+  login,
+  seedAdminUser,
+  protect,
   restrictTo,
   addUser,
   getAllUsers,
@@ -16,6 +16,7 @@ const {
   getUserStats,
   getProfileDetails,
   getSignupStats,
+  getLoginActivity,
   updateProfile // Add this line
 
 } = require('../controllers/authController');
@@ -39,5 +40,6 @@ router.get('/users/stats', protect, restrictTo('admin'), getUserStats);
 router.get('/profile', protect, getProfileDetails);
 router.put('/profile', protect, updateProfile); // Add this line
 router.get('/signup-stats', getSignupStats);
+router.get('/users/login-activity', protect, restrictTo('admin'), getLoginActivity);
 
 module.exports = router;
