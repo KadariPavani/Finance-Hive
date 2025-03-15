@@ -627,3 +627,222 @@ h1 {
   opacity: 0.7;
   cursor: not-allowed;
 }
+
+/* Progress Bar Styles */
+.progress-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 3rem 0;
+  position: relative;
+  padding: 0 2rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.progress-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  height: 4px;
+  background: #E2E8F0;
+  z-index: 1;
+}
+
+.progress-line-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: linear-gradient(to right, #6366F1, #4F46E5);
+  transition: width 0.4s ease;
+  box-shadow: 0 2px 4px rgba(99, 102, 241, 0.2);
+}
+
+.progress-step {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.progress-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: white;
+  border: 3px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.progress-dot::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 24px;
+  height: 24px;
+  background: #F8FAFC;
+  border-radius: 50%;
+  z-index: 1;
+  transition: all 0.3s ease;
+}
+
+.progress-step.completed .progress-dot {
+  background: #4F46E5;
+  border-color: #4F46E5;
+  transform: scale(1.1);
+}
+
+.progress-step.completed .progress-dot::before {
+  background: #4F46E5;
+}
+
+.progress-step.completed .progress-dot::after {
+  content: '✓';
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  position: relative;
+  z-index: 2;
+}
+
+.progress-step.active .progress-dot {
+  border-color: #4F46E5;
+  transform: scale(1.1);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+}
+
+.progress-label {
+  font-size: 0.875rem;
+  color: #64748B;
+  font-weight: 500;
+  white-space: nowrap;
+  position: absolute;
+  bottom: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  transition: all 0.3s ease;
+}
+
+.progress-step.completed .progress-label,
+.progress-step.active .progress-label {
+  color: #4F46E5;
+}
+
+@media (max-width: 640px) {
+  .progress-container {
+    padding: 0 1rem;
+    margin: 2rem 0;
+  }
+
+  .progress-dot {
+    width: 28px;
+    height: 28px;
+  }
+
+  .progress-dot::before {
+    width: 18px;
+    height: 18px;
+  }
+
+  .progress-label {
+    font-size: 0.75rem;
+    bottom: -20px;
+  }
+
+  .progress-step.completed .progress-dot::after {
+    font-size: 0.875rem;
+  }
+}
+
+/* Mobile Number Input Styles */
+.mobile-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.mobile-prefix {
+  position: absolute;
+  left: 2.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #4B5563;
+  font-weight: 500;
+  font-size: 0.9rem;
+  padding-right: 8px;
+  border-right: 2px solid #E5E7EB;
+  z-index: 3;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  background: transparent;
+}
+
+.mobile-input {
+  padding-left: 5rem !important;
+}
+
+.form-input:focus ~ .mobile-prefix {
+  color: #4F46E5;
+  border-right-color: #4F46E5;
+}
+
+/* Enhanced Input Styles */
+.input-container {
+  margin-bottom: 1.5rem;
+  position: relative;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.input-container.animate-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.875rem 0.875rem 0.875rem 2.75rem;
+  border: 2px solid #E2E8F0;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  color: #1E293B;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.form-input:focus {
+  border-color: #6366F1;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+/* Add animation for elements */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.input-container {
+  animation: fadeInUp 0.5s ease forwards;
+  animation-delay: calc(var(--index) * 0.1s);
+}
