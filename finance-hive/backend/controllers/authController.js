@@ -45,6 +45,17 @@ exports.login = async (req, res) => {
           { expiresIn: "1h" }
         );
 
+        // Update login tracking
+        await User.findByIdAndUpdate(user._id, {
+          $set: { lastLogin: new Date() },
+          $push: {
+            loginHistory: {
+              timestamp: new Date(),
+              deviceInfo: req.headers['user-agent']
+            }
+          }
+        });
+
         return res.json({
           token,
           role: user.role,
@@ -660,5 +671,76 @@ exports.getSignupStats = async (req, res) => {
   } catch (error) {
     console.error('Error fetching signup stats:', error);
     res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.getLoginActivity = async (req, res) => {
+  try {
+    const { timeframe } = req.query;
+    let startDate = new Date();
+
+    // Set historical range based on timeframe
+    switch (timeframe) {
+      case 'daily':
+        startDate.setDate(startDate.getDate() - 30);
+        break;
+      case 'weekly':
+        startDate.setMonth(startDate.getMonth() - 6);
+        break;
+      case 'monthly':
+        startDate.setFullYear(startDate.getFullYear() - 1);
+        break;
+      default:
+        startDate.setDate(startDate.getDate() - 30);
+    }
+
+    const loginStats = await User.aggregate([
+      {
+        $unwind: "$loginHistory"
+      },
+      {
+        $match: {
+          "loginHistory.timestamp": {
+            $gte: startDate,
+            $lte: new Date()
+          }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            date: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: "$loginHistory.timestamp"
+              }
+            },
+            role: "$role"
+          },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { "_id.date": 1 }
+      }
+    ]);
+
+    const formattedResponse = {
+      users: [],
+      organizers: []
+    };
+
+    loginStats.forEach(stat => {
+      const dataset = stat._id.role === 'organizer' ? 'organizers' : 'users';
+      formattedResponse[dataset].push({
+        date: stat._id.date,
+        count: stat.count
+      });
+    });
+
+    res.json(formattedResponse);
+  } catch (error) {
+    console.error('Login activity error:', error);
+    res.status(500).json({ message: 'Error fetching login activity' });
   }
 };

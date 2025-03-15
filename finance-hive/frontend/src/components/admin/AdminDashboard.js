@@ -14,6 +14,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSignOutAlt, faPlus, faUserPlus, faUserShield, faUsers, faUser, faChartPie, faSearch, faBars, faTimes, faUserTie, faUsersGear } from '@fortawesome/free-solid-svg-icons'; // Import specific icons
 import { FaUserPlus, FaUsersCog } from 'react-icons/fa';
 import { Dropdown } from 'react-bootstrap';
+import { Line } from 'react-chartjs-2';
+import { format, parseISO } from 'date-fns';
+import { FiLoader } from 'react-icons/fi';
 // Register ChartJS components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 const AdminDashboard = () => {
@@ -33,6 +36,9 @@ const AdminDashboard = () => {
     role: ''
   });
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
+  const [loginActivity, setLoginActivity] = useState([]);
+  const [timeframe, setTimeframe] = useState('daily');
+  const [isLoadingActivity, setIsLoadingActivity] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -40,6 +46,10 @@ const AdminDashboard = () => {
     // fetchGrowth();
     fetchAdminProfile();
   }, []);
+
+  useEffect(() => {
+    fetchLoginActivity(timeframe);
+  }, [timeframe]);
 
   const fetchUsers = async () => {
     try {
@@ -101,6 +111,31 @@ const AdminDashboard = () => {
       setAdminProfile(response.data);
     } catch (error) {
       console.error('Error fetching admin profile:', error);
+    }
+  };
+
+  const fetchLoginActivity = async (selectedTimeframe) => {
+    setIsLoadingActivity(true);
+    try {
+      const token = localStorage.getItem('token');
+      // Update the URL to use the users endpoint instead
+      const response = await axios.get(`http://localhost:5000/api/users/login-activity?timeframe=${selectedTimeframe}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (response.data) {
+        setLoginActivity(response.data);
+      } else {
+        console.error('No data received from login activity endpoint');
+        setLoginActivity([]);
+      }
+    } catch (error) {
+      console.error('Error fetching login activity:', error);
+      setLoginActivity([]);
+    } finally {
+      setIsLoadingActivity(false);
     }
   };
 
@@ -354,6 +389,41 @@ const AdminDashboard = () => {
     }
   };
 
+  const prepareActivityData = () => {
+    if (!loginActivity.users || !loginActivity.organizers) return defaultChartData;
+  
+    const allDates = [...new Set([
+      ...loginActivity.users.map(item => item.date),
+      ...loginActivity.organizers.map(item => item.date)
+    ])].sort();
+  
+    return {
+      labels: allDates,
+      datasets: [
+        {
+          label: 'Users',
+          data: allDates.map(date => {
+            const entry = loginActivity.users.find(item => item.date === date);
+            return entry ? entry.count : 0;
+          }),
+          borderColor: '#4CAF50',
+          backgroundColor: 'rgba(76, 175, 80, 0.1)',
+          tension: 0.4
+        },
+        {
+          label: 'Organizers',
+          data: allDates.map(date => {
+            const entry = loginActivity.organizers.find(item => item.date === date);
+            return entry ? entry.count : 0;
+          }),
+          borderColor: '#2196F3',
+          backgroundColor: 'rgba(33, 150, 243, 0.1)',
+          tension: 0.4
+        }
+      ]
+    };
+  };
+
   const getInitial = (name) => {
     return name ? name.charAt(0).toUpperCase() : 'A';
   };
@@ -464,7 +534,7 @@ const AdminDashboard = () => {
           </div> */}
 
           {/* Stats Cards Section */}
-          <div className="stats-overview">
+          {/* <div className="stats-overview">
             <div className="stat-card primary">
               <div className="stat-icon admin-icon">
                 <FontAwesomeIcon icon={faUserTie} />
@@ -494,75 +564,10 @@ const AdminDashboard = () => {
                 <p className="stat-number">{stats.users}</p>
               </div>
             </div>
-          </div>
-          <div className="analytics-grid">
-              <div className="analytics-card growth-card">
-                <div className="analytics-icon growth-icon">
-                  <FontAwesomeIcon icon={faChartPie} />
-                </div>
-                <div className="analytics-content">
-                  <h3>User Composition</h3>
-                  <div className="composition-rings">
-                    <div className="ring ring-admin">
-                      <div className="ring-inner">
-                        <span className="ring-label">Admins</span>
-                        <span className="ring-value">{((stats.admins / (stats.admins + stats.organizers + stats.users)) * 100).toFixed(1)}%</span>
-                      </div>
-                    </div>
-                    <div className="ring ring-organizer">
-                      <div className="ring-inner">
-                        <span className="ring-label">Organizers</span>
-                        <span className="ring-value">{((stats.organizers / (stats.admins + stats.organizers + stats.users)) * 100).toFixed(1)}%</span>
-                      </div>
-                    </div>
-                    <div className="ring ring-user">
-                      <div className="ring-inner">
-                        <span className="ring-label">Users</span>
-                        <span className="ring-value">{((stats.users / (stats.admins + stats.organizers + stats.users)) * 100).toFixed(1)}%</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-          <div className="modern-analytics">
-            <div className="analytics-card total-users">
-              <div className="analytics-icon">
-                <FontAwesomeIcon icon={faUsers} />
-              </div>
-              <div className="analytics-content">
-                <div className="analytics-header">
-                  <h3>Total Users Distribution</h3>
-                  <div className="analytics-percentage">
-                    +{((stats.users / (stats.admins + stats.organizers + stats.users)) * 100).toFixed(1)}%
-                  </div>
-                </div>
-                <div className="analytics-metrics">
-                  <div className="metric">
-                    <div className="metric-bar admin-bar" style={{ width: `${(stats.admins / (stats.admins + stats.organizers + stats.users)) * 100}%` }}>
-                      <span className="metric-label">Admins</span>
-                      <span className="metric-value">{stats.admins}</span>
-                    </div>
-                  </div>
-                  <div className="metric">
-                    <div className="metric-bar organizer-bar" style={{ width: `${(stats.organizers / (stats.admins + stats.organizers + stats.users)) * 100}%` }}>
-                      <span className="metric-label">Organizers</span>
-                      <span className="metric-value">{stats.organizers}</span>
-                    </div>
-                  </div>
-                  <div className="metric">
-                    <div className="metric-bar user-bar" style={{ width: `${(stats.users / (stats.admins + stats.organizers + stats.users)) * 100}%` }}>
-                      <span className="metric-label">Users</span>
-                      <span className="metric-value">{stats.users}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          </div> */}
 
 
-          </div>
 
-            </div>
 
           {/* Analytics Charts Section */}
 
@@ -595,7 +600,181 @@ const AdminDashboard = () => {
                 </div>
               </div> */}
 
+              
+
           {/* Users Management Section */}
+          <div className="activity-chart-container">
+            <div className="activity-chart-header">
+              <h3>Login Activity</h3>
+              <div className="time-filter-buttons">
+                {/* <button
+                  className={`time-filter-btn ${timeframe === 'hourly' ? 'active' : ''}`}
+                  onClick={() => setTimeframe('hourly')}
+                >
+                  Hourly
+                </button> */}
+                <button
+                  className={`time-filter-btn ${timeframe === 'daily' ? 'active' : ''}`}
+                  onClick={() => setTimeframe('daily')}
+                >
+                  Daily
+                </button>
+                <button
+                  className={`time-filter-btn ${timeframe === 'weekly' ? 'active' : ''}`}
+                  onClick={() => setTimeframe('weekly')}
+                >
+                  Weekly
+                </button>
+                <button
+                  className={`time-filter-btn ${timeframe === 'monthly' ? 'active' : ''}`}
+                  onClick={() => setTimeframe('monthly')}
+                >
+                  Monthly
+                </button>
+              </div>
+            </div>
+            <div className="activity-chart">
+              {isLoadingActivity ? (
+                <div className="chart-loader">
+                  <FiLoader className="spinner" />
+                  <span>Loading activity data...</span>
+                </div>
+              ) : loginActivity.length === 0 ? (
+                <div className="no-data-message">
+                  <p>No login activity data available for this timeframe</p>
+                </div>
+              ) : (
+                <Line
+                  data={prepareActivityData()}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        position: 'top',
+                        labels: {
+                          usePointStyle: true,
+                          padding: 20,
+                          font: {
+                            size: 12,
+                            family: "'Poppins', sans-serif"
+                          }
+                        }
+                      },
+                      tooltip: {
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        titleColor: '#333',
+                        bodyColor: '#666',
+                        borderColor: 'rgba(0, 0, 0, 0.1)',
+                        borderWidth: 1,
+                        padding: 12,
+                        boxPadding: 6,
+                        usePointStyle: true,
+                        callbacks: {
+                          label: (context) => `${context.dataset.label}: ${context.raw} logins`
+                        }
+                      }
+                    },
+                    scales: {
+                      y: {
+                        beginAtZero: true,
+                        grid: {
+                          color: 'rgba(0, 0, 0, 0.05)',
+                          drawBorder: false
+                        },
+                        ticks: {
+                          font: {
+                            size: 12,
+                            family: "'Poppins', sans-serif"
+                          }
+                        }
+                      },
+                      x: {
+                        grid: {
+                          display: false
+                        },
+                        ticks: {
+                          font: {
+                            size: 12,
+                            family: "'Poppins', sans-serif"
+                          }
+                        }
+                      }
+                    }
+                  }}
+                />
+              )}
+            </div>
+          </div>
+
+          <div className="analytics-grid">
+            <div className="analytics-card growth-card">
+              <div className="analytics-icon growth-icon">
+                <FontAwesomeIcon icon={faChartPie} />
+              </div>
+              <div className="analytics-content">
+                <h3>User Composition</h3>
+                <div className="composition-rings">
+                  <div className="ring ring-admin">
+                    <div className="ring-inner">
+                      <span className="ring-label">Admins</span>
+                      <span className="ring-value">{((stats.admins / (stats.admins + stats.organizers + stats.users)) * 100).toFixed(1)}%</span>
+                    </div>
+                  </div>
+                  <div className="ring ring-organizer">
+                    <div className="ring-inner">
+                      <span className="ring-label">Organizers</span>
+                      <span className="ring-value">{((stats.organizers / (stats.admins + stats.organizers + stats.users)) * 100).toFixed(1)}%</span>
+                    </div>
+                  </div>
+                  <div className="ring ring-user">
+                    <div className="ring-inner">
+                      <span className="ring-label">Users</span>
+                      <span className="ring-value">{((stats.users / (stats.admins + stats.organizers + stats.users)) * 100).toFixed(1)}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="modern-analytics">
+              <div className="analytics-card total-users">
+                <div className="analytics-icon">
+                  <FontAwesomeIcon icon={faUsers} />
+                </div>
+                <div className="analytics-content">
+                  <div className="analytics-header">
+                    <h3>Total Users Distribution</h3>
+                    <div className="analytics-percentage">
+                      +{((stats.users / (stats.admins + stats.organizers + stats.users)) * 100).toFixed(1)}%
+                    </div>
+                  </div>
+                  <div className="analytics-metrics">
+                    <div className="metric">
+                      <div className="metric-bar admin-bar" style={{ width: `${(stats.admins / (stats.admins + stats.organizers + stats.users)) * 100}%` }}>
+                        <span className="metric-label">Admins</span>
+                        <span className="metric-value">{stats.admins}</span>
+                      </div>
+                    </div>
+                    <div className="metric">
+                      <div className="metric-bar organizer-bar" style={{ width: `${(stats.organizers / (stats.admins + stats.organizers + stats.users)) * 100}%` }}>
+                        <span className="metric-label">Organizers</span>
+                        <span className="metric-value">{stats.organizers}</span>
+                      </div>
+                    </div>
+                    <div className="metric">
+                      <div className="metric-bar user-bar" style={{ width: `${(stats.users / (stats.admins + stats.organizers + stats.users)) * 100}%` }}>
+                        <span className="metric-label">Users</span>
+                        <span className="metric-value">{stats.users}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+            </div>
+
+          </div>
           <div className="users-section">
             <div className="section-header">
               <div className="filter-buttons">
@@ -660,6 +839,8 @@ const AdminDashboard = () => {
               </button>
             )}
           </div>
+
+
         </main>
       </div>
 

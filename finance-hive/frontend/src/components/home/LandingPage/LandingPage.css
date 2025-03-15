@@ -1,33 +1,76 @@
-.landing-page {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  /* height: 40vh; */
+/* LandingPage.css */
+/* Professional finance theme */
+:root {
+  --light-background-color: #f8f9fa;
+  --light-primary-color: #4a4a4a;
+  --spacing-sm: 10px;
+  --spacing-md: 20px;
+  --spacing-lg: 30px;
+  --finance-blue: hsl(244deg 74.04% 31.58%);
+  --finance-blue-light: hsl(244deg 74.04% 45%);
+  --card-shadow: rgba(0, 0, 0, 0.05);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
   background-color: var(--light-background-color);
-  padding-top: 20px; /* Add padding to the top to account for the fixed navbar */
+  color: var(--light-primary-color);
+}
+
+.landing-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--light-background-color);
+    padding-top: 20px;
+    /* min-height: 40vh; */
+    width: 100%;
 }
 
 .card {
-  text-align: center;
+    text-align: center;
+    padding: var(--spacing-lg);
+    /* max-width: 800px; */
+    width: 100%;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgb(239 236 254);
+    /* border-bottom: 3px solid hsl(260.73deg 86.39% 62.55%); */
 }
-
 .card h3 {
-  font-size: 60px; /* Large font size for "Welcome" style */
+  font-size: 60px;
   font-family: "Dancing Script", cursive;
-  color: hsl(244deg 74.04% 31.58%);
+  color: var(--finance-blue);
   margin: 0;
   letter-spacing: 1px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, var(--finance-blue), var(--finance-blue-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .card p {
-  font-size: 18px; /* Slightly larger for secondary text */
-  font-family: "Georgia", serif; /* Classic serif font */
+  font-size: 18px;
+  font-family: "Georgia", serif;
   color: var(--light-primary-color);
   margin-top: var(--spacing-sm);
+  line-height: 1.6;
+  font-weight: 400;
 }
 
 .card p:first-of-type {
-  margin-top: var(--spacing-md); /* Add spacing for first paragraph */
+  margin-top: var(--spacing-md);
+}
+
+.card p:last-of-type {
+    color: hsl(244.03deg 15.14% 40.08%);
+    font-weight: 500;
 }
 
 /* Responsive adjustments */
@@ -36,9 +79,11 @@
     height: auto;
     padding: var(--spacing-lg) var(--spacing-md);
   }
+
   .card h3 {
     font-size: 40px;
   }
+
   .card p {
     font-size: 16px;
   }
@@ -49,9 +94,11 @@
     height: auto;
     padding: var(--spacing-md) var(--spacing-sm);
   }
+
   .card h3 {
     font-size: 30px;
   }
+
   .card p {
     font-size: 14px;
   }
@@ -61,6 +108,7 @@
   .card h3 {
     font-size: 24px;
   }
+
   .card p {
     font-size: 12px;
   }
@@ -70,7 +118,8 @@
   .card h3 {
     font-size: 20px;
   }
+
   .card p {
     font-size: 10px;
   }
-}
+} 

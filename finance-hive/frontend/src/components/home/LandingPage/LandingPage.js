@@ -29,7 +29,7 @@ const LandingPage = () => {
     <div className="landing-page">
       <div className="card">
         <h3>Happy {greeting} {userName}!</h3>
-        <p>Welcome to the Finance Hive</p>
+        {/* <p>Welcome to the Finance Hive</p> */}
         <p>We are glad to have you on board, {userRole}!</p>
       </div>
     </div>

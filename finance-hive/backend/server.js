@@ -84,19 +84,20 @@ app.use("/api/tracking", trackingRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api", userPaymentsRoute);
 app.use("/api/organizer", organizerRoutes);
+
 // Start cron job
 autoUpdateOverdueStatus();
 
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).send("Something broke!");
+  res.status(500).json({ message: 'Something went wrong!' });
 });
 
 // 404 handler
 app.use((req, res) => {
   console.log(`404: ${req.method} ${req.path}`);
-  res.status(404).send("Route not found");
+  res.status(404).json({ message: 'Route not found' });
 });
 
 // Start the server
