@@ -36,6 +36,60 @@
       "tenure": "కాలపరిమితి:",
       "interest": "వడ్డీ రేటు:"
     },
+    "pages": {
+      "userDashboard": {
+        "title": "వినియోగదారు డాష్‌బోర్డ్",
+        "welcome": "తిరిగి స్వాగతం",
+        "loan_summary": "రుణ సారాంశం",
+        "payment_history": "చెల్లింపు చరిత్ర",
+        "upcoming_payments": "రాబోయే చెల్లింపులు",
+        "sidebar": {
+          "dashboard": "డాష్‌బోర్డ్",
+          "payments": "చెల్లింపులు",
+          "tracking": "ఆర్థిక ట్రాకింగ్",
+          "savings": "పొదుపు లక్ష్యాలు",
+          "profile": "ప్రొఫైల్",
+          "logout": "లాగ్అవుట్"
+        }
+      },
+      "tracking": {
+        "title": "ఆర్థిక ట్రాకింగ్",
+        "period_selector": {
+          "title": "కాలం ఎంచుకోండి",
+          "daily": "రోజువారీ",
+          "weekly": "వారపు",
+          "monthly": "నెలవారీ",
+          "yearly": "సంవత్సరపు"
+        },
+        "statistics": {
+          "title": "గణాంకాలు",
+          "total_income": "మొత్తం ఆదాయం",
+          "total_expenses": "మొత్తం ఖర్చులు",
+          "net_savings": "నికర పొదుపు",
+          "most_spent": "ఎక్కువ ఖర్చు చేసినది"
+        }
+      }
+    },
+    "tracking": {
+      "title": "ఆర్థిక ట్రాకింగ్",
+      "income": {
+        "title": "ఆదాయం",
+        "add": "ఆదాయం జోడించండి",
+        "form": {
+          "title": "ఆదాయ వివరాలు జోడించండి",
+          "amount": "మొత్తం",
+          "category": "వర్గం",
+          "date": "తేదీ",
+          "notes": "నోట్స్",
+          "categories": {
+            "salary": "జీతం",
+            "business": "వ్యాపారం",
+            "investment": "పెట్టుబడి",
+            "other": "ఇతర"
+          }
+        }
+      }
+    },
     "error_messages": {
       "required_field": "ఈ ఫీల్డ్ అవసరం",
       "invalid_email": "చెల్లని ఇమెయిల్ చిరునామా",

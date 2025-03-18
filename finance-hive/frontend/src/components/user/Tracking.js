@@ -5,9 +5,11 @@ import Navigation from '../Navigation/Navigation';
 import Sidebar from '../sidebar/Sidebar';
 import './Tracking.css';
 import { FaPlus, FaPiggyBank, FaWallet, FaEdit, FaTrash, FaSave } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 
 const Tracking = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [statistics, setStatistics] = useState(null);
   const [period, setPeriod] = useState('month');
   const [savingsGoals, setSavingsGoals] = useState([]);
@@ -124,12 +126,14 @@ const Tracking = () => {
       />
       <main className="dashboard-main">
         <div className="dashboard-header">
-          <h1>Financial Overview</h1>
+          <h1>{t('dashboard.pages.tracking.title')}</h1>
           <div className="period-selector">
+            <h2>{t('dashboard.pages.tracking.period_selector.title')}</h2>
             <select value={period} onChange={(e) => setPeriod(e.target.value)}>
-              <option value="week">Last Week</option>
-              <option value="month">Last Month</option>
-              <option value="year">Last Year</option>
+              <option value="daily">{t('dashboard.pages.tracking.period_selector.daily')}</option>
+              <option value="weekly">{t('dashboard.pages.tracking.period_selector.weekly')}</option>
+              <option value="monthly">{t('dashboard.pages.tracking.period_selector.monthly')}</option>
+              <option value="yearly">{t('dashboard.pages.tracking.period_selector.yearly')}</option>
             </select>
           </div>
         </div>
@@ -353,9 +357,9 @@ const Tracking = () => {
                 <h3>{goal.goalName}</h3>
                 <div className="goal-progress">
                   <div className="progress-bar">
-                    <div 
+                    <div
                       className="progress-fill"
-                      style={{ 
+                      style={{
                         width: `${(goal.currentAmount / goal.targetAmount) * 100}%`,
                         backgroundColor: goal.currentAmount >= goal.targetAmount ? '#4CAF50' : '#2196F3'
                       }}
@@ -370,8 +374,8 @@ const Tracking = () => {
                   <p>Current: ₹{goal.currentAmount.toLocaleString()}</p>
                   <p>Due: {new Date(goal.targetDate).toLocaleDateString()}</p>
                 </div>
-                <button 
-                  onClick={() => navigate(`/tracking/savings-form/${goal._id}`)} 
+                <button
+                  onClick={() => navigate(`/tracking/savings-form/${goal._id}`)}
                   className="edit-goal-button"
                 >
                   Edit Goal

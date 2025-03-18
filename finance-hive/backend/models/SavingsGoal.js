@@ -3,64 +3,56 @@ const mongoose = require('mongoose');
 const savingsGoalSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: 'User'
+    ref: 'User',
+    required: true
   },
   goalName: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
   targetAmount: {
     type: Number,
-    required: true
+    required: true,
+    min: 0
   },
   currentAmount: {
     type: Number,
     required: true,
-    default: 0
+    default: 0,
+    min: 0
   },
   targetDate: {
     type: Date,
     required: true
   },
-  description: String,
+  description: {
+    type: String,
+    trim: true
+  },
   category: {
     type: String,
     required: true,
     enum: ['Emergency Fund', 'Retirement', 'Education', 'Travel', 'Home', 'Vehicle', 'Wedding', 'Other']
   },
-  progress: {
-    type: Number,
-    default: 0
-  },
   status: {
     type: String,
-    enum: ['Not Started', 'In Progress', 'Completed'],
-    default: 'Not Started'
+    enum: ['In Progress', 'Completed'],
+    default: 'In Progress'
   },
-  priority: {
-    type: String,
-    enum: ['Low', 'Medium', 'High'],
-    default: 'Medium'
+  createdAt: {
+    type: Date,
+    default: Date.now
   },
-  contributions: [{
-    amount: Number,
-    date: {
-      type: Date,
-      default: Date.now
-    },
-    note: String
-  }],
-  lastUpdated: {
+  updatedAt: {
     type: Date,
     default: Date.now
   }
-}, { timestamps: true });
+});
 
-// Calculate progress before saving
-savingsGoalSchema.pre('save', function(next) {
-  this.progress = (this.currentAmount / this.targetAmount) * 100;
-  this.status = this.progress >= 100 ? 'Completed' : this.currentAmount > 0 ? 'In Progress' : 'Not Started';
+// Update the updatedAt field before saving
+savingsGoalSchema.pre('save', function (next) {
+  this.updatedAt = new Date();
   next();
 });
 

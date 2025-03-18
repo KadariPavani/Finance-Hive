@@ -36,6 +36,60 @@
       "tenure": "अवधि:",
       "interest": "ब्याज दर:"
     },
+    "pages": {
+      "userDashboard": {
+        "title": "उपयोगकर्ता डैशबोर्ड",
+        "welcome": "वापस स्वागत है",
+        "loan_summary": "ऋण सारांश",
+        "payment_history": "भुगतान इतिहास",
+        "upcoming_payments": "आगामी भुगतान",
+        "sidebar": {
+          "dashboard": "डैशबोर्ड",
+          "payments": "भुगतान",
+          "tracking": "वित्तीय ट्रैकिंग",
+          "savings": "बचत लक्ष्य",
+          "profile": "प्रोफ़ाइल",
+          "logout": "लॉग आउट"
+        }
+      },
+      "tracking": {
+        "title": "वित्तीय ट्रैकिंग",
+        "period_selector": {
+          "title": "अवधि चुनें",
+          "daily": "दैनिक",
+          "weekly": "साप्ताहिक",
+          "monthly": "मासिक",
+          "yearly": "वार्षिक"
+        },
+        "statistics": {
+          "title": "आंकड़े",
+          "total_income": "कुल आय",
+          "total_expenses": "कुल खर्च",
+          "net_savings": "शुद्ध बचत",
+          "most_spent": "सबसे ज्यादा खर्च"
+        }
+      }
+    },
+    "tracking": {
+      "title": "वित्तीय ट्रैकिंग",
+      "income": {
+        "title": "आय",
+        "add": "आय जोड़ें",
+        "form": {
+          "title": "आय विवरण जोड़ें",
+          "amount": "राशि",
+          "category": "श्रेणी",
+          "date": "दिनांक",
+          "notes": "नोट्स",
+          "categories": {
+            "salary": "वेतन",
+            "business": "व्यवसाय",
+            "investment": "निवेश",
+            "other": "अन्य"
+          }
+        }
+      }
+    },
     "error_messages": {
       "required_field": "यह फ़ील्ड आवश्यक है",
       "invalid_email": "अमान्य ईमेल पता",

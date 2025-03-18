@@ -602,6 +602,76 @@ const AdminDashboard = () => {
 
 
 
+
+
+          <div className="analytics-grid">
+            <div className="analytics-card growth-card">
+              <div className="analytics-icon growth-icon">
+                <FontAwesomeIcon icon={faChartPie} />
+              </div>
+              <div className="analytics-content">
+                <h3>User Composition</h3>
+                <div className="composition-rings">
+                  <div className="ring ring-admin">
+                    <div className="ring-inner">
+                      <span className="ring-label">Admins</span>
+                      <span className="ring-value">{((stats.admins / (stats.admins + stats.organizers + stats.users)) * 100).toFixed(1)}%</span>
+                    </div>
+                  </div>
+                  <div className="ring ring-organizer">
+                    <div className="ring-inner">
+                      <span className="ring-label">Organizers</span>
+                      <span className="ring-value">{((stats.organizers / (stats.admins + stats.organizers + stats.users)) * 100).toFixed(1)}%</span>
+                    </div>
+                  </div>
+                  <div className="ring ring-user">
+                    <div className="ring-inner">
+                      <span className="ring-label">Users</span>
+                      <span className="ring-value">{((stats.users / (stats.admins + stats.organizers + stats.users)) * 100).toFixed(1)}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="modern-analytics">
+              <div className="analytics-card total-users">
+                <div className="analytics-icon">
+                  <FontAwesomeIcon icon={faUsers} />
+                </div>
+                <div className="analytics-content">
+                  <div className="analytics-header">
+                    <h3>Total Users Distribution</h3>
+                    <div className="analytics-percentage">
+                      +{((stats.users / (stats.admins + stats.organizers + stats.users)) * 100).toFixed(1)}%
+                    </div>
+                  </div>
+                  <div className="analytics-metrics">
+                    <div className="metric">
+                      <div className="metric-bar admin-bar" style={{ width: `${(stats.admins / (stats.admins + stats.organizers + stats.users)) * 100}%` }}>
+                        <span className="metric-label">Admins</span>
+                        <span className="metric-value">{stats.admins}</span>
+                      </div>
+                    </div>
+                    <div className="metric">
+                      <div className="metric-bar organizer-bar" style={{ width: `${(stats.organizers / (stats.admins + stats.organizers + stats.users)) * 100}%` }}>
+                        <span className="metric-label">Organizers</span>
+                        <span className="metric-value">{stats.organizers}</span>
+                      </div>
+                    </div>
+                    <div className="metric">
+                      <div className="metric-bar user-bar" style={{ width: `${(stats.users / (stats.admins + stats.organizers + stats.users)) * 100}%` }}>
+                        <span className="metric-label">Users</span>
+                        <span className="metric-value">{stats.users}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+            </div>
+
+          </div>
           {/* Users Management Section */}
           <div className="activity-chart-container">
             <div className="activity-chart-header">
@@ -729,75 +799,6 @@ const AdminDashboard = () => {
                 />
               )}
             </div>
-          </div>
-
-          <div className="analytics-grid">
-            <div className="analytics-card growth-card">
-              <div className="analytics-icon growth-icon">
-                <FontAwesomeIcon icon={faChartPie} />
-              </div>
-              <div className="analytics-content">
-                <h3>User Composition</h3>
-                <div className="composition-rings">
-                  <div className="ring ring-admin">
-                    <div className="ring-inner">
-                      <span className="ring-label">Admins</span>
-                      <span className="ring-value">{((stats.admins / (stats.admins + stats.organizers + stats.users)) * 100).toFixed(1)}%</span>
-                    </div>
-                  </div>
-                  <div className="ring ring-organizer">
-                    <div className="ring-inner">
-                      <span className="ring-label">Organizers</span>
-                      <span className="ring-value">{((stats.organizers / (stats.admins + stats.organizers + stats.users)) * 100).toFixed(1)}%</span>
-                    </div>
-                  </div>
-                  <div className="ring ring-user">
-                    <div className="ring-inner">
-                      <span className="ring-label">Users</span>
-                      <span className="ring-value">{((stats.users / (stats.admins + stats.organizers + stats.users)) * 100).toFixed(1)}%</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="modern-analytics">
-              <div className="analytics-card total-users">
-                <div className="analytics-icon">
-                  <FontAwesomeIcon icon={faUsers} />
-                </div>
-                <div className="analytics-content">
-                  <div className="analytics-header">
-                    <h3>Total Users Distribution</h3>
-                    <div className="analytics-percentage">
-                      +{((stats.users / (stats.admins + stats.organizers + stats.users)) * 100).toFixed(1)}%
-                    </div>
-                  </div>
-                  <div className="analytics-metrics">
-                    <div className="metric">
-                      <div className="metric-bar admin-bar" style={{ width: `${(stats.admins / (stats.admins + stats.organizers + stats.users)) * 100}%` }}>
-                        <span className="metric-label">Admins</span>
-                        <span className="metric-value">{stats.admins}</span>
-                      </div>
-                    </div>
-                    <div className="metric">
-                      <div className="metric-bar organizer-bar" style={{ width: `${(stats.organizers / (stats.admins + stats.organizers + stats.users)) * 100}%` }}>
-                        <span className="metric-label">Organizers</span>
-                        <span className="metric-value">{stats.organizers}</span>
-                      </div>
-                    </div>
-                    <div className="metric">
-                      <div className="metric-bar user-bar" style={{ width: `${(stats.users / (stats.admins + stats.organizers + stats.users)) * 100}%` }}>
-                        <span className="metric-label">Users</span>
-                        <span className="metric-value">{stats.users}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-
-            </div>
-
           </div>
           <div className="users-section">
             <div className="section-header">

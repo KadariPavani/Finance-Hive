@@ -63,7 +63,7 @@ router.get('/statistics', auth, async (req, res) => {
     // Calculate trend data
     const trend = [];
     const dateFormat = { month: 'short', day: 'numeric' };
-    
+
     // Group transactions by date
     const groupedByDate = transactions.reduce((acc, t) => {
       const date = new Date(t.date).toLocaleDateString('en-US', dateFormat);
@@ -157,22 +157,46 @@ router.get('/savings/:id', auth, async (req, res) => {
   }
 });
 
-// Create savings goal
+// Update the create savings goal route
 router.post('/savings', auth, async (req, res) => {
   try {
-    const { goalName, targetAmount, currentAmount, targetDate, description } = req.body;
-    const savingsGoal = new SavingsGoal({
-      userId: req.user.id,
+    const {
       goalName,
       targetAmount,
       currentAmount,
       targetDate,
       description,
+      category
+    } = req.body;
+
+    // Validate the input
+    if (!goalName || !targetAmount || currentAmount === undefined || !targetDate || !category) {
+      return res.status(400).json({ message: 'All required fields must be provided' });
+    }
+
+    // Create new savings goal
+    const savingsGoal = new SavingsGoal({
+      userId: req.user.id,
+      goalName,
+      targetAmount: Number(targetAmount),
+      currentAmount: Number(currentAmount),
+      targetDate: new Date(targetDate),
+      description,
+      category,
+      status: currentAmount >= targetAmount ? 'Completed' : 'In Progress'
     });
-    await savingsGoal.save();
-    res.json(savingsGoal);
+
+    // Save to database
+    const savedGoal = await savingsGoal.save();
+
+    // Return the saved goal
+    res.status(201).json(savedGoal);
   } catch (error) {
-    res.status(500).send('Server Error');
+    console.error('Error creating savings goal:', error);
+    res.status(500).json({
+      message: 'Failed to create savings goal',
+      error: error.message
+    });
   }
 });
 

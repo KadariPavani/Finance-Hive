@@ -10,7 +10,7 @@ import { Chart as ChartJS } from 'chart.js/auto';
 import { Bar, Doughnut, Line, PolarArea, Radar } from 'react-chartjs-2';
 import 'chartjs-adapter-moment';
 import moment from 'moment';
-
+import { Link } from 'react-router-dom';
 
 const UserDashboard = () => {
     const { t, i18n } = useTranslation();
@@ -41,7 +41,7 @@ const UserDashboard = () => {
             if (window.innerWidth > 768) {
                 setIsSidebarOpen(false);
             }
-        };  
+        };
 
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
@@ -503,7 +503,7 @@ const UserDashboard = () => {
                                 </div>
                             </div>
 
- 
+
                         </div>
                     )}
 
@@ -682,42 +682,42 @@ const UserDashboard = () => {
                             </div> */}
                         </div>
                     </div>
-                                               {/* Payment Schedule Table */}
-                                               {userDetails.paymentSchedule && (
-                                <div className="user-payment-schedule" id="payments-table">
-                                    <h3>{t('dashboard.payment_schedule')}</h3>
-                                    <div className="user-table-wrapper">
-                                        <table className="user-payment-table">
-                                            <thead>
-                                                <tr>
-                                                    <th>{t('dashboard.sno')}</th>
-                                                    <th>{t('dashboard.payment_date')}</th>
-                                                    <th>{t('dashboard.paid_date')}</th>
-                                                    <th>{t('dashboard.emi_amount')}</th>
-                                                    <th>{t('dashboard.principal')}</th>
-                                                    <th>{t('dashboard.interest')}</th>
-                                                    <th>{t('dashboard.balance')}</th>
-                                                    <th>{t('dashboard.status')}</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {userDetails.paymentSchedule.map((payment) => (
-                                                    <tr key={payment.serialNo}>
-                                                        <td>{payment.serialNo}</td>
-                                                        <td>{formatDate(payment.paymentDate)}</td>
-                                                        <td>{payment.paidDate ? formatDate(payment.paidDate) : '-'}</td>
-                                                        <td>{formatCurrency(payment.emiAmount)}</td>
-                                                        <td>{formatCurrency(payment.principal)}</td>
-                                                        <td>{formatCurrency(payment.interest)}</td>
-                                                        <td>{formatCurrency(payment.balance)}</td>
-                                                        <td>{payment.status}</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            )}
+                    {/* Payment Schedule Table */}
+                    {userDetails.paymentSchedule && (
+                        <div className="user-payment-schedule" id="payments-table">
+                            <h3>{t('dashboard.payment_schedule')}</h3>
+                            <div className="user-table-wrapper">
+                                <table className="user-payment-table">
+                                    <thead>
+                                        <tr>
+                                            <th>{t('dashboard.sno')}</th>
+                                            <th>{t('dashboard.payment_date')}</th>
+                                            <th>{t('dashboard.paid_date')}</th>
+                                            <th>{t('dashboard.emi_amount')}</th>
+                                            <th>{t('dashboard.principal')}</th>
+                                            <th>{t('dashboard.interest')}</th>
+                                            <th>{t('dashboard.balance')}</th>
+                                            <th>{t('dashboard.status')}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {userDetails.paymentSchedule.map((payment) => (
+                                            <tr key={payment.serialNo}>
+                                                <td>{payment.serialNo}</td>
+                                                <td>{formatDate(payment.paymentDate)}</td>
+                                                <td>{payment.paidDate ? formatDate(payment.paidDate) : '-'}</td>
+                                                <td>{formatCurrency(payment.emiAmount)}</td>
+                                                <td>{formatCurrency(payment.principal)}</td>
+                                                <td>{formatCurrency(payment.interest)}</td>
+                                                <td>{formatCurrency(payment.balance)}</td>
+                                                <td>{payment.status}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </main>
         </div>
