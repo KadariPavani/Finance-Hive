@@ -16,10 +16,10 @@ const notificationRoutes = require("./routes/notifications");
 const trackingRoutes = require("./routes/tracking");
 const userPaymentsRoute = require("./routes/userPayments");
 const organizerRoutes = require("./routes/organizerRoutes");
+const Visitor = require('./models/Visitor');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const FILE_PATH = "visitorCount.json";
 
 // Middleware
 app.use(cors({
@@ -46,33 +46,55 @@ mongoose.connect(process.env.MONGO_URI, {
   console.error("MongoDB connection error:", err);
 });
 
-// Read visitor count
-const readVisitorCount = () => {
+// Replace with MongoDB functions
+const getVisitorCount = async () => {
   try {
-    const data = fs.readFileSync(FILE_PATH, "utf8");
-    return JSON.parse(data).count || 0;
+    let visitor = await Visitor.findOne();
+    if (!visitor) {
+      visitor = await Visitor.create({ count: 0 });
+    }
+    return visitor.count;
   } catch (error) {
+    console.error('Error getting visitor count:', error);
     return 0;
   }
 };
 
-// Write visitor count
-const writeVisitorCount = (count) => {
-  fs.writeFileSync(FILE_PATH, JSON.stringify({ count }), "utf8");
+const incrementVisitorCount = async () => {
+  try {
+    let visitor = await Visitor.findOne();
+    if (!visitor) {
+      visitor = new Visitor({ count: 1 });
+    } else {
+      visitor.count += 1;
+      visitor.lastUpdated = new Date();
+    }
+    await visitor.save();
+    return visitor.count;
+  } catch (error) {
+    console.error('Error incrementing visitor count:', error);
+    throw error;
+  }
 };
 
 // API to get visitor count
-app.get("/api/visitor-count", (req, res) => {
-  const count = readVisitorCount();
-  res.json({ count });
+app.get("/api/visitor-count", async (req, res) => {
+  try {
+    const count = await getVisitorCount();
+    res.json({ count });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching visitor count' });
+  }
 });
 
 // API to increment visitor count
-app.post("/api/increment-visitor", (req, res) => {
-  let count = readVisitorCount();
-  count += 1;
-  writeVisitorCount(count);
-  res.json({ count });
+app.post("/api/increment-visitor", async (req, res) => {
+  try {
+    const count = await incrementVisitorCount();
+    res.json({ count });
+  } catch (error) {
+    res.status(500).json({ message: 'Error incrementing visitor count' });
+  }
 });
 
 // Use routes

@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import "./AnimatedCounter.css";
 
-const API_URL = "http://localhost:5000/api"; // Replace with deployed API URL when hosted
+const API_URL = "http://localhost:5000/api";
 
 const AnimatedCounter = () => {
-  const [currentDigits, setCurrentDigits] = useState([]);
+  const [currentDigits, setCurrentDigits] = useState(['0', '0', '0', '0']);
+  const [error, setError] = useState(null);
   const counterRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
-  const [visitorCount, setVisitorCount] = useState(0);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -29,15 +29,32 @@ const AnimatedCounter = () => {
 
   useEffect(() => {
     if (isVisible) {
-      fetch(`${API_URL}/increment-visitor`, { method: "POST" })
-        .then((response) => response.json())
-        .then((data) => {
-          setVisitorCount(data.count);
-          setCurrentDigits(data.count.toString().padStart(4, "0").split(""));
-        })
-        .catch((error) => console.error("Error fetching visitor count:", error));
+      incrementVisitorCount();
     }
   }, [isVisible]);
+
+  const incrementVisitorCount = async () => {
+    try {
+      const response = await fetch(`${API_URL}/increment-visitor`, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to increment visitor count');
+      }
+
+      const data = await response.json();
+      const digits = data.count.toString().padStart(4, "0").split("");
+      setCurrentDigits(digits);
+      setError(null);
+    } catch (err) {
+      console.error("Error incrementing visitor count:", err);
+      setError("Failed to update visitor count");
+    }
+  };
 
   return (
     <div ref={counterRef} className="counter-container">
@@ -50,6 +67,7 @@ const AnimatedCounter = () => {
             </div>
           ))}
         </div>
+        {error && <div className="error-message">{error}</div>}
       </div>
     </div>
   );

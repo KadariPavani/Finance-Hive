@@ -9,9 +9,9 @@
 
 .dashboard-main {
   flex: 1;
-  padding: 15px;
+  padding: 20px;
   margin-top: 64px;
-  transition: margin-left 0.3s ease, width 0.3s ease;
+  transition: margin-left 0.3s ease;
   overflow-x: auto;
 }
 
@@ -827,11 +827,7 @@
 @media (max-width: 768px) {
   .dashboard-main {
     margin-left: 0;
-    padding: 15px;
-  }
-
-  .dashboard-main.collapsed {
-    margin-left: 0;
+    width: 100%;
   }
 }
 

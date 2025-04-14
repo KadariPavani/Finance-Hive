@@ -47,26 +47,35 @@
 
 .carousel-indicators-container {
   position: absolute;
-  bottom: 10px;
+  bottom: 20px; /* Increased bottom spacing */
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 10px;
+  gap: 12px; /* Increased gap between indicators */
   z-index: 2;
 }
 
 .carousel-indicator-button {
-  width: 12px;
-  height: 12px;
+  width: 12px; /* Equal width and height for circle */
+  height: 12px; /* Equal width and height for circle */
   border: none;
-  border-radius: 50%;
-  background: #ccc;
+  border-radius: 50%; /* Makes it perfectly circular */
+  background: rgba(255, 255, 255, 0.4);
   cursor: pointer;
-  transition: background 0.3s ease; /* Smooth transition for active state */
+  transition: all 0.3s ease;
 }
 
 .carousel-indicator-button.active-indicator {
+  width: 12px; /* Keep same size when active */
+  height: 12px; /* Keep same size when active */
   background: #fff;
+  transform: scale(1.2); /* Slightly larger when active */
+}
+
+/* Add hover effect */
+.carousel-indicator-button:hover {
+  background: rgba(255, 255, 255, 0.7);
+  transform: scale(1.1);
 }
 
 /* Typing Animation */
@@ -143,6 +152,16 @@
 
   .carousel-description {
     font-size: 1.5rem; /* Smaller font size for tablets */
+  }
+
+  .carousel-indicator-button {
+    width: 10px; /* Slightly smaller on mobile */
+    height: 10px;
+  }
+
+  .carousel-indicator-button.active-indicator {
+    width: 10px;
+    height: 10px;
   }
 }
 

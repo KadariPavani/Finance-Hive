@@ -150,7 +150,7 @@ const Carousel = () => {
         <p className="carousel-description">{typingText}</p>
       </div>
 
-      {/* Indicators */}
+      {/* Indicators
       <div className="carousel-indicators-container">
         {slides.map((_, index) => (
           <button
@@ -159,7 +159,7 @@ const Carousel = () => {
             onClick={() => setSlide(index)}
           ></button>
         ))}
-      </div>
+      </div> */}
     </div>
   );
 };

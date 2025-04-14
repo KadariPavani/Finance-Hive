@@ -1,16 +1,24 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import './Footer.css';
 
 function Footer() {
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    navigate('/contact');
+    window.scrollTo(0, 0); // Scroll to top when navigating
+  };
+
   return (
     <footer className="footer">
       <div className="footer-cta">
         <h2>Ready to get started?</h2>
         <p>Talk to us today and take the first step towards financial freedom.</p>
-        <button onClick={() => alert("Get started clicked!")}>Get Started</button>
+        <button onClick={handleGetStarted} className="get-started-btn">Get Started</button>
       </div>
 
       <div className="footer-content">

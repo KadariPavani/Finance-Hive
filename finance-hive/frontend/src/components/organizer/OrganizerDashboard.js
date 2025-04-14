@@ -338,18 +338,19 @@ const OrganizerDashboard = () => {
     if (!payments || payments.length === 0) {
       return { labels: [], data: [] };
     }
-
+  
     const grouped = {};
     const now = new Date();
-
+  
     payments.forEach(payment => {
       if (!payment.dueDate) return;
-
+  
       const date = new Date(payment.dueDate);
       let key = '';
-
+  
       if (timeFilter === 'daily') {
-        key = date.getHours().toString();
+        // Format hours in 24-hour format with leading zeros
+        key = date.getHours().toString().padStart(2, '0') + ':00';
       } else if (timeFilter === 'weekly') {
         const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         key = dayNames[date.getDay()];
@@ -359,19 +360,21 @@ const OrganizerDashboard = () => {
         const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         key = monthNames[date.getMonth()];
       }
-
+  
       if (!grouped[key]) {
         grouped[key] = 0;
       }
-
       grouped[key] += parseFloat(payment.emiAmount || 0);
     });
-
+  
     let labels = [];
     let data = [];
-
+  
     if (timeFilter === 'daily') {
-      labels = Array.from({ length: 24 }, (_, i) => i.toString());
+      // Create 24-hour labels
+      labels = Array.from({ length: 24 }, (_, i) => 
+        `${i.toString().padStart(2, '0')}:00`
+      );
       data = labels.map(hour => grouped[hour] || 0);
     } else if (timeFilter === 'weekly') {
       labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -384,8 +387,28 @@ const OrganizerDashboard = () => {
       labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       data = labels.map(month => grouped[month] || 0);
     }
-
+  
     return { labels, data };
+  };
+  
+  // Update the Line chart options for better time display
+  const generateLineChartData = () => {
+    const filteredPayments = getFilteredPaymentDetails();
+    const { labels, data } = groupPaymentsByTimePeriod(filteredPayments);
+  
+    return {
+      labels,
+      datasets: [
+        {
+          label: 'Total Amount (₹)',
+          data: data,
+          fill: false,
+          borderColor: 'rgba(75, 192, 192, 1)',
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          tension: 0.1
+        }
+      ]
+    };
   };
 
   const renderTimeFilterOptions = () => {
@@ -400,29 +423,10 @@ const OrganizerDashboard = () => {
           <option value="monthly">{t('dashboard.monthly')}</option>
           <option value="yearly">{t('dashboard.yearly')}</option>
           <option value="weekly">{t('dashboard.weekly')}</option>
-          <option value="daily">{t('dashboard.daily')}</option>
+          {/* <option value="daily">{t('dashboard.daily')}</option> */}
         </select>
       </div>
     );
-  };
-
-  const generateLineChartData = () => {
-    const filteredPayments = getFilteredPaymentDetails();
-    const { labels, data } = groupPaymentsByTimePeriod(filteredPayments);
-
-    return {
-      labels,
-      datasets: [
-        {
-          label: 'Total Amount (₹)',
-          data: data,
-          fill: false,
-          borderColor: 'rgba(75, 192, 192, 1)',
-          backgroundColor: 'rgba(75, 192, 192, 0.2)',
-          tension: 0.1
-        }
-      ]
-    };
   };
 
   const filteredUsers = users.filter(user => {
@@ -795,6 +799,12 @@ const OrganizerDashboard = () => {
                               beginAtZero: true,
                               ticks: {
                                 callback: value => formatCurrency(value)
+                              }
+                            },
+                            x: {
+                              ticks: {
+                                maxRotation: 45,
+                                minRotation: 45
                               }
                             }
                           },
