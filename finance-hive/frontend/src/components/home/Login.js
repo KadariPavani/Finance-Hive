@@ -29,7 +29,7 @@ const Login = () => {
     try {
       console.log("Attempting login with:", { mobileNumber, password }); // Debug
 
-      const response = await axios.post("http://localhost:5000/api/login", {
+      const response = await axios.post("https://finance-hive.onrender.com/api/login", {
         mobileNumber,
         password,
       });

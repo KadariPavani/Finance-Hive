@@ -54,7 +54,7 @@ const AdminDashboard = () => {
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/users', {
+      const response = await axios.get('https://finance-hive.onrender.com/api/users', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -71,7 +71,7 @@ const AdminDashboard = () => {
   const fetchStats = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/users/stats', {
+      const response = await axios.get('https://finance-hive.onrender.com/api/users/stats', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -88,7 +88,7 @@ const AdminDashboard = () => {
   // const fetchGrowth = async () => {
   //   try {
   //     const token = localStorage.getItem('token');
-  //     const response = await axios.get('http://localhost:5000/api/users/growth', {
+  //     const response = await axios.get('https://finance-hive.onrender.com/api/users/growth', {
   //       headers: {
   //         Authorization: `Bearer ${token}`,
   //       },
@@ -119,7 +119,7 @@ const AdminDashboard = () => {
     try {
       const token = localStorage.getItem('token');
       // Update the URL to use the users endpoint instead
-      const response = await axios.get(`http://localhost:5000/api/users/login-activity?timeframe=${selectedTimeframe}`, {
+      const response = await axios.get(`https://finance-hive.onrender.com/api/users/login-activity?timeframe=${selectedTimeframe}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -146,7 +146,7 @@ const AdminDashboard = () => {
     if (isConfirmed) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:5000/api/users/${id}`, {
+        await axios.delete(`https://finance-hive.onrender.com/api/users/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

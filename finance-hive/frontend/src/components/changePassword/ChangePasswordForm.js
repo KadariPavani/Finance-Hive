@@ -33,7 +33,7 @@ const ChangePasswordForm = ({ onClose }) => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.put('http://localhost:5000/api/change-password', {
+      const response = await axios.put('https://finance-hive.onrender.com/api/change-password', {
         mobileNumber,
         newPassword
       },

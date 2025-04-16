@@ -17,7 +17,7 @@ const Approach = () => {
   const fetchContactResponses = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/responses', {
+      const response = await axios.get('https://finance-hive.onrender.com/api/responses', {
         headers: {
           Authorization: `Bearer ${token}`,
         },

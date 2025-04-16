@@ -85,7 +85,7 @@ const LoginRegisterForm = ({ show, onClose }) => {
       return;
     }
 
-    const url = isSignup ? 'http://localhost:5000/signup' : 'http://localhost:5000/login';
+    const url = isSignup ? 'https://finance-hive.onrender.com/signup' : 'https://finance-hive.onrender.com/login';
 
     try {
       const response = await axios.post(url, formData);

@@ -27,7 +27,7 @@ const handleSubmit = async (e) => {
   try {
     const token = localStorage.getItem("token");
     const response = await axios.post(
-      'http://localhost:5000/api/tracking/income',
+      'https://finance-hive.onrender.com/api/tracking/income',
       formData,
       {
         headers: { Authorization: `Bearer ${token}` }

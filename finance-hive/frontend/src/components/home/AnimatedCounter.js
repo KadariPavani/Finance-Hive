@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import "./AnimatedCounter.css";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "https://finance-hive.onrender.com/api";
 
 const AnimatedCounter = () => {
   const [currentDigits, setCurrentDigits] = useState(['0', '0', '0', '0']);

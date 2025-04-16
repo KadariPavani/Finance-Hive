@@ -89,7 +89,7 @@ const OrganizerDashboard = () => {
         throw new Error("No authentication token found");
       }
 
-      const response = await axios.get("http://localhost:5000/api/organizer/details", {
+      const response = await axios.get("https://finance-hive.onrender.com/api/organizer/details", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -115,7 +115,7 @@ const OrganizerDashboard = () => {
         throw new Error("No authentication token found");
       }
 
-      const response = await axios.get("http://localhost:5000/api/organizer/users", {
+      const response = await axios.get("https://finance-hive.onrender.com/api/organizer/users", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -138,7 +138,7 @@ const OrganizerDashboard = () => {
         throw new Error("Authentication tokens not found");
       }
 
-      const usersResponse = await axios.get("http://localhost:5000/api/organizer/users", {
+      const usersResponse = await axios.get("https://finance-hive.onrender.com/api/organizer/users", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -148,7 +148,7 @@ const OrganizerDashboard = () => {
       await Promise.all(userIds.map(async (userId) => {
         try {
           const paymentResponse = await axios.get(
-            `http://localhost:5000/api/finance-payments/${organizerId}/${userId}`,
+            `https://finance-hive.onrender.com/api/finance-payments/${organizerId}/${userId}`,
             { headers: { Authorization: `Bearer ${token}` } }
           );
           allPaymentDetails.push(...paymentResponse.data);
@@ -176,7 +176,7 @@ const OrganizerDashboard = () => {
         throw new Error("No authentication token found");
       }
 
-      const response = await axios.get("http://localhost:5000/api/finance-payments", {
+      const response = await axios.get("https://finance-hive.onrender.com/api/finance-payments", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -216,7 +216,7 @@ const OrganizerDashboard = () => {
         throw new Error("No authentication token found");
       }
 
-      await axios.post("http://localhost:5000/api/add-user-payment", formData, {
+      await axios.post("https://finance-hive.onrender.com/api/add-user-payment", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

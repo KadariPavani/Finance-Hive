@@ -294,7 +294,7 @@ const UserDashboard = () => {
     const fetchUserDetails = async () => {
         try {
             const token = localStorage.getItem("token");
-            const response = await axios.get("http://localhost:5000/api/user-details", {
+            const response = await axios.get("https://finance-hive.onrender.com/api/user-details", {
                 headers: { Authorization: `Bearer ${token}` },
             });
 

@@ -4,7 +4,7 @@
 // import { Loader2 } from 'lucide-react';
 
 // const api = axios.create({
-//   baseURL: 'http://localhost:5000/api',
+//   baseURL: 'https://finance-hive.onrender.com/api',
 //   timeout: 10000,
 // });
 
@@ -67,7 +67,7 @@ import axios from 'axios';
 import { Loader2 } from 'lucide-react';
 import './UserReceipts.css';
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: 'https://finance-hive.onrender.com/api',
   timeout: 10000,
 });
 

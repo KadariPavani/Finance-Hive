@@ -16,7 +16,7 @@ const NavigationOrganizer = ({ organizerDetails, onLogout }) => {
   const fetchUnreadCount = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:5000/api/notifications/unread-count", {
+      const response = await axios.get("https://finance-hive.onrender.com/api/notifications/unread-count", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUnreadCount(response.data.count);

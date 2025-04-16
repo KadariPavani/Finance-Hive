@@ -21,7 +21,7 @@
 //     e.preventDefault();
 //     setLoading(true);
 //     try {
-//       const response = await axios.post('http://localhost:5000/api/users', formData);
+//       const response = await axios.post('https://finance-hive.onrender.com/api/users', formData);
 //       setModalMessage('User added successfully!');
 //       setIsError(false);
 //       setShowModal(true);

@@ -29,7 +29,7 @@ const EditSavingsGoal = () => {
       const token = localStorage.getItem('token');
       console.log('Fetching goal with ID:', goalId); // Debug log
       const response = await axios.get(
-        `http://localhost:5000/api/tracking/savings/${goalId}`,
+        `https://finance-hive.onrender.com/api/tracking/savings/${goalId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       console.log('Received goal data:', response.data); // Debug log
@@ -63,7 +63,7 @@ const EditSavingsGoal = () => {
       const token = localStorage.getItem('token');
       console.log('Updating goal with data:', formData); // Debug log
       await axios.put(
-        `http://localhost:5000/api/tracking/savings/${goalId}`,
+        `https://finance-hive.onrender.com/api/tracking/savings/${goalId}`,
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -222,7 +222,7 @@ const EditSavingsGoal = () => {
                       try {
                         const token = localStorage.getItem('token');
                         await axios.delete(
-                          `http://localhost:5000/api/tracking/savings/${goalId}`,
+                          `https://finance-hive.onrender.com/api/tracking/savings/${goalId}`,
                           { headers: { Authorization: `Bearer ${token}` } }
                         );
                         navigate('/tracking');

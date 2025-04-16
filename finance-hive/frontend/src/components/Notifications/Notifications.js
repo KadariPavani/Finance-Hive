@@ -14,7 +14,7 @@
 //   const fetchNotifications = async () => {
 //     try {
 //       const token = localStorage.getItem("token");
-//       const response = await axios.get("http://localhost:5000/api/notifications/all", {
+//       const response = await axios.get("https://finance-hive.onrender.com/api/notifications/all", {
 //         headers: {
 //           Authorization: `Bearer ${token}`,
 //         },
@@ -37,7 +37,7 @@
 //     try {
 //       const token = localStorage.getItem("token");
 //       // await axios.patch(
-//       //   `http://localhost:5000/api/notifications/${notificationId}/read`,
+//       //   `https://finance-hive.onrender.com/api/notifications/${notificationId}/read`,
 //       //   {},
 //       //   {
 //       //     headers: {
@@ -45,7 +45,7 @@
 //       //     },
 //       //   }
 //       // );
-//       const unreadResponse = await axios.get("http://localhost:5000/api/notifications/unread", {
+//       const unreadResponse = await axios.get("https://finance-hive.onrender.com/api/notifications/unread", {
 //         headers: {
 //           Authorization: `Bearer ${token}`,
 //         },
@@ -204,7 +204,7 @@ const Notifications = () => {
   const fetchNotifications = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:5000/api/notifications/all", {
+      const response = await axios.get("https://finance-hive.onrender.com/api/notifications/all", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setNotifications(response.data.notifications);
@@ -220,7 +220,7 @@ const Notifications = () => {
   const markAsRead = async (notificationId) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.patch(`http://localhost:5000/api/notifications/${notificationId}/read`, {}, {
+      await axios.patch(`https://finance-hive.onrender.com/api/notifications/${notificationId}/read`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setNotifications(prev => prev.map(n => 

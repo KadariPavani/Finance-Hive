@@ -136,7 +136,7 @@ const AddUserPage = () => {
                 : `+91${formData.mobileNumber}`;
 
             const response = await axios.post(
-                "http://localhost:5000/api/add-user-payment",
+                "https://finance-hive.onrender.com/api/add-user-payment",
                 {
                     ...formData,
                     mobileNumber: mobileWithPrefix

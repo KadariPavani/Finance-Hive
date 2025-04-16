@@ -30,7 +30,7 @@ const Tracking = () => {
   const fetchUserDetails = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:5000/api/user-details", {
+      const response = await axios.get("https://finance-hive.onrender.com/api/user-details", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUserDetails(response.data.data); // Store user details in state
@@ -47,10 +47,10 @@ const Tracking = () => {
       setLoading(true);
       const token = localStorage.getItem('token');
       const [statsRes, savingsRes] = await Promise.all([
-        axios.get(`http://localhost:5000/api/tracking/statistics?period=${period}`, {
+        axios.get(`https://finance-hive.onrender.com/api/tracking/statistics?period=${period}`, {
           headers: { Authorization: `Bearer ${token}` }
         }),
-        axios.get('http://localhost:5000/api/tracking/savings', {
+        axios.get('https://finance-hive.onrender.com/api/tracking/savings', {
           headers: { Authorization: `Bearer ${token}` }
         })
       ]);
@@ -70,7 +70,7 @@ const Tracking = () => {
   const handleDelete = async (id, type) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:5000/api/tracking/${type}/${id}`, {
+      await axios.delete(`https://finance-hive.onrender.com/api/tracking/${type}/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchData(); // Refresh data after deletion
@@ -86,7 +86,7 @@ const Tracking = () => {
   const handleSave = async (transaction) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.put(`http://localhost:5000/api/tracking/transaction/${transaction._id}`, transaction, {
+      await axios.put(`https://finance-hive.onrender.com/api/tracking/transaction/${transaction._id}`, transaction, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setEditingId(null);

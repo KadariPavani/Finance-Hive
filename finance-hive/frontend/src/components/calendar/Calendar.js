@@ -32,7 +32,7 @@ const Calendar = () => {
         try {
             const token = localStorage.getItem('token');
             const response = await axios.get(
-                `http://localhost:5000/api/organizer/month-analytics/${format(date, 'yyyy-MM')}`,
+                `https://finance-hive.onrender.com/api/organizer/month-analytics/${format(date, 'yyyy-MM')}`,
                 {
                     headers: { Authorization: `Bearer ${token}` }
                 }
@@ -49,7 +49,7 @@ const Calendar = () => {
         try {
             const token = localStorage.getItem('token');
             const response = await axios.get(
-                `http://localhost:5000/api/organizer/day-analytics/${format(date, 'yyyy-MM-dd')}`,
+                `https://finance-hive.onrender.com/api/organizer/day-analytics/${format(date, 'yyyy-MM-dd')}`,
                 {
                     headers: { Authorization: `Bearer ${token}` }
                 }
