@@ -21,18 +21,25 @@ const Visitor = require('./models/Visitor');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors({
-  origin: "https://finance-hive.netlify.app", // Replace with your frontend URL
-  credentials: true
-}));
+// CORS configuration
+const corsOptions = {
+  origin: "https://finance-hive.netlify.app", // no trailing slash
+  credentials: true,
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  allowedHeaders: "Content-Type,Authorization",
+  optionsSuccessStatus: 204
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Handle preflight requests
+
+// Body parsers
 app.use(bodyParser.json());
 app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("FinanceHive backend is live 🚀");
 });
-
 
 // Request logging for debugging
 app.use((req, res, next) => {
@@ -51,7 +58,7 @@ mongoose.connect(process.env.MONGO_URI, {
   console.error("MongoDB connection error:", err);
 });
 
-// Replace with MongoDB functions
+// Visitor logic
 const getVisitorCount = async () => {
   try {
     let visitor = await Visitor.findOne();
@@ -82,7 +89,7 @@ const incrementVisitorCount = async () => {
   }
 };
 
-// API to get visitor count
+// API to get and increment visitor count
 app.get("/api/visitor-count", async (req, res) => {
   try {
     const count = await getVisitorCount();
@@ -92,7 +99,6 @@ app.get("/api/visitor-count", async (req, res) => {
   }
 });
 
-// API to increment visitor count
 app.post("/api/increment-visitor", async (req, res) => {
   try {
     const count = await incrementVisitorCount();
@@ -102,7 +108,7 @@ app.post("/api/increment-visitor", async (req, res) => {
   }
 });
 
-// Use routes
+// API routes
 app.use("/api", contactRoutes);
 app.use("/api", authRoutes);
 app.use("/api", paymentRoutes);
@@ -127,7 +133,7 @@ app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
 });
 
-// Start the server
+// Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
