@@ -29,6 +29,11 @@ app.use(cors({
 app.use(bodyParser.json());
 app.use(express.json());
 
+app.get("/", (req, res) => {
+  res.send("FinanceHive backend is live 🚀");
+});
+
+
 // Request logging for debugging
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.originalUrl}`);
