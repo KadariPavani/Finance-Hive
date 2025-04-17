@@ -10,7 +10,7 @@ import { Chart as ChartJS } from 'chart.js/auto';
 import { Bar, Doughnut, Line, PolarArea, Radar } from 'react-chartjs-2';
 import 'chartjs-adapter-moment';
 import moment from 'moment';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const UserDashboard = () => {
     const { t, i18n } = useTranslation();
@@ -320,9 +320,11 @@ const UserDashboard = () => {
         fetchUserDetails();
     }, []);
 
+    const navigate = useNavigate(); // Make sure this is at the top
+
     const handleLogout = () => {
         localStorage.removeItem("token");
-        window.location.href = "/login";
+        navigate("/login"); // Use navigate instead of window.location.href
     };
 
     const formatDate = (date) => {

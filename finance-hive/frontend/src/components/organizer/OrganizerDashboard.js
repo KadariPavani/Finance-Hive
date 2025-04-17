@@ -252,7 +252,7 @@ const OrganizerDashboard = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    window.location.href = "/login";
+    navigate("/login"); // Use navigate instead of window.location.href
   };
 
   const handleUserClick = (user) => {
