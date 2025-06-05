@@ -251,9 +251,15 @@ const OrganizerDashboard = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login"); // Use navigate instead of window.location.href
-  };
+    // Clear all authentication data
+    localStorage.clear();
+    
+    // Force navigation to home first, then login
+    navigate("/");
+    setTimeout(() => {
+        navigate("/login");
+    }, 100);
+};
 
   const handleUserClick = (user) => {
     localStorage.setItem("selectedUser", JSON.stringify(user));
