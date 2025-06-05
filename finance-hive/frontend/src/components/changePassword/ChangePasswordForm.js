@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './ChangePasswordForm.css';
 import { useNavigate } from 'react-router-dom';
-
+import config from '../../config';
 const ChangePasswordForm = ({ onClose }) => {
   const [mobileNumber, setMobileNumber] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -33,7 +33,7 @@ const ChangePasswordForm = ({ onClose }) => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.put('https://finance-hive.onrender.com/api/change-password', {
+      const response = await axios.put(`${config.API_URL}/api/change-password`, {
         mobileNumber,
         newPassword
       },

@@ -16,22 +16,22 @@ const notificationRoutes = require("./routes/notifications");
 const trackingRoutes = require("./routes/tracking");
 const userPaymentsRoute = require("./routes/userPayments");
 const organizerRoutes = require("./routes/organizerRoutes");
-const Visitor = require('./models/Visitor');
+const Visitor = require("./models/Visitor");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // CORS configuration
 const corsOptions = {
-  origin: "https://finance-hive.netlify.app", // no trailing slash
+  origin: ["https://finance-hive.netlify.app", "http://localhost:3000"],
   credentials: true,
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   allowedHeaders: "Content-Type,Authorization",
-  optionsSuccessStatus: 204
+  optionsSuccessStatus: 204,
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Handle preflight requests
+app.options("*", cors(corsOptions)); // Handle preflight requests
 
 // Body parsers
 app.use(bodyParser.json());
@@ -48,15 +48,18 @@ app.use((req, res, next) => {
 });
 
 // MongoDB connection
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(async () => {
-  console.log("MongoDB connected");
-  await seedAdminUser(); // Seed admin user
-}).catch((err) => {
-  console.error("MongoDB connection error:", err);
-});
+mongoose
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(async () => {
+    console.log("MongoDB connected");
+    await seedAdminUser(); // Seed admin user
+  })
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+  });
 
 // Visitor logic
 const getVisitorCount = async () => {
@@ -67,7 +70,7 @@ const getVisitorCount = async () => {
     }
     return visitor.count;
   } catch (error) {
-    console.error('Error getting visitor count:', error);
+    console.error("Error getting visitor count:", error);
     return 0;
   }
 };
@@ -84,7 +87,7 @@ const incrementVisitorCount = async () => {
     await visitor.save();
     return visitor.count;
   } catch (error) {
-    console.error('Error incrementing visitor count:', error);
+    console.error("Error incrementing visitor count:", error);
     throw error;
   }
 };
@@ -95,7 +98,7 @@ app.get("/api/visitor-count", async (req, res) => {
     const count = await getVisitorCount();
     res.json({ count });
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching visitor count' });
+    res.status(500).json({ message: "Error fetching visitor count" });
   }
 });
 
@@ -104,7 +107,7 @@ app.post("/api/increment-visitor", async (req, res) => {
     const count = await incrementVisitorCount();
     res.json({ count });
   } catch (error) {
-    res.status(500).json({ message: 'Error incrementing visitor count' });
+    res.status(500).json({ message: "Error incrementing visitor count" });
   }
 });
 
@@ -124,13 +127,13 @@ autoUpdateOverdueStatus();
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!' });
+  res.status(500).json({ message: "Something went wrong!" });
 });
 
 // 404 handler
 app.use((req, res) => {
   console.log(`404: ${req.method} ${req.path}`);
-  res.status(404).json({ message: 'Route not found' });
+  res.status(404).json({ message: "Route not found" });
 });
 
 // Start server

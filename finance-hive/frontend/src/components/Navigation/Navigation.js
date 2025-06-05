@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Navigation.css';
 import LanguageSwitcher from '../LanguageSwitcher';
-
+import config from '../../config';
 const Navigation = ({ userDetails, onLogout, toggleSidebar, isSidebarOpen }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ const Navigation = ({ userDetails, onLogout, toggleSidebar, isSidebarOpen }) => 
   const fetchUnreadCount = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('https://finance-hive.onrender.com/api/notifications/unread-count', {
+      const response = await axios.get(`${config.API_URL}/api/notifications/unread-count`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUnreadCount(response.data.count);

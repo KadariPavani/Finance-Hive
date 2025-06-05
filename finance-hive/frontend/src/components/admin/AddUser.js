@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './AddUser.css';
+import config from '../../config';
 import { FaUser, FaEnvelope, FaPhone, FaLock, FaCheck, FaSpinner, FaTimes, FaArrowLeft } from 'react-icons/fa';
 import Modal from '../Modal/Modal';
 
@@ -104,10 +105,9 @@ const AddUser = ({ role, onUserAdded }) => {
     try {
       setIsLoading(true);
       const token = localStorage.getItem('token');
-      const formattedMobileNumber = `+91${mobileNumber}`;
-
+      const formattedMobileNumber = `+91${mobileNumber}`;      
       const response = await axios.post(
-        'https://finance-hive.onrender.com/api/add-user',
+        `${config.API_URL}/api/add-user`,
         {
           name,
           email,

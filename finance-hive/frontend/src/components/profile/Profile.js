@@ -3,7 +3,7 @@ import axios from 'axios';
 import './Profile.css';
 import { FaUser, FaEnvelope, FaPhone, FaTransgender, FaBirthdayCake, FaPen, FaCamera, FaArrowLeft } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-
+import config from '../../config';
 const Profile = () => {
   const navigate = useNavigate();
   const [profileDetails, setProfileDetails] = useState(null);
@@ -20,7 +20,7 @@ const Profile = () => {
   const fetchProfileDetails = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('https://finance-hive.onrender.com/api/profile', {
+      const response = await axios.get(`${config.API_URL}/api/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setProfileDetails(response.data);
@@ -52,7 +52,7 @@ const Profile = () => {
     try {
       setSaving(true);
       const token = localStorage.getItem('token');
-      await axios.put('https://finance-hive.onrender.com/api/profile', editableFields, {
+      await axios.put(`${config.API_URL}/api/profile`, editableFields, {
         headers: { Authorization: `Bearer ${token}` },
       });
       await fetchProfileDetails();

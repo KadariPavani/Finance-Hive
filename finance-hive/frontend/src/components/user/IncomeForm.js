@@ -4,7 +4,7 @@ import axios from 'axios';
 import Navigation from '../Navigation/Navigation';
 import Sidebar from '../sidebar/Sidebar';
 import './IncomeForm.css';
-
+import config from '../../config';
 const IncomeForm = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -27,7 +27,7 @@ const handleSubmit = async (e) => {
   try {
     const token = localStorage.getItem("token");
     const response = await axios.post(
-      'https://finance-hive.onrender.com/api/tracking/income',
+      `${config.API_URL}/api/tracking/income`,
       formData,
       {
         headers: { Authorization: `Bearer ${token}` }

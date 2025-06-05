@@ -194,7 +194,7 @@ import { useTranslation } from 'react-i18next';
 import { Bell, X, Mail, Key, UserPlus, Clock } from 'lucide-react';
 import axios from 'axios';
 import './Notifications.css';
-
+import config from '../../config';
 const Notifications = () => {
   const { t, i18n } = useTranslation();
   const [notifications, setNotifications] = useState([]);
@@ -204,7 +204,7 @@ const Notifications = () => {
   const fetchNotifications = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("https://finance-hive.onrender.com/api/notifications/all", {
+      const response = await axios.get(`${config.API_URL}/api/notifications/all`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setNotifications(response.data.notifications);
@@ -220,7 +220,7 @@ const Notifications = () => {
   const markAsRead = async (notificationId) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.patch(`https://finance-hive.onrender.com/api/notifications/${notificationId}/read`, {}, {
+      await axios.patch(`${config.API_URL}/api/notifications/${notificationId}/read`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setNotifications(prev => prev.map(n => 

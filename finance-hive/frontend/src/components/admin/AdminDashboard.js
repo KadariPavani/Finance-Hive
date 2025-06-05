@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-// import LandingPage from '../home/LandingPage/LandingPage';
+// import   //   const response = await axios.get(`${config.API_URL}/api/users/growth`, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },ingPage from '../home/LandingPage/LandingPage';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiTrash2 } from 'react-icons/fi';
 import { Bar, Pie } from 'react-chartjs-2';
@@ -17,6 +20,7 @@ import { Dropdown } from 'react-bootstrap';
 import { Line } from 'react-chartjs-2';
 import { format, parseISO } from 'date-fns';
 import { FiLoader } from 'react-icons/fi';
+import config from '../../config'; // Add this import at the top
 // Register ChartJS components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 const AdminDashboard = () => {
@@ -54,7 +58,7 @@ const AdminDashboard = () => {
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('https://finance-hive.onrender.com/api/users', {
+      const response = await axios.get(`${config.API_URL}/api/users`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -71,7 +75,7 @@ const AdminDashboard = () => {
   const fetchStats = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('https://finance-hive.onrender.com/api/users/stats', {
+      const response = await axios.get(`${config.API_URL}/api/users/stats`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -119,7 +123,7 @@ const AdminDashboard = () => {
     try {
       const token = localStorage.getItem('token');
       // Update the URL to use the users endpoint instead
-      const response = await axios.get(`https://finance-hive.onrender.com/api/users/login-activity?timeframe=${selectedTimeframe}`, {
+      const response = await axios.get(`${config.API_URL}/api/users/login-activity?timeframe=${selectedTimeframe}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -146,7 +150,7 @@ const AdminDashboard = () => {
     if (isConfirmed) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`https://finance-hive.onrender.com/api/users/${id}`, {
+        await axios.delete(`${config.API_URL}/api/users/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

@@ -3,9 +3,10 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import CustomButton from '../CustomButton';
 import './Login.css';
+
 import image1 from '../assets/project[1].jpg';
 import logo from '../assets/logo.jpg';
-
+import config from '../../config';
 const Login = () => {
   const [mobileNumber, setMobileNumber] = useState('');
   const [password, setPassword] = useState('');
@@ -29,7 +30,7 @@ const Login = () => {
     try {
       console.log("Attempting login with:", { mobileNumber, password }); // Debug
 
-      const response = await axios.post("https://finance-hive.onrender.com/api/login", {
+      const response = await axios.post(`${config.API_URL}/api/login`, {
         mobileNumber,
         password,
       });

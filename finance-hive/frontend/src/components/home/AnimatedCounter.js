@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import "./AnimatedCounter.css";
-
-const API_URL = "https://finance-hive.onrender.com/api";
+import config from "../../config";
 
 const AnimatedCounter = () => {
-  const [currentDigits, setCurrentDigits] = useState(['0', '0', '0', '0']);
+  const [currentDigits, setCurrentDigits] = useState(["0", "0", "0", "0"]);
   const [error, setError] = useState(null);
   const counterRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -35,15 +34,15 @@ const AnimatedCounter = () => {
 
   const incrementVisitorCount = async () => {
     try {
-      const response = await fetch(`${API_URL}/increment-visitor`, {
+      const response = await fetch(`${config.API_URL}/api/increment-visitor`, {
         method: "POST",
         headers: {
-          'Content-Type': 'application/json'
-        }
+          "Content-Type": "application/json",
+        },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to increment visitor count');
+        throw new Error("Failed to increment visitor count");
       }
 
       const data = await response.json();

@@ -6,8 +6,10 @@ import './UserPaymentDetails.css';
 import { generateReceiptPDF } from './pdfService';
 import Modal from '../Modal/Modal';
 
+import config from '../../config';
+
 const api = axios.create({
-  baseURL: 'https://finance-hive.onrender.com/api',
+  baseURL: `${config.API_URL}/api`,
   timeout: 10000,
 });
 

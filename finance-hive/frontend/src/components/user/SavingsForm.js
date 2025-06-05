@@ -5,7 +5,7 @@ import Navigation from '../Navigation/Navigation';
 import Sidebar from '../sidebar/Sidebar';
 import './SavingsForm.css';
 import { useTranslation } from 'react-i18next'; // Add translation support
-
+import config from '../../config'; // Import your API configuration
 const SavingsForm = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -38,7 +38,7 @@ const SavingsForm = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        "https://finance-hive.onrender.com/api/tracking/savings",
+        `${config.API_URL}/api/tracking/savings`,
         formData,
         {
           headers: {

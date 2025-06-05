@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { FaUser, FaEnvelope, FaPhone, FaLock, FaCheck, FaSpinner, FaTimes, FaRupeeSign, FaCalendar, FaPercent, FaShieldAlt } from 'react-icons/fa';
 import Modal from "../Modal/Modal";
 import "./AddUserPage.css";
-
+import config from "../../config";
 const AddUserPage = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
@@ -136,7 +136,7 @@ const AddUserPage = () => {
                 : `+91${formData.mobileNumber}`;
 
             const response = await axios.post(
-                "https://finance-hive.onrender.com/api/add-user-payment",
+                `${config.API_URL}/api/add-user-payment`,
                 {
                     ...formData,
                     mobileNumber: mobileWithPrefix

@@ -18,7 +18,7 @@ import {
 } from 'date-fns';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Loader } from 'lucide-react';
 import './Calendar.css';
-
+import config from '../../config';
 const Calendar = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState(null);
@@ -32,7 +32,7 @@ const Calendar = () => {
         try {
             const token = localStorage.getItem('token');
             const response = await axios.get(
-                `https://finance-hive.onrender.com/api/organizer/month-analytics/${format(date, 'yyyy-MM')}`,
+                `${config.API_URL}/api/organizer/month-analytics/${format(date, 'yyyy-MM')}`,
                 {
                     headers: { Authorization: `Bearer ${token}` }
                 }
@@ -49,7 +49,7 @@ const Calendar = () => {
         try {
             const token = localStorage.getItem('token');
             const response = await axios.get(
-                `https://finance-hive.onrender.com/api/organizer/day-analytics/${format(date, 'yyyy-MM-dd')}`,
+                `${config.API_URL}/api/organizer/day-analytics/${format(date, 'yyyy-MM-dd')}`,
                 {
                     headers: { Authorization: `Bearer ${token}` }
                 }

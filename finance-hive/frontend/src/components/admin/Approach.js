@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import './Approach.css';
-
+import config from '../../config';
 const Approach = () => {
   const [responses, setResponses] = useState([]);
   const [error, setError] = useState('');
@@ -16,8 +16,8 @@ const Approach = () => {
 
   const fetchContactResponses = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('https://finance-hive.onrender.com/api/responses', {
+      const token = localStorage.getItem('token');      
+      const response = await axios.get(`${config.API_URL}/api/responses`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

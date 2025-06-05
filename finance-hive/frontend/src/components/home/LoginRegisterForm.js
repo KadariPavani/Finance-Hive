@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './LoginRegisterForm.css';
 import { useNavigate,Link } from 'react-router-dom';
-
+import config from '../../config';
 const LoginRegisterForm = ({ show, onClose }) => {
   const [isSignup, setIsSignup] = useState(false);
   const [formData, setFormData] = useState({
@@ -85,7 +85,7 @@ const LoginRegisterForm = ({ show, onClose }) => {
       return;
     }
 
-    const url = isSignup ? 'https://finance-hive.onrender.com/signup' : 'https://finance-hive.onrender.com/login';
+    const url = isSignup ? `${config.API_URL}/signup` : `${config.API_URL}/login`;
 
     try {
       const response = await axios.post(url, formData);

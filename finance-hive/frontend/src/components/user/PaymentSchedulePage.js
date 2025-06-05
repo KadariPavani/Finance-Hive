@@ -4,7 +4,7 @@ import axios from "axios";
 import Navigation from "../Navigation/Navigation";
 import Sidebar from "../sidebar/Sidebar";
 import "./UserDashboard.css";
-
+import config from "../../config";
 const UserDashboard = () => {
   const { t, i18n } = useTranslation();
   const [userDetails, setUserDetails] = useState(null);
@@ -26,7 +26,7 @@ const UserDashboard = () => {
   const fetchUserDetails = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("https://finance-hive.onrender.com/api/user-details", {
+      const response = await axios.get(`${config.API_URL}/api/user-details`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

@@ -6,7 +6,7 @@ import Sidebar from '../sidebar/Sidebar';
 import './Tracking.css';
 import { FaPlus, FaPiggyBank, FaWallet, FaEdit, FaTrash, FaSave } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
-
+import config from '../../config';
 const Tracking = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -30,7 +30,7 @@ const Tracking = () => {
   const fetchUserDetails = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("https://finance-hive.onrender.com/api/user-details", {
+      const response = await axios.get(`${config.API_URL}/api/user-details`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUserDetails(response.data.data); // Store user details in state
@@ -47,10 +47,10 @@ const Tracking = () => {
       setLoading(true);
       const token = localStorage.getItem('token');
       const [statsRes, savingsRes] = await Promise.all([
-        axios.get(`https://finance-hive.onrender.com/api/tracking/statistics?period=${period}`, {
+        axios.get(`${config.API_URL}/api/tracking/statistics?period=${period}`, {
           headers: { Authorization: `Bearer ${token}` }
         }),
-        axios.get('https://finance-hive.onrender.com/api/tracking/savings', {
+        axios.get(`${config.API_URL}/api/tracking/savings`, {
           headers: { Authorization: `Bearer ${token}` }
         })
       ]);
@@ -70,7 +70,7 @@ const Tracking = () => {
   const handleDelete = async (id, type) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`https://finance-hive.onrender.com/api/tracking/${type}/${id}`, {
+      await axios.delete(`${config.API_URL}/api/tracking/${type}/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchData(); // Refresh data after deletion
@@ -86,7 +86,7 @@ const Tracking = () => {
   const handleSave = async (transaction) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.put(`https://finance-hive.onrender.com/api/tracking/transaction/${transaction._id}`, transaction, {
+      await axios.put(`${config.API_URL}/api/tracking/transaction/${transaction._id}`, transaction, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setEditingId(null);

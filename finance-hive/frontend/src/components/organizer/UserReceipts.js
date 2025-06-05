@@ -64,10 +64,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import config from '../../config';
 import { Loader2 } from 'lucide-react';
 import './UserReceipts.css';
 const api = axios.create({
-  baseURL: 'https://finance-hive.onrender.com/api',
+  baseURL: `${config.API_URL}/api`,
   timeout: 10000,
 });
 

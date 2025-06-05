@@ -4,7 +4,7 @@ import axios from 'axios';
 import Navigation from '../Navigation/Navigation';
 import Sidebar from '../sidebar/Sidebar';
 import './ExpenseForm.css';
-
+import config from '../../config';
 const ExpenseForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -24,7 +24,7 @@ const ExpenseForm = () => {
   const fetchExpense = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(`https://finance-hive.onrender.com/api/tracking/transaction/${id}`, {
+      const response = await axios.get(`${config.API_URL}/api/tracking/transaction/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setFormData(response.data);
@@ -45,11 +45,11 @@ const ExpenseForm = () => {
     try {
       const token = localStorage.getItem("token");
       if (id) {
-        await axios.put(`https://finance-hive.onrender.com/api/tracking/transaction/${id}`, formData, {
+        await axios.put(`${config.API_URL}/api/tracking/transaction/${id}`, formData, {
           headers: { Authorization: `Bearer ${token}` }
         });
       } else {
-        await axios.post('https://finance-hive.onrender.com/api/tracking/expense', formData, {
+        await axios.post(`${config.API_URL}/api/tracking/expense`, formData, {
           headers: { Authorization: `Bearer ${token}` }
         });
       }

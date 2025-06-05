@@ -1,7 +1,7 @@
 import "./GetInTouch.css";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import config from "../../config"; // Import the config file
 const ContactForm = () => {
   const navigate = useNavigate(); // Initialize the navigate function
 
@@ -25,7 +25,7 @@ const ContactForm = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch("https://finance-hive.onrender.com/api/contact", {
+      const response = await fetch(`${config.API_URL}/api/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
