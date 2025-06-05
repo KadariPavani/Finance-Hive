@@ -323,14 +323,11 @@ const UserDashboard = () => {
     const navigate = useNavigate(); // Make sure this is at the top
 
     const handleLogout = () => {
-        // Clear all authentication data
+        // Clear authentication data
         localStorage.clear();
         
-        // Force navigation to home first, then login
-        navigate("/");
-        setTimeout(() => {
-            navigate("/login");
-        }, 100);
+        // Navigate to login directly
+        navigate("/login", { replace: true });
     };
 
     const formatDate = (date) => {

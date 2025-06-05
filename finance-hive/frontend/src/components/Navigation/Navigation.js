@@ -63,7 +63,14 @@ const Navigation = ({ userDetails, onLogout, toggleSidebar, isSidebarOpen }) => 
             <button className="nav-icon-btn" title={t('common.profile')} onClick={() => navigate('/profile')}>
               <User className="nav-icon" />
             </button>
-            <button className="nav-icon-btn logout-btn" onClick={onLogout} title={t('common.logout')}>
+            <button 
+              className="nav-icon-btn logout-btn" 
+              onClick={() => {
+                  localStorage.clear();
+                  navigate("/login", { replace: true });
+              }} 
+              title={t('common.logout')}
+            >
               <LogOut className="nav-icon" />
             </button>
             <LanguageSwitcher />

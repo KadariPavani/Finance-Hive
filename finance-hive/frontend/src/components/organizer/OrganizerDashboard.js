@@ -251,14 +251,11 @@ const OrganizerDashboard = () => {
   };
 
   const handleLogout = () => {
-    // Clear all authentication data
+    // Clear authentication data
     localStorage.clear();
     
-    // Force navigation to home first, then login
-    navigate("/");
-    setTimeout(() => {
-        navigate("/login");
-    }, 100);
+    // Navigate to login directly
+    navigate("/login", { replace: true });
 };
 
   const handleUserClick = (user) => {
