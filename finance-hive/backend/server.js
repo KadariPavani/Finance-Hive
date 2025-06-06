@@ -26,12 +26,17 @@ const corsOptions = {
   origin: [
     "https://finance-hive.netlify.app", 
     "http://localhost:3000",
-    "https://financehive-fh.vercel.app", // Add your Vercel domain
-    "https://*.vercel.app"  // Allow all subdomains from vercel.app
+    "https://financehive-fh.vercel.app",
+    "https://*.vercel.app"
   ],
   credentials: true,
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  allowedHeaders: ["Content-Type", "Authorization"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: [
+    "Content-Type", 
+    "Authorization", 
+    "X-Requested-With",
+    "Accept"
+  ],
   exposedHeaders: ["Content-Type", "Authorization"],
   preflightContinue: false,
   optionsSuccessStatus: 204
@@ -134,8 +139,17 @@ autoUpdateOverdueStatus();
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: "Something went wrong!" });
+  console.error('Error:', {
+    message: err.message,
+    stack: err.stack,
+    path: req.path,
+    method: req.method
+  });
+
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || 'Internal server error'
+  });
 });
 
 // 404 handler

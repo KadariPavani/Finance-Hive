@@ -16,37 +16,36 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    console.log("Login form submitted"); // Debug
-    setError(""); // Reset error message
+    setError("");
 
-    console.log("Checkbox value:", agreeTerms); // Debug
-
-    // Check if the checkbox is checked
     if (!agreeTerms) {
       setError("You must agree to the Privacy Policy to log in.");
-      return; // Stop the login process
+      return;
     }
 
     try {
-      console.log("Attempting login with:", { mobileNumber, password }); // Debug
+      const response = await axios.post(
+        `${config.API_URL}/api/login`, 
+        {
+          mobileNumber,
+          password,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          withCredentials: true
+        }
+      );
 
-      const response = await axios.post(`${config.API_URL}/api/login`, {
-        mobileNumber,
-        password,
-      });
-
-      console.log("Login successful:", response.data);
-
-      // Store token and user info in localStorage
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("userRole", response.data.role);
       localStorage.setItem("userName", response.data.name);
       localStorage.setItem("userEmail", response.data.email);
 
-      // Redirect based on role
       navigate(response.data.redirect);
     } catch (err) {
-      console.error("Login error:", err.response?.data || err.message);
+      console.error("Login error:", err);
       setError(err.response?.data?.message || "Login failed");
     }
   };

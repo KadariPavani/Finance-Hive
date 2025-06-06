@@ -31,9 +31,15 @@ import Calendar from './components/calendar/Calendar';
 import EditSavingsGoal from './components/user/EditSavingsGoal';
 import axios from 'axios';
 
-// Add this near the top of your App.js
+// Configure Axios defaults
 axios.defaults.withCredentials = true;
-axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
+axios.interceptors.request.use(config => {
+  config.headers = {
+    ...config.headers,
+    'Content-Type': 'application/json'
+  };
+  return config;
+});
 
 // import 'bootstrap/dist/css/bootstrap.min.css';
 
