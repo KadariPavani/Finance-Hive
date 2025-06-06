@@ -29,6 +29,7 @@ import Profile from './components/profile/Profile'; // Import Profile component
 import LoadingAnimation from './components/animations/LoadingAnimation';
 import Calendar from './components/calendar/Calendar';
 import EditSavingsGoal from './components/user/EditSavingsGoal';
+// import 'bootstrap/dist/css/bootstrap.min.css';
 
 const App = () => {
   const [loading, setLoading] = useState(true);
