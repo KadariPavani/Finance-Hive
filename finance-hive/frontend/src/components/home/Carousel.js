@@ -141,7 +141,7 @@ const Carousel = () => {
       {/* Static Background Image */}
       <div
         className="carousel-background-image"
-        style={{ backgroundImage: `url('/Images/MainBgNOTxt.jpg')` }}
+        style={{ backgroundImage: `url('/Images/MainBgNoTXt.jpg')` }}
       ></div>
 
       {/* Text Box with Sliding Text */}
