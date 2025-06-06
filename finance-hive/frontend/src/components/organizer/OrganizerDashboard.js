@@ -254,8 +254,8 @@ const OrganizerDashboard = () => {
     // Clear authentication data
     localStorage.clear();
     
-    // Navigate to login directly
-    navigate("/login", { replace: true });
+    // Navigate to home page directly
+    navigate(`${config.API_URL}/`, { replace: true });
 };
 
   const handleUserClick = (user) => {
