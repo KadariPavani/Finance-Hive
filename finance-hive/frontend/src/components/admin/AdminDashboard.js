@@ -393,6 +393,26 @@ const AdminDashboard = () => {
     }
   };
 
+  const defaultChartData = {
+    labels: [],
+    datasets: [
+      {
+        label: 'Users',
+        data: [],
+        borderColor: '#4CAF50',
+        backgroundColor: 'rgba(76, 175, 80, 0.1)',
+        tension: 0.4
+      },
+      {
+        label: 'Organizers', 
+        data: [],
+        borderColor: '#2196F3',
+        backgroundColor: 'rgba(33, 150, 243, 0.1)',
+        tension: 0.4
+      }
+    ]
+  };
+
   const prepareActivityData = () => {
     if (!loginActivity.users || !loginActivity.organizers) return defaultChartData;
 
