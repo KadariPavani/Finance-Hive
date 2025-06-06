@@ -23,15 +23,23 @@ const PORT = process.env.PORT || 5000;
 
 // CORS configuration
 const corsOptions = {
-  origin: ["https://finance-hive.netlify.app", "http://localhost:3000"],
+  origin: [
+    "https://finance-hive.netlify.app", 
+    "http://localhost:3000",
+    "https://financehive-fh.vercel.app", // Add your Vercel domain
+    "https://*.vercel.app"  // Allow all subdomains from vercel.app
+  ],
   credentials: true,
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  allowedHeaders: "Content-Type,Authorization",
-  optionsSuccessStatus: 204,
+  allowedHeaders: ["Content-Type", "Authorization"],
+  exposedHeaders: ["Content-Type", "Authorization"],
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 };
 
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions)); // Handle preflight requests
+// Enable pre-flight requests for all routes
+app.options('*', cors(corsOptions));
 
 // Body parsers
 app.use(bodyParser.json());

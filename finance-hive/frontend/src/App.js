@@ -29,6 +29,12 @@ import Profile from './components/profile/Profile'; // Import Profile component
 import LoadingAnimation from './components/animations/LoadingAnimation';
 import Calendar from './components/calendar/Calendar';
 import EditSavingsGoal from './components/user/EditSavingsGoal';
+import axios from 'axios';
+
+// Add this near the top of your App.js
+axios.defaults.withCredentials = true;
+axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
+
 // import 'bootstrap/dist/css/bootstrap.min.css';
 
 const App = () => {

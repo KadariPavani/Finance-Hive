@@ -38,11 +38,14 @@ const AnimatedCounter = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Accept": "application/json",
         },
+        mode: "cors",
+        credentials: "include",
       });
 
       if (!response.ok) {
-        throw new Error("Failed to increment visitor count");
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
