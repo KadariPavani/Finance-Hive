@@ -1,3 +1,5 @@
+const dns = require("dns");
+dns.setServers(["8.8.8.8", "8.8.4.4"]); // ponytail: local ISP DNS blocks SRV lookups Node.js needs for mongodb+srv://
 const express = require("express");
 const fs = require("fs");
 const cors = require("cors");

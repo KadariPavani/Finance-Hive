@@ -170,8 +170,7 @@ const transporter = nodemailer.createTransport({
 const twilio = require('twilio');
 const fs = require('fs');
 
-const filePath = './image.png'; // Path to your logo
-const base64String = fs.readFileSync(filePath, { encoding: 'base64' });
+const filePath = './image.png';
 
 // Initialize Twilio client
 const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
